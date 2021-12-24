@@ -8,14 +8,12 @@ import org.codehaus.janino.Visitor;
 public class ValueVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
     private final DefaultEncodedValueFactory factory = new DefaultEncodedValueFactory();
     private final ExpressionParser.ParseResult result;
-    private final EncodedValueLookup lookup;
     private final ExpressionParser.NameValidator nameValidator;
     String invalidMessage;
 
-    ValueVisitor(ExpressionParser.ParseResult result, ExpressionParser.NameValidator nameValidator, EncodedValueLookup lookup) {
+    ValueVisitor(ExpressionParser.ParseResult result, ExpressionParser.NameValidator nameValidator) {
         this.result = result;
         this.nameValidator = nameValidator;
-        this.lookup = lookup;
     }
 
     boolean isValidIdentifier(String identifier) {

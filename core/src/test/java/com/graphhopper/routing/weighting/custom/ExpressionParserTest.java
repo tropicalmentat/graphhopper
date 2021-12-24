@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static com.graphhopper.json.Statement.If;
 import static com.graphhopper.routing.weighting.custom.CustomModelParser.isValidVariableName;
-import static com.graphhopper.routing.weighting.custom.ExpressionParser.parseExpression;
+import static com.graphhopper.routing.weighting.custom.ExpressionParser.parseCondition;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpressionParserTest {
@@ -52,12 +52,12 @@ public class ExpressionParserTest {
                 ") edge (",
                 "in(area_blup(), edge)",
                 "s -> truevalue")) {
-            ExpressionParser.ParseResult res = parseExpression(toParse, allNamesInvalid, lookup);
+            ExpressionParser.ParseResult res = parseCondition(toParse, allNamesInvalid, lookup);
             assertFalse(res.ok, "should not be simple condition: " + toParse);
             assertTrue(res.guessedVariables == null || res.guessedVariables.isEmpty());
         }
 
-        assertFalse(parseExpression("edge; getClass()", allNamesInvalid, lookup).ok);
+        assertFalse(parseCondition("edge; getClass()", allNamesInvalid, lookup).ok);
     }
 
     @Test
@@ -65,35 +65,35 @@ public class ExpressionParserTest {
         ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s)
                 || Helper.toUpperCase(s).equals(s) || s.equals("road_class") || s.equals("toll");
 
-        ExpressionParser.ParseResult result = parseExpression("toll == NO", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseCondition("toll == NO", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[toll]", result.guessedVariables.toString());
 
         assertEquals("road_class == RoadClass.PRIMARY",
-                parseExpression("road_class == PRIMARY", validVariable, lookup).converted.toString());
-        assertEquals("toll == Toll.NO", parseExpression("toll == NO", validVariable, lookup).converted.toString());
-        assertEquals("toll == Toll.NO || road_class == RoadClass.NO", parseExpression("toll == NO || road_class == NO", validVariable, lookup).converted.toString());
+                parseCondition("road_class == PRIMARY", validVariable, lookup).converted.toString());
+        assertEquals("toll == Toll.NO", parseCondition("toll == NO", validVariable, lookup).converted.toString());
+        assertEquals("toll == Toll.NO || road_class == RoadClass.NO", parseCondition("toll == NO || road_class == NO", validVariable, lookup).converted.toString());
 
         // convert in_area variable to function call:
         assertEquals(CustomWeightingHelper.class.getSimpleName() + ".in(this.in_custom_1, edge)",
-                parseExpression("in_custom_1", validVariable, lookup).converted.toString());
+                parseCondition("in_custom_1", validVariable, lookup).converted.toString());
 
         // no need to inject:
-        assertNull(parseExpression("toll == Toll.NO", validVariable, lookup).converted);
+        assertNull(parseCondition("toll == Toll.NO", validVariable, lookup).converted);
     }
 
     @Test
     public void testStringExpression() {
         ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s) || s.equals("country");
 
-        ExpressionParser.ParseResult result = parseExpression("country == \"DEU\"", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseCondition("country == \"DEU\"", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[country]", result.guessedVariables.toString());
         assertEquals("country == 1", result.converted.toString());
 
         // unknown String should result in a negative integer. If we would throw an Exception here the same script that
         // works on a global map will not work on a smaller map where the "blup" String is missing
-        result = parseExpression("country == \"blup\"", validVariable, lookup);
+        result = parseCondition("country == \"blup\"", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[country]", result.guessedVariables.toString());
         assertEquals("country == -1", result.converted.toString());
@@ -103,34 +103,34 @@ public class ExpressionParserTest {
     public void isValidAndSimpleCondition() {
         ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s)
                 || Helper.toUpperCase(s).equals(s) || s.equals("road_class") || s.equals("toll");
-        ExpressionParser.ParseResult result = parseExpression("edge == edge", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseCondition("edge == edge", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[edge]", result.guessedVariables.toString());
 
-        result = parseExpression("Math.sqrt(2)", validVariable, lookup);
+        result = parseCondition("Math.sqrt(2)", validVariable, lookup);
         assertTrue(result.ok);
         assertTrue(result.guessedVariables.isEmpty());
 
-        result = parseExpression("edge.blup()", validVariable, lookup);
+        result = parseCondition("edge.blup()", validVariable, lookup);
         assertFalse(result.ok);
         assertTrue(result.guessedVariables.isEmpty());
 
-        result = parseExpression("edge.getDistance()", validVariable, lookup);
+        result = parseCondition("edge.getDistance()", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[edge]", result.guessedVariables.toString());
-        assertFalse(parseExpression("road_class == PRIMARY", s -> false, lookup).ok);
-        result = parseExpression("road_class == PRIMARY", validVariable, lookup);
+        assertFalse(parseCondition("road_class == PRIMARY", s -> false, lookup).ok);
+        result = parseCondition("road_class == PRIMARY", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[road_class]", result.guessedVariables.toString());
 
-        result = parseExpression("toll == Toll.NO", validVariable, lookup);
+        result = parseCondition("toll == Toll.NO", validVariable, lookup);
         assertFalse(result.ok);
         assertEquals("[toll]", result.guessedVariables.toString());
 
-        assertTrue(parseExpression("road_class.ordinal()*2 == PRIMARY.ordinal()*2", validVariable, lookup).ok);
-        assertTrue(parseExpression("Math.sqrt(road_class.ordinal()) > 1", validVariable, lookup).ok);
+        assertTrue(parseCondition("road_class.ordinal()*2 == PRIMARY.ordinal()*2", validVariable, lookup).ok);
+        assertTrue(parseCondition("Math.sqrt(road_class.ordinal()) > 1", validVariable, lookup).ok);
 
-        result = parseExpression("(toll == NO || road_class == PRIMARY) && toll == NO", validVariable, lookup);
+        result = parseCondition("(toll == NO || road_class == PRIMARY) && toll == NO", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[toll, road_class]", result.guessedVariables.toString());
     }
@@ -189,7 +189,7 @@ public class ExpressionParserTest {
     @Test
     public void parseValue() {
         ExpressionParser.NameValidator validVariable = s -> lookup.hasEncodedValue(s);
-        ExpressionParser.ParseResult res = ExpressionParser.parseValue("max_speed * 2", validVariable, lookup);
+        ExpressionParser.ParseResult res = ExpressionParser.parseValue("max_speed * 2", validVariable);
         assertEquals("[max_speed]", res.guessedVariables.toString());
     }
 }

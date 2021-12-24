@@ -32,11 +32,11 @@ import java.util.Set;
 
 class ExpressionParser {
 
-    static void parseExpressions(StringBuilder expressions, NameValidator nameInExpressionValidator, String exceptionInfo,
+    static void parseExpressions(StringBuilder expressions, NameValidator nameInConditionValidator, String exceptionInfo,
                                  Set<String> requiredDeclarations, List<Statement> list, EncodedValueLookup lookup, String lastStmt) {
 
         for (Statement statement : list) {
-            ParseResult parseValueResult = parseValue(statement.getValue(), nameInExpressionValidator, lookup);
+            ParseResult parseValueResult = parseValue(statement.getValue(), lookup::hasEncodedValue);
             if (!parseValueResult.ok)
                 throw new IllegalArgumentException(exceptionInfo + " invalid value \"" + statement.getValue() + "\"" +
                         (parseValueResult.invalidMessage == null ? "" : ": " + parseValueResult.invalidMessage));
@@ -47,7 +47,7 @@ class ExpressionParser {
                     throw new IllegalArgumentException("expression must be empty but was " + statement.getCondition());
                 expressions.append("else {" + statement.getOperation().build(statement.getValue()) + "; }\n");
             } else if (statement.getKeyword() == Statement.Keyword.ELSEIF || statement.getKeyword() == Statement.Keyword.IF) {
-                ParseResult parseResult = parseExpression(statement.getCondition(), nameInExpressionValidator, lookup);
+                ParseResult parseResult = parseCondition(statement.getCondition(), nameInConditionValidator, lookup);
                 if (!parseResult.ok)
                     throw new IllegalArgumentException(exceptionInfo + " invalid expression \"" + statement.getCondition() + "\"" +
                             (parseResult.invalidMessage == null ? "" : ": " + parseResult.invalidMessage));
@@ -65,7 +65,7 @@ class ExpressionParser {
     /**
      * parseExpression is too powerful. So for this method only allow encoded values and a formula like max_speed * 0.9
      */
-    static ParseResult parseValue(String value, NameValidator validator, EncodedValueLookup lookup) {
+    static ParseResult parseValue(String value, NameValidator validator) {
         ParseResult result = new ParseResult();
         try {
             Parser parser = new Parser(new Scanner("ignore", new StringReader(value)));
@@ -73,7 +73,7 @@ class ExpressionParser {
             // after parsing the expression the input should end (otherwise it is not "simple")
             if (parser.peek().type == TokenType.END_OF_INPUT) {
                 result.guessedVariables = new LinkedHashSet<>();
-                ValueVisitor visitor = new ValueVisitor(result, validator, lookup);
+                ValueVisitor visitor = new ValueVisitor(result, validator);
                 result.ok = rvalue.accept(visitor);
                 result.invalidMessage = visitor.invalidMessage;
             }
@@ -89,7 +89,7 @@ class ExpressionParser {
      * converted expression that includes class names for constants to avoid conflicts e.g. when doing "toll == Toll.NO"
      * instead of "toll == NO".
      */
-    static ParseResult parseExpression(String expression, NameValidator validator, EncodedValueLookup lookup) {
+    static ParseResult parseCondition(String expression, NameValidator validator, EncodedValueLookup lookup) {
         ParseResult result = new ParseResult();
         try {
             Parser parser = new Parser(new Scanner("ignore", new StringReader(expression)));

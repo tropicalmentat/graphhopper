@@ -326,9 +326,9 @@ public class CustomModelParser {
                                                                Set<String> requiredDeclarations, List<Statement> list,
                                                                EncodedValueLookup lookup, String lastStmt) throws Exception {
         // allow variables, all encoded values, constants
-        ExpressionParser.NameValidator nameInExpressionValidator = name -> lookup.hasEncodedValue(name)
+        ExpressionParser.NameValidator nameInConditionValidator = name -> lookup.hasEncodedValue(name)
                 || name.toUpperCase(Locale.ROOT).equals(name) || isValidVariableName(name);
-        ExpressionParser.parseExpressions(expressions, nameInExpressionValidator, info, requiredDeclarations, list, lookup, lastStmt);
+        ExpressionParser.parseExpressions(expressions, nameInConditionValidator, info, requiredDeclarations, list, lookup, lastStmt);
         return new Parser(new org.codehaus.janino.Scanner(info, new StringReader(expressions.toString()))).
                 parseBlockStatements();
     }
