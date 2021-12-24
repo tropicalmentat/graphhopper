@@ -86,6 +86,7 @@ public class CustomModelParser {
     /**
      * This method compiles a new subclass of CustomWeightingHelper composed from the provided CustomModel caches this
      * and returns an instance.
+     *
      * @param priorityEnc can be null
      */
     static CustomWeighting.Parameters createWeightingParameters(CustomModel customModel, EncodedValueLookup lookup,
@@ -128,15 +129,15 @@ public class CustomModelParser {
 
     private static Class<?> createClazz(CustomModel customModel, EncodedValueLookup lookup, double globalMaxSpeed) {
         try {
-            HashSet<String> priorityVariables = new LinkedHashSet<>();
-            List<Java.BlockStatement> priorityStatements = createGetPriorityStatements(priorityVariables, customModel, lookup);
-            HashSet<String> speedVariables = new LinkedHashSet<>();
-            List<Java.BlockStatement> speedStatements = createGetSpeedStatements(speedVariables, customModel, lookup, globalMaxSpeed);
+            HashSet<String> requiredPriorityDeclarations = new LinkedHashSet<>();
+            List<Java.BlockStatement> priorityStatements = createGetPriorityStatements(requiredPriorityDeclarations, customModel, lookup);
+            HashSet<String> requiredSpeedDeclarations = new LinkedHashSet<>();
+            List<Java.BlockStatement> speedStatements = createGetSpeedStatements(requiredSpeedDeclarations, customModel, lookup, globalMaxSpeed);
             // Create different class name, which is required only for debugging.
             // TODO does it improve performance too? I.e. it could be that the JIT is confused if different classes
             //  have the same name and it mixes performance stats. See https://github.com/janino-compiler/janino/issues/137
             long counter = longVal.incrementAndGet();
-            String classTemplate = createClassTemplate(counter, priorityVariables, speedVariables, lookup, customModel);
+            String classTemplate = createClassTemplate(counter, requiredPriorityDeclarations, requiredSpeedDeclarations, lookup, customModel);
             Java.CompilationUnit cu = (Java.CompilationUnit) new Parser(new Scanner("source", new StringReader(classTemplate))).
                     parseAbstractCompilationUnit();
             cu = injectStatements(priorityStatements, speedStatements, cu);
@@ -155,15 +156,15 @@ public class CustomModelParser {
      *
      * @return the created statements (parsed expressions)
      */
-    private static List<Java.BlockStatement> createGetSpeedStatements(Set<String> speedVariables,
+    private static List<Java.BlockStatement> createGetSpeedStatements(Set<String> requiredDeclarations,
                                                                       CustomModel customModel, EncodedValueLookup lookup,
                                                                       double globalMaxSpeed) throws Exception {
         List<Java.BlockStatement> speedStatements = new ArrayList<>();
-        speedStatements.addAll(verifyExpressions(new StringBuilder(), "in 'speed' entry, ", speedVariables,
+        speedStatements.addAll(verifyExpressions(new StringBuilder(), "in 'speed' entry, ", requiredDeclarations,
                 customModel.getSpeed(), lookup, "return Math.min(value, " + globalMaxSpeed + ");\n"));
         String speedMethodStartBlock = "double value = super.getRawSpeed(edge, reverse);\n";
         // a bit inefficient to possibly define variables twice, but for now we have two separate methods
-        for (String arg : speedVariables) {
+        for (String arg : requiredDeclarations) {
             speedMethodStartBlock += getVariableDeclaration(lookup, arg);
         }
         speedStatements.addAll(0, new Parser(new org.codehaus.janino.Scanner("getSpeed", new StringReader(speedMethodStartBlock))).
@@ -176,13 +177,13 @@ public class CustomModelParser {
      *
      * @return the created statements (parsed expressions)
      */
-    private static List<Java.BlockStatement> createGetPriorityStatements(Set<String> priorityVariables,
+    private static List<Java.BlockStatement> createGetPriorityStatements(Set<String> requiredDeclarations,
                                                                          CustomModel customModel, EncodedValueLookup lookup) throws Exception {
         List<Java.BlockStatement> priorityStatements = new ArrayList<>();
-        priorityStatements.addAll(verifyExpressions(new StringBuilder(), "in 'priority' entry, ",
-                priorityVariables, customModel.getPriority(), lookup, "return value;"));
+        priorityStatements.addAll(verifyExpressions(new StringBuilder(), "in 'priority' entry, ", requiredDeclarations,
+                customModel.getPriority(), lookup, "return value;"));
         String priorityMethodStartBlock = "double value = super.getRawPriority(edge, reverse);\n";
-        for (String arg : priorityVariables) {
+        for (String arg : requiredDeclarations) {
             priorityMethodStartBlock += getVariableDeclaration(lookup, arg);
         }
         priorityStatements.addAll(0, new Parser(new org.codehaus.janino.Scanner("getPriority", new StringReader(priorityMethodStartBlock))).
@@ -321,13 +322,13 @@ public class CustomModelParser {
      *
      * @return the created if-then, else and elseif statements
      */
-    private static List<Java.BlockStatement> verifyExpressions(StringBuilder expressions, String info, Set<String> createObjects,
-                                                               List<Statement> list, EncodedValueLookup lookup,
-                                                               String lastStmt) throws Exception {
+    private static List<Java.BlockStatement> verifyExpressions(StringBuilder expressions, String info,
+                                                               Set<String> requiredDeclarations, List<Statement> list,
+                                                               EncodedValueLookup lookup, String lastStmt) throws Exception {
         // allow variables, all encoded values, constants
-        ExpressionVisitor.NameValidator nameInConditionValidator = name -> lookup.hasEncodedValue(name)
+        ExpressionParser.NameValidator nameInExpressionValidator = name -> lookup.hasEncodedValue(name)
                 || name.toUpperCase(Locale.ROOT).equals(name) || isValidVariableName(name);
-        ExpressionVisitor.parseExpressions(expressions, nameInConditionValidator, info, createObjects, list, lookup, lastStmt);
+        ExpressionParser.parseExpressions(expressions, nameInExpressionValidator, info, requiredDeclarations, list, lookup, lastStmt);
         return new Parser(new org.codehaus.janino.Scanner(info, new StringReader(expressions.toString()))).
                 parseBlockStatements();
     }

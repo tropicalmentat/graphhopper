@@ -21,12 +21,26 @@ public class Statement {
     private final Keyword keyword;
     private final String condition;
     private final Op operation;
-    private final double value;
+    private final String value;
+    private double valueAsNumber;
 
     private Statement(Keyword keyword, String condition, Op operation, double value) {
         this.keyword = keyword;
         this.condition = condition;
+        this.value = "" + value;
+        this.valueAsNumber = value;
+        this.operation = operation;
+    }
+
+    private Statement(Keyword keyword, String condition, Op operation, String value) {
+        this.keyword = keyword;
+        this.condition = condition;
         this.value = value;
+        try {
+            this.valueAsNumber = Double.parseDouble(value);
+        } catch (Exception ex) {
+            this.valueAsNumber = Double.NaN;
+        }
         this.operation = operation;
     }
 
@@ -42,16 +56,28 @@ public class Statement {
         return operation;
     }
 
-    public double getValue() {
+    public String getValue() {
         return value;
     }
 
+    public boolean isValueANumber() {
+        return !Double.isNaN(valueAsNumber);
+    }
+
+    public double getValueAsNumber() {
+        if (Double.isNaN(valueAsNumber))
+            throw new IllegalStateException("value is not a number - do call isValueANumber before using getValueAsNumber");
+        return valueAsNumber;
+    }
+
     public double apply(double externValue) {
+        if (!isValueANumber())
+            return externValue; // TODO NOW encodedValue.getMax
         switch (operation) {
             case MULTIPLY:
-                return value * externValue;
+                return valueAsNumber * externValue;
             case LIMIT:
-                return Math.min(value, externValue);
+                return Math.min(valueAsNumber, externValue);
             default:
                 throw new IllegalArgumentException();
         }
@@ -84,7 +110,7 @@ public class Statement {
             return name;
         }
 
-        public String build(double value) {
+        public String build(String value) {
             switch (this) {
                 case MULTIPLY:
                     return "value *= " + value;
@@ -109,11 +135,23 @@ public class Statement {
         return new Statement(Keyword.IF, expression, op, value);
     }
 
+    public static Statement If(String expression, Op op, String value) {
+        return new Statement(Keyword.IF, expression, op, value);
+    }
+
     public static Statement ElseIf(String expression, Op op, double value) {
         return new Statement(Keyword.ELSEIF, expression, op, value);
     }
 
+    public static Statement ElseIf(String expression, Op op, String value) {
+        return new Statement(Keyword.ELSEIF, expression, op, value);
+    }
+
     public static Statement Else(Op op, double value) {
+        return new Statement(Keyword.ELSE, null, op, value);
+    }
+
+    public static Statement Else(Op op, String value) {
         return new Statement(Keyword.ELSE, null, op, value);
     }
 }

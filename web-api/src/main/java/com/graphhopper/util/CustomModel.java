@@ -166,8 +166,11 @@ public class CustomModel {
 
     private static void checkMultiplyValue(List<Statement> list) {
         for (Statement statement : list) {
-            if (statement.getOperation() == Statement.Op.MULTIPLY && statement.getValue() > 1)
-                throw new IllegalArgumentException("factor cannot be larger than 1 but was " + statement.getValue());
+            if (statement.getOperation() == Statement.Op.MULTIPLY)
+                if (!statement.isValueANumber())
+                    throw new IllegalArgumentException("value cannot only be a number for the query model but was " + statement.getValue());
+                else if (statement.getValueAsNumber() > 1)
+                    throw new IllegalArgumentException("factor cannot be larger than 1 but was " + statement.getValue());
         }
     }
 

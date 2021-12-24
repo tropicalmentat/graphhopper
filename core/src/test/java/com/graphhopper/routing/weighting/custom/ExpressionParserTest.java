@@ -12,13 +12,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import static com.graphhopper.json.Statement.If;
 import static com.graphhopper.routing.weighting.custom.CustomModelParser.isValidVariableName;
-import static com.graphhopper.routing.weighting.custom.ExpressionVisitor.parseExpression;
+import static com.graphhopper.routing.weighting.custom.ExpressionParser.parseExpression;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExpressionVisitorTest {
+public class ExpressionParserTest {
 
     private EncodedValueLookup lookup;
 
@@ -31,7 +32,7 @@ public class ExpressionVisitorTest {
 
     @Test
     public void protectUsFromStuff() {
-        ExpressionVisitor.NameValidator allNamesInvalid = s -> false;
+        ExpressionParser.NameValidator allNamesInvalid = s -> false;
         for (String toParse : Arrays.asList(
                 "",
                 "new Object()",
@@ -51,7 +52,7 @@ public class ExpressionVisitorTest {
                 ") edge (",
                 "in(area_blup(), edge)",
                 "s -> truevalue")) {
-            ExpressionVisitor.ParseResult res = parseExpression(toParse, allNamesInvalid, lookup);
+            ExpressionParser.ParseResult res = parseExpression(toParse, allNamesInvalid, lookup);
             assertFalse(res.ok, "should not be simple condition: " + toParse);
             assertTrue(res.guessedVariables == null || res.guessedVariables.isEmpty());
         }
@@ -61,10 +62,10 @@ public class ExpressionVisitorTest {
 
     @Test
     public void testConvertExpression() {
-        ExpressionVisitor.NameValidator validVariable = s -> isValidVariableName(s)
+        ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s)
                 || Helper.toUpperCase(s).equals(s) || s.equals("road_class") || s.equals("toll");
 
-        ExpressionVisitor.ParseResult result = parseExpression("toll == NO", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseExpression("toll == NO", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[toll]", result.guessedVariables.toString());
 
@@ -83,9 +84,9 @@ public class ExpressionVisitorTest {
 
     @Test
     public void testStringExpression() {
-        ExpressionVisitor.NameValidator validVariable = s -> isValidVariableName(s) || s.equals("country");
+        ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s) || s.equals("country");
 
-        ExpressionVisitor.ParseResult result = parseExpression("country == \"DEU\"", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseExpression("country == \"DEU\"", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[country]", result.guessedVariables.toString());
         assertEquals("country == 1", result.converted.toString());
@@ -100,9 +101,9 @@ public class ExpressionVisitorTest {
 
     @Test
     public void isValidAndSimpleCondition() {
-        ExpressionVisitor.NameValidator validVariable = s -> isValidVariableName(s)
+        ExpressionParser.NameValidator validVariable = s -> isValidVariableName(s)
                 || Helper.toUpperCase(s).equals(s) || s.equals("road_class") || s.equals("toll");
-        ExpressionVisitor.ParseResult result = parseExpression("edge == edge", validVariable, lookup);
+        ExpressionParser.ParseResult result = parseExpression("edge == edge", validVariable, lookup);
         assertTrue(result.ok);
         assertEquals("[edge]", result.guessedVariables.toString());
 
@@ -136,11 +137,11 @@ public class ExpressionVisitorTest {
 
     @Test
     public void errorMessage() {
-        ExpressionVisitor.NameValidator validVariable = s -> lookup.hasEncodedValue(s);
+        ExpressionParser.NameValidator validVariable = s -> lookup.hasEncodedValue(s);
 
         // existing encoded value but not added
         IllegalArgumentException ret = assertThrows(IllegalArgumentException.class,
-                () -> ExpressionVisitor.parseExpressions(new StringBuilder(),
+                () -> ExpressionParser.parseExpressions(new StringBuilder(),
                         validVariable, "[HERE]", new HashSet<>(),
                         Arrays.asList(If("max_weight > 10", Statement.Op.MULTIPLY, 0)),
                         lookup, ""));
@@ -148,7 +149,7 @@ public class ExpressionVisitorTest {
 
         // invalid variable or constant (NameValidator returns false)
         ret = assertThrows(IllegalArgumentException.class,
-                () -> ExpressionVisitor.parseExpressions(new StringBuilder(),
+                () -> ExpressionParser.parseExpressions(new StringBuilder(),
                         validVariable, "[HERE]", new HashSet<>(),
                         Arrays.asList(If("country == GERMANY", Statement.Op.MULTIPLY, 0)),
                         lookup, ""));
@@ -156,10 +157,39 @@ public class ExpressionVisitorTest {
 
         // not whitelisted method
         ret = assertThrows(IllegalArgumentException.class,
-                () -> ExpressionVisitor.parseExpressions(new StringBuilder(),
+                () -> ExpressionParser.parseExpressions(new StringBuilder(),
                         validVariable, "[HERE]", new HashSet<>(),
                         Arrays.asList(If("edge.fetchWayGeometry().size() > 2", Statement.Op.MULTIPLY, 0)),
                         lookup, ""));
         assertTrue(ret.getMessage().startsWith("[HERE] invalid expression \"edge.fetchWayGeometry().size() > 2\": size is illegal method"), ret.getMessage());
+    }
+
+    @Test
+    public void parseConditionAndValue() {
+        ExpressionParser.NameValidator validVariable = s -> lookup.hasEncodedValue(s);
+
+        // value is pure number
+        StringBuilder sb = new StringBuilder();
+        Set<String> vars = new HashSet<>();
+        ExpressionParser.parseExpressions(sb,
+                validVariable, "[HERE]", vars,
+                Arrays.asList(If("true", Statement.Op.LIMIT, "0.9")), lookup, "");
+        assertEquals("if (true) {value = Math.min(value,0.9); }\n", sb.toString());
+
+        // value is encoded value
+        sb = new StringBuilder();
+        vars = new HashSet<>();
+        ExpressionParser.parseExpressions(sb,
+                validVariable, "[HERE]", vars,
+                Arrays.asList(If("true", Statement.Op.LIMIT, "max_speed * 0.9")), lookup, "");
+
+        assertEquals("if (true) {value = Math.min(value,max_speed * 0.9); }\n", sb.toString());
+    }
+
+    @Test
+    public void parseValue() {
+        ExpressionParser.NameValidator validVariable = s -> lookup.hasEncodedValue(s);
+        ExpressionParser.ParseResult res = ExpressionParser.parseValue("max_speed * 2", validVariable, lookup);
+        assertEquals("[max_speed]", res.guessedVariables.toString());
     }
 }
