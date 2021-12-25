@@ -50,12 +50,14 @@ class CustomModelParserTest {
     DecimalEncodedValue avgSpeedEnc;
     StringEncodedValue countryEnc;
     DecimalEncodedValue maxSpeedEnc = MaxSpeed.create();
+    DecimalEncodedValue myEnc = new DecimalEncodedValueImpl("my_enc", 4, 0.1, true);
 
     @BeforeEach
     void setup() {
         encoder = new CarFlagEncoder();
         countryEnc = new StringEncodedValue("country", 10);
-        encodingManager = new EncodingManager.Builder().add(encoder).add(countryEnc).add(maxSpeedEnc).add(new EnumEncodedValue<>(Surface.KEY, Surface.class)).build();
+        encodingManager = new EncodingManager.Builder().add(encoder).add(countryEnc).add(maxSpeedEnc).add(myEnc).
+                add(new EnumEncodedValue<>(Surface.KEY, Surface.class)).build();
         graph = new GraphBuilder(encodingManager).create();
         avgSpeedEnc = encoder.getAverageSpeedEnc();
         roadClassEnc = encodingManager.getEnumEncodedValue(RoadClass.KEY, RoadClass.class);
@@ -149,11 +151,11 @@ class CustomModelParserTest {
     }
 
     @Test
-    public void testRHSEncodedValue() {
+    public void testValueExpression_RHSEncodedValue() {
         EdgeIteratorState primary = graph.edge(0, 1).setDistance(10).
-                set(roadClassEnc, PRIMARY).set(avgSpeedEnc, 80).set(encoder.getAccessEnc(), true, true);
+                set(roadClassEnc, PRIMARY).set(avgSpeedEnc, 80).set(myEnc, 0.6, 0.7).set(encoder.getAccessEnc(), true, true);
         EdgeIteratorState secondary = graph.edge(1, 2).setDistance(10).
-                set(roadClassEnc, SECONDARY).set(avgSpeedEnc, 70).set(maxSpeedEnc, 50).set(encoder.getAccessEnc(), true, true);
+                set(roadClassEnc, SECONDARY).set(avgSpeedEnc, 70).set(myEnc, 0.9, 1.0).set(maxSpeedEnc, 50).set(encoder.getAccessEnc(), true, true);
 
         CustomModel customModel = new CustomModel();
         customModel.addToPriority(If("road_class == PRIMARY", MULTIPLY, 0.5));
@@ -165,6 +167,14 @@ class CustomModelParserTest {
 
         assertEquals(1, parameters.getEdgeToPriorityMapping().get(secondary, false), 0.01);
         assertEquals(50, parameters.getEdgeToSpeedMapping().get(secondary, false), 0.01);
+
+        customModel = new CustomModel();
+        customModel.addToPriority(If("true", MULTIPLY, "my_enc"));
+        parameters = CustomModelParser.createWeightingParameters(customModel, encodingManager,
+                avgSpeedEnc, encoder.getMaxSpeed(), null);
+        assertEquals(0.6, parameters.getEdgeToPriorityMapping().get(primary, false), 0.01);
+        assertEquals(0.7, parameters.getEdgeToPriorityMapping().get(primary, true), 0.01);
+        assertEquals(0.9, parameters.getEdgeToPriorityMapping().get(secondary, false), 0.01);
     }
 
     @Test

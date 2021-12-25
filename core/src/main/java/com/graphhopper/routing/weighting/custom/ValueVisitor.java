@@ -1,7 +1,6 @@
 package com.graphhopper.routing.weighting.custom;
 
 import com.graphhopper.routing.ev.DefaultEncodedValueFactory;
-import com.graphhopper.routing.ev.EncodedValueLookup;
 import org.codehaus.janino.Java;
 import org.codehaus.janino.Visitor;
 

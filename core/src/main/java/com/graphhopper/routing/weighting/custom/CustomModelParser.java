@@ -235,7 +235,7 @@ public class CustomModelParser {
 
     /**
      * Create the class source file from the detected variables (priorityVariables and speedVariables). We assume that
-     * these variables are safe although they are user input because we collected them from parsing via Janino. This
+     * these variables are safe, although they are user input because we collected them from parsing via Janino. This
      * means that the source file is free from user input and could be directly compiled. Before we do this we still
      * have to inject that parsed and safe user expressions in a later step.
      */
