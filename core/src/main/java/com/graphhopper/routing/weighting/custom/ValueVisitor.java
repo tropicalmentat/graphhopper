@@ -21,7 +21,7 @@ import com.graphhopper.routing.ev.DefaultEncodedValueFactory;
 import org.codehaus.janino.Java;
 import org.codehaus.janino.Visitor;
 
-public class ValueVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
+class ValueVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
     private final DefaultEncodedValueFactory factory = new DefaultEncodedValueFactory();
     private final ExpressionParser.ParseResult result;
     private final ExpressionParser.NameValidator nameValidator;

@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 import static com.graphhopper.routing.weighting.custom.CustomModelParser.IN_AREA_PREFIX;
 
-public class ConditionVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
+class ConditionVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
 
     private final ExpressionParser.ParseResult result;
     private final EncodedValueLookup lookup;
