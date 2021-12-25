@@ -66,20 +66,22 @@ public class Statement {
 
     public double getValueAsNumber() {
         if (Double.isNaN(valueAsNumber))
-            throw new IllegalStateException("value is not a number - do call isValueANumber before using getValueAsNumber");
+            throw new IllegalStateException("Number required as right-hand-sided values but was " + getValue() + ". Do call isValueANumber before using getValueAsNumber");
         return valueAsNumber;
     }
 
     public double apply(double externValue) {
         if (!isValueANumber())
-            return externValue; // TODO NOW encodedValue.getMax
+            // TODO NOW getting the max is tricky here: we would need to replace all encoded values with encVal.getMaxDecimal()/getMaxInt() and evaluate this once
+            //  but then we can in general replace this method with the evaluated maximum -> Op.build
+            return externValue;
         switch (operation) {
             case MULTIPLY:
                 return valueAsNumber * externValue;
             case LIMIT:
                 return Math.min(valueAsNumber, externValue);
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Unknown operation " + operation.getName());
         }
     }
 

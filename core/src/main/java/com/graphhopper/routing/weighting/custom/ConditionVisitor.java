@@ -120,7 +120,7 @@ class ConditionVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
                         String str = ((Java.StringLiteral) binOp.rhs).value;
                         int integ = ev.indexOf(str.substring(1, str.length() - 1));
                         if (integ == 0) integ = -1; // 0 means not found and this should always trigger inequality
-                        replacements.put(startRH, new ConditionVisitor.Replacement(startRH, str.length(), "" + integ));
+                        replacements.put(startRH, new Replacement(startRH, str.length(), "" + integ));
                     }
                 } else if (binOp.rhs instanceof Java.AmbiguousName && ((Java.AmbiguousName) binOp.rhs).identifiers.length == 1) {
                     // Make enum explicit as NO or OTHER can occur in other enums so convert "toll == NO" to "toll == Toll.NO"
@@ -129,7 +129,7 @@ class ConditionVisitor implements Visitor.AtomVisitor<Boolean, Exception> {
                         if (!eqOps)
                             throw new IllegalArgumentException("Operator " + binOp.operator + " not allowed for enum");
                         String value = toEncodedValueClassName(binOp.lhs.toString());
-                        replacements.put(startRH, new ConditionVisitor.Replacement(startRH, rhValueAsString.length(), value + "." + rhValueAsString));
+                        replacements.put(startRH, new Replacement(startRH, rhValueAsString.length(), value + "." + rhValueAsString));
                     }
                 }
             }

@@ -168,7 +168,7 @@ public class CustomModel {
         for (Statement statement : list) {
             if (statement.getOperation() == Statement.Op.MULTIPLY)
                 if (!statement.isValueANumber())
-                    throw new IllegalArgumentException("value cannot only be a number for the query model but was " + statement.getValue());
+                    throw new IllegalArgumentException("Only numbers can be used for right-hand-sided value when using a custom_model in a query, but was " + statement.getValue());
                 else if (statement.getValueAsNumber() > 1)
                     throw new IllegalArgumentException("factor cannot be larger than 1 but was " + statement.getValue());
         }
