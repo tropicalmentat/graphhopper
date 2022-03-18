@@ -35,7 +35,7 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder {
     }
 
     public MotorcycleFlagEncoder(PMap properties) {
-        super(properties.putObject("speed_two_directions", true));
+        super("motorcycle", properties.putObject("speed_two_directions", true));
         priorityWayEncoder = new DecimalEncodedValueImpl(getKey("motorcycle", "priority"), 4, PriorityCode.getFactor(1), false);
         curvatureEncoder = new DecimalEncodedValueImpl(getKey("motorcycle", "curvature"), 4, 0.1, false);
     }

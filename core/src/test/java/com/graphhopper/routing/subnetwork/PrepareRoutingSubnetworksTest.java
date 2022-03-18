@@ -22,10 +22,7 @@ import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.ev.TurnCost;
-import com.graphhopper.routing.util.AllEdgesIterator;
-import com.graphhopper.routing.util.DefaultFlagEncoderFactory;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
@@ -260,7 +257,7 @@ public class PrepareRoutingSubnetworksTest {
         EncodingManager.Builder builder = new EncodingManager.Builder();
         for (String encoderStr : flagEncodersStr.split(",")) {
             encoderStr = encoderStr.trim();
-            FlagEncoder encoder = new DefaultFlagEncoderFactory().createFlagEncoder(encoderStr.split("\\|")[0], new PMap(encoderStr));
+            DummyFlagEncoder encoder = new DefaultFlagEncoderFactory().createFlagEncoder(encoderStr.split("\\|")[0], new PMap(encoderStr));
             builder.add(encoder);
             builder.add(Subnetwork.create(encoder.toString()));
         }

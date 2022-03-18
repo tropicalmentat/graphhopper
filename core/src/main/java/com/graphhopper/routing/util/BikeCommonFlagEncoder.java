@@ -24,18 +24,18 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 abstract public class BikeCommonFlagEncoder extends BaseDummyFlagEncoder {
-    private final int maxTurnCosts;
-    protected final boolean speedTwoDirections;
+    private final String name;
     private final BooleanEncodedValue accessEnc;
     private final DecimalEncodedValue avgSpeedEnc;
     private final DecimalEncodedValue priorityEnc;
+    private final DecimalEncodedValue turnCostEnc;
 
     protected BikeCommonFlagEncoder(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this.speedTwoDirections = speedTwoDirections;
-        this.maxTurnCosts = maxTurnCosts;
+        this.name = name;
         accessEnc = new SimpleBooleanEncodedValue(getKey(name, "access"), true);
         avgSpeedEnc = new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         priorityEnc = new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false);
+        turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
     }
 
     @Override
@@ -51,8 +51,14 @@ abstract public class BikeCommonFlagEncoder extends BaseDummyFlagEncoder {
     }
 
     @Override
+    public void createTurnCostEncodedValues(List<EncodedValue> turnCostEncodedValues) {
+        if (supportsTurnCosts())
+            turnCostEncodedValues.add(turnCostEnc);
+    }
+
+    @Override
     public boolean supportsTurnCosts() {
-        return maxTurnCosts > 0;
+        return turnCostEnc != null;
     }
 
     @Override
@@ -68,5 +74,15 @@ abstract public class BikeCommonFlagEncoder extends BaseDummyFlagEncoder {
     @Override
     public DecimalEncodedValue getAverageSpeedEnc() {
         return avgSpeedEnc;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

@@ -39,16 +39,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author don-philipe
  */
 public class WheelchairFlagEncoderTest {
-    private final EncodingManager encodingManager = EncodingManager.create("car,wheelchair");
-    private final WheelchairTagParser wheelchairEncoder = (WheelchairTagParser) encodingManager.getEncoder("wheelchair");
+    private final TagParserManager tagParserManager = TagParserManager.create("car,wheelchair");
+    private final WheelchairTagParser wheelchairEncoder = (WheelchairTagParser) tagParserManager.getEncoder("wheelchair");
     private final DecimalEncodedValue wheelchairAvSpeedEnc = wheelchairEncoder.getAverageSpeedEnc();
     private final BooleanEncodedValue wheelchairAccessEnc = wheelchairEncoder.getAccessEnc();
-    private final DecimalEncodedValue carAvSpeedEnc = encodingManager.getEncoder("car").getAverageSpeedEnc();
-    private final BooleanEncodedValue carAccessEnc = encodingManager.getEncoder("car").getAccessEnc();
+    private final DecimalEncodedValue carAvSpeedEnc = tagParserManager.getEncoder("car").getAverageSpeedEnc();
+    private final BooleanEncodedValue carAccessEnc = tagParserManager.getEncoder("car").getAccessEnc();
 
     @Test
     public void testGetSpeed() {
-        IntsRef fl = encodingManager.createEdgeFlags();
+        IntsRef fl = tagParserManager.createEdgeFlags();
         wheelchairAccessEnc.setBool(false, fl, true);
         wheelchairAccessEnc.setBool(true, fl, true);
         wheelchairAvSpeedEnc.setDecimal(false, fl, 10);
@@ -57,8 +57,8 @@ public class WheelchairFlagEncoderTest {
 
     @Test
     public void testCombined() {
-        BaseGraph g = new BaseGraph.Builder(encodingManager).create();
-        FlagEncoder carEncoder = encodingManager.getEncoder("car");
+        BaseGraph g = new BaseGraph.Builder(tagParserManager.getEncodingManager()).create();
+        FlagEncoder carEncoder = tagParserManager.getEncoder("car");
         EdgeIteratorState edge = g.edge(0, 1);
         edge.set(wheelchairAvSpeedEnc, 10.0).set(wheelchairAccessEnc, true, true);
         edge.set(carAvSpeedEnc, 100.0).set(carAccessEnc, true, false);
@@ -71,7 +71,7 @@ public class WheelchairFlagEncoderTest {
         assertTrue(edge.get(carAccessEnc));
         assertFalse(edge.getReverse(carAccessEnc));
 
-        IntsRef raw = encodingManager.createEdgeFlags();
+        IntsRef raw = tagParserManager.createEdgeFlags();
         wheelchairAvSpeedEnc.setDecimal(false, raw, 10);
         wheelchairAccessEnc.setBool(false, raw, true);
         wheelchairAccessEnc.setBool(true, raw, true);
@@ -80,7 +80,7 @@ public class WheelchairFlagEncoderTest {
 
     @Test
     public void testGraph() {
-        BaseGraph g = new BaseGraph.Builder(encodingManager).create();
+        BaseGraph g = new BaseGraph.Builder(tagParserManager.getEncodingManager()).create();
         g.edge(0, 1).setDistance(10).set(wheelchairAvSpeedEnc, 10.0).set(wheelchairAccessEnc, true, true);
         g.edge(0, 2).setDistance(10).set(wheelchairAvSpeedEnc, 5.0).set(wheelchairAccessEnc, true, true);
         g.edge(1, 3).setDistance(10).set(wheelchairAvSpeedEnc, 10.0).set(wheelchairAccessEnc, true, true);
@@ -281,7 +281,7 @@ public class WheelchairFlagEncoderTest {
     public void testPier() {
         ReaderWay way = new ReaderWay(1);
         way.setTag("man_made", "pier");
-        IntsRef flags = wheelchairEncoder.handleWayTags(encodingManager.createEdgeFlags(), way);
+        IntsRef flags = wheelchairEncoder.handleWayTags(tagParserManager.createEdgeFlags(), way);
         assertFalse(flags.isEmpty());
     }
 
@@ -289,16 +289,16 @@ public class WheelchairFlagEncoderTest {
     public void testMixSpeedAndSafe() {
         ReaderWay way = new ReaderWay(1);
         way.setTag("highway", "motorway");
-        IntsRef flags = wheelchairEncoder.handleWayTags(encodingManager.createEdgeFlags(), way);
+        IntsRef flags = wheelchairEncoder.handleWayTags(tagParserManager.createEdgeFlags(), way);
         assertTrue(flags.isEmpty());
 
         way.setTag("sidewalk", "yes");
-        flags = wheelchairEncoder.handleWayTags(encodingManager.createEdgeFlags(), way);
+        flags = wheelchairEncoder.handleWayTags(tagParserManager.createEdgeFlags(), way);
         assertEquals(5, wheelchairAvSpeedEnc.getDecimal(false, flags), .1);
 
         way.clearTags();
         way.setTag("highway", "track");
-        flags = wheelchairEncoder.handleWayTags(encodingManager.createEdgeFlags(), way);
+        flags = wheelchairEncoder.handleWayTags(tagParserManager.createEdgeFlags(), way);
         assertEquals(0, wheelchairAvSpeedEnc.getDecimal(false, flags), .1);
     }
 
@@ -405,7 +405,7 @@ public class WheelchairFlagEncoderTest {
     @Test
     public void testBlockByDefault() {
         WheelchairTagParser tmpWheelchairEncoder = new WheelchairTagParser();
-        EncodingManager.create(tmpWheelchairEncoder);
+        TagParserManager.create(tmpWheelchairEncoder);
 
         ReaderNode node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "gate");
@@ -495,7 +495,7 @@ public class WheelchairFlagEncoderTest {
 
     @Test
     public void testApplyWayTags() {
-        BaseGraph graph = new BaseGraph.Builder(encodingManager).set3D(true).create();
+        BaseGraph graph = new BaseGraph.Builder(tagParserManager.getEncodingManager()).set3D(true).create();
         NodeAccess na = graph.getNodeAccess();
         // incline of 5% over all
         na.setNode(0, 51.1, 12.0010, 50);

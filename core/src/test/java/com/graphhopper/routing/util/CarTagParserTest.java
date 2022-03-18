@@ -151,7 +151,7 @@ public class CarTagParserTest {
         assertTrue(encoder.isBarrier(node));
 
         CarTagParser tmpEncoder = new CarTagParser(new PMap("block_fords=false"));
-        EncodingManager.create(tmpEncoder);
+        TagParserManager.create(tmpEncoder);
         assertTrue(tmpEncoder.getAccess(way).isWay());
         assertFalse(tmpEncoder.isBarrier(node));
     }
@@ -230,7 +230,7 @@ public class CarTagParserTest {
     public void testPrivateTag() {
         // allow private access
         CarTagParser carEncoder = new CarTagParser(new PMap("block_private=false"));
-        FlagEncoder bikeEncoder = new BikeTagParser(new PMap("block_private=false"));
+        BikeTagParser bikeEncoder = new BikeTagParser(new PMap("block_private=false"));
         TagParserManager em = new TagParserManager.Builder().add(carEncoder).add(bikeEncoder).build();
 
         FastestWeighting weighting = new FastestWeighting(carEncoder);
@@ -555,7 +555,7 @@ public class CarTagParserTest {
         assertTrue(encoder.isBarrier(node));
 
         CarTagParser tmpEncoder = new CarTagParser();
-        EncodingManager.create(tmpEncoder);
+        TagParserManager.create(tmpEncoder);
 
         // Test if cattle_grid is not blocking
         node = new ReaderNode(1, -1, -1);
@@ -578,7 +578,7 @@ public class CarTagParserTest {
     @Test
     public void testMaxValue() {
         CarTagParser instance = new CarTagParser(10, 0.5, 0);
-        EncodingManager em = EncodingManager.create(instance);
+        TagParserManager em = TagParserManager.create(instance);
         DecimalEncodedValue avSpeedEnc = em.getDecimalEncodedValue(EncodingManager.getKey(instance, "average_speed"));
         ReaderWay way = new ReaderWay(1);
         way.setTag("highway", "motorway_link");
@@ -601,9 +601,9 @@ public class CarTagParserTest {
     @Test
     public void testRegisterOnlyOnceAllowed() {
         CarTagParser instance = new CarTagParser(10, 0.5, 0);
-        EncodingManager tmpEM = EncodingManager.create(instance);
+        TagParserManager tmpEM = TagParserManager.create(instance);
         try {
-            tmpEM = EncodingManager.create(instance);
+            tmpEM = TagParserManager.create(instance);
             assertTrue(false);
         } catch (IllegalStateException ex) {
         }
@@ -653,7 +653,7 @@ public class CarTagParserTest {
 
         // for a smaller speed factor the minimum speed is also smaller
         CarTagParser lowFactorCar = new CarTagParser(10, 1, 0);
-        EncodingManager lowFactorEm = EncodingManager.create(lowFactorCar);
+        TagParserManager lowFactorEm = TagParserManager.create(lowFactorCar);
         edgeFlags = lowFactorEm.createEdgeFlags();
         lowFactorCar.handleWayTags(edgeFlags, way);
         assertEquals(1, lowFactorCar.getAverageSpeedEnc().getDecimal(false, edgeFlags), .1);

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TagParserManagerTest {
     @Test
     public void testToDetailsString() {
-        FlagEncoder encoder = new AbstractFlagEncoder(1, 2.0, 0) {
+        AbstractFlagEncoder encoder = new AbstractFlagEncoder(1, 2.0, 0) {
             @Override
             public TransportationMode getTransportationMode() {
                 return TransportationMode.BIKE;
@@ -148,7 +148,7 @@ class TagParserManagerTest {
 
     @Test
     public void testCompatibilityBug() {
-        TagParserManager manager2 = TagParserManager.create(new DefaultFlagEncoderFactory(), "bike2");
+        TagParserManager manager2 = TagParserManager.create(new DefaultVehicleTagParserFactory(), "bike2");
         ReaderWay osmWay = new ReaderWay(1);
         osmWay.setTag("highway", "footway");
         osmWay.setTag("name", "test");
@@ -159,7 +159,7 @@ class TagParserManagerTest {
         assertEquals(4, singleSpeed, 1e-3);
         assertEquals(singleSpeed, singleBikeEnc.avgSpeedEnc.getDecimal(true, flags), 1e-3);
 
-        TagParserManager manager = TagParserManager.create(new DefaultFlagEncoderFactory(), "bike2,bike,foot");
+        TagParserManager manager = TagParserManager.create(new DefaultVehicleTagParserFactory(), "bike2,bike,foot");
         FootTagParser foot = (FootTagParser) manager.getEncoder("foot");
         BikeTagParser bike = (BikeTagParser) manager.getEncoder("bike2");
 
@@ -184,7 +184,7 @@ class TagParserManagerTest {
             way.setTag("junction", "roundabout");
             IntsRef edgeFlags = manager.handleWayTags(way, manager.createRelationFlags());
             assertTrue(accessEnc.getBool(false, edgeFlags));
-            if (!(tmp instanceof FootFlagEncoder))
+            if (!(tmp instanceof FootTagParser))
                 assertFalse(accessEnc.getBool(true, edgeFlags), tmp.toString());
             assertTrue(roundaboutEnc.getBool(false, edgeFlags), tmp.toString());
 
@@ -193,7 +193,7 @@ class TagParserManagerTest {
             way.setTag("junction", "circular");
             edgeFlags = manager.handleWayTags(way, manager.createRelationFlags());
             assertTrue(accessEnc.getBool(false, edgeFlags));
-            if (!(tmp instanceof FootFlagEncoder))
+            if (!(tmp instanceof FootTagParser))
                 assertFalse(accessEnc.getBool(true, edgeFlags), tmp.toString());
             assertTrue(roundaboutEnc.getBool(false, edgeFlags), tmp.toString());
         }

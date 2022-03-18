@@ -40,7 +40,6 @@ import static com.graphhopper.util.Helper.toLowerCase;
 public class EncodingManager implements EncodedValueLookup {
     private final List<FlagEncoder> edgeEncoders;
     private final Map<String, EncodedValue> encodedValueMap;
-    private final Map<String, TurnCostParser> turnCostParsers;
     private final EncodedValue.InitializerConfig turnCostConfig;
     private final EncodedValue.InitializerConfig edgeConfig;
 
@@ -60,20 +59,20 @@ public class EncodingManager implements EncodedValueLookup {
     /**
      * Instantiate manager with the given list of encoders.
      */
-    public static EncodingManager create(FlagEncoder... flagEncoders) {
+    public static EncodingManager create(DummyFlagEncoder... flagEncoders) {
         return create(Arrays.asList(flagEncoders));
     }
 
     /**
      * Instantiate manager with the given list of encoders.
      */
-    public static EncodingManager create(List<? extends FlagEncoder> flagEncoders) {
+    public static EncodingManager create(List<? extends DummyFlagEncoder> flagEncoders) {
         return createBuilder(flagEncoders).build();
     }
 
-    private static EncodingManager.Builder createBuilder(List<? extends FlagEncoder> flagEncoders) {
+    private static EncodingManager.Builder createBuilder(List<? extends DummyFlagEncoder> flagEncoders) {
         Builder builder = new Builder();
-        for (FlagEncoder flagEncoder : flagEncoders) {
+        for (DummyFlagEncoder flagEncoder : flagEncoders) {
             builder.add(flagEncoder);
         }
         return builder;
@@ -89,12 +88,10 @@ public class EncodingManager implements EncodedValueLookup {
     public EncodingManager(
             List<FlagEncoder> edgeEncoders,
             Map<String, EncodedValue> encodedValueMap,
-            Map<String, TurnCostParser> turnCostParsers,
             EncodedValue.InitializerConfig turnCostConfig,
             EncodedValue.InitializerConfig edgeConfig) {
         this.edgeEncoders = edgeEncoders;
         this.encodedValueMap = encodedValueMap;
-        this.turnCostParsers = turnCostParsers;
         this.turnCostConfig = turnCostConfig;
         this.edgeConfig = edgeConfig;
     }
@@ -102,7 +99,7 @@ public class EncodingManager implements EncodedValueLookup {
     private EncodingManager() {
         this(
                 new ArrayList<>(), new LinkedHashMap<>(),
-                new LinkedHashMap<>(), new EncodedValue.InitializerConfig(),
+                new EncodedValue.InitializerConfig(),
                 new EncodedValue.InitializerConfig()
         );
     }
@@ -110,18 +107,18 @@ public class EncodingManager implements EncodedValueLookup {
     public static class Builder {
         private EncodingManager em;
         private DateRangeParser dateRangeParser;
-        private final Map<String, AbstractFlagEncoder> flagEncoderMap = new LinkedHashMap<>();
+        private final Map<String, DummyFlagEncoder> flagEncoderMap = new LinkedHashMap<>();
         private final Map<String, EncodedValue> encodedValueMap = new LinkedHashMap<>();
 
         public Builder() {
             em = new EncodingManager();
         }
 
-        public Builder add(FlagEncoder encoder) {
+        public Builder add(DummyFlagEncoder encoder) {
             check();
             if (flagEncoderMap.containsKey(encoder.toString()))
                 throw new IllegalArgumentException("FlagEncoder already exists: " + encoder);
-            flagEncoderMap.put(encoder.toString(), (AbstractFlagEncoder) encoder);
+            flagEncoderMap.put(encoder.toString(), encoder);
             return this;
         }
 
@@ -147,19 +144,6 @@ public class EncodingManager implements EncodedValueLookup {
             for (EncodedValue ev : list) {
                 em.addEncodedValue(ev, withNamespace);
             }
-        }
-
-        private void _addTurnCostParser(TurnCostParser parser) {
-            List<EncodedValue> list = new ArrayList<>();
-            parser.createTurnCostEncodedValues(em, list);
-            for (EncodedValue ev : list) {
-                ev.init(em.turnCostConfig);
-                if (em.encodedValueMap.containsKey(ev.getName()))
-                    throw new IllegalArgumentException("Already defined: " + ev.getName() + ". Please note that " +
-                            "EncodedValues for edges and turn cost are in the same namespace.");
-                em.encodedValueMap.put(ev.getName(), ev);
-            }
-            em.turnCostParsers.put(parser.getName(), parser);
         }
 
         public EncodingManager build() {
@@ -207,15 +191,8 @@ public class EncodingManager implements EncodedValueLookup {
                 }
             }
 
-            for (AbstractFlagEncoder encoder : flagEncoderMap.values()) {
-                encoder.init(dateRangeParser);
+            for (DummyFlagEncoder encoder : flagEncoderMap.values()) {
                 em.addEncoder(encoder);
-            }
-
-            // FlagEncoder can demand TurnCostParsers => add them after the explicitly added ones
-            for (AbstractFlagEncoder encoder : flagEncoderMap.values()) {
-                if (encoder.supportsTurnCosts() && !em.turnCostParsers.containsKey(encoder.toString()))
-                    _addTurnCostParser(new OSMTurnRelationParser(encoder.toString(), encoder.getMaxTurnCosts(), encoder.getRestrictions()));
             }
 
             if (em.encodedValueMap.isEmpty())
@@ -227,7 +204,7 @@ public class EncodingManager implements EncodedValueLookup {
         }
     }
 
-    static FlagEncoder parseEncoderString(FlagEncoderFactory factory, String encoderString) {
+    static DummyFlagEncoder parseEncoderString(FlagEncoderFactory factory, String encoderString) {
         if (!encoderString.equals(toLowerCase(encoderString)))
             throw new IllegalArgumentException("An upper case name for the FlagEncoder is not allowed: " + encoderString);
 
@@ -248,12 +225,16 @@ public class EncodingManager implements EncodedValueLookup {
         return (int) Math.ceil((double) edgeConfig.getRequiredBits() / 32.0);
     }
 
-    private void addEncoder(AbstractFlagEncoder encoder) {
+    private void addEncoder(DummyFlagEncoder encoder) {
         encoder.setEncodedValueLookup(this);
         List<EncodedValue> list = new ArrayList<>();
         encoder.createEncodedValues(list);
         for (EncodedValue ev : list)
             addEncodedValue(ev, true);
+        list = new ArrayList<>();
+        encoder.createTurnCostEncodedValues(list);
+        for (EncodedValue ev : list)
+            addTurnCostEncodedValue(ev);
         edgeEncoders.add(encoder);
     }
 
@@ -266,6 +247,14 @@ public class EncodingManager implements EncodedValueLookup {
         if (withNamespace && isSharedEncodedValues(ev))
             throw new IllegalArgumentException("EncodedValue " + ev.getName() + " must contain namespace character '" + SPECIAL_SEPARATOR + "'");
         ev.init(edgeConfig);
+        encodedValueMap.put(ev.getName(), ev);
+    }
+
+    private void addTurnCostEncodedValue(EncodedValue ev) {
+        ev.init(turnCostConfig);
+        if (encodedValueMap.containsKey(ev.getName()))
+            throw new IllegalArgumentException("Already defined: " + ev.getName() + ". Please note that " +
+                    "EncodedValues for edges and turn cost are in the same namespace.");
         encodedValueMap.put(ev.getName(), ev);
     }
 

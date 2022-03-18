@@ -37,12 +37,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Karich
  */
 public class MotorcycleFlagEncoderTest {
-    private final EncodingManager em = EncodingManager.create("motorcycle,foot");
+    private final TagParserManager em = TagParserManager.create("motorcycle,foot");
     private final MotorcycleTagParser encoder = (MotorcycleTagParser) em.getEncoder("motorcycle");
     private final BooleanEncodedValue accessEnc = encoder.getAccessEnc();
 
     private Graph initExampleGraph() {
-        BaseGraph gs = new BaseGraph.Builder(em).set3D(true).create();
+        BaseGraph gs = new BaseGraph.Builder(em.getEncodingManager()).set3D(true).create();
         NodeAccess na = gs.getNodeAccess();
         // 50--(0.0001)-->49--(0.0004)-->55--(0.0005)-->60
         na.setNode(0, 51.1, 12.001, 50);

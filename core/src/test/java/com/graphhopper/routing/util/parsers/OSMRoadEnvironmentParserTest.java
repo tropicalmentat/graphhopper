@@ -21,7 +21,7 @@ package com.graphhopper.routing.util.parsers;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.RoadEnvironment;
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.TagParserManager;
 import com.graphhopper.storage.IntsRef;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class OSMRoadEnvironmentParserTest {
     @Test
     void ferry() {
         OSMRoadEnvironmentParser parser = new OSMRoadEnvironmentParser();
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        CarTagParser carEncoder = new CarTagParser();
         TagParserManager tpm = new TagParserManager.Builder()
                 .add(carEncoder)
                 .add(parser).build();

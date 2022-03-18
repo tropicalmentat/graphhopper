@@ -406,7 +406,7 @@ public class FootFlagEncoderTest {
         assertTrue(footEncoder.isBarrier(node));
 
         FootTagParser tmpEncoder = new FootTagParser(new PMap("block_fords=true"));
-        EncodingManager.create(tmpEncoder);
+        TagParserManager.create(tmpEncoder);
         node = new ReaderNode(1, -1, -1);
         node.setTag("ford", "no");
         assertFalse(tmpEncoder.isBarrier(node));
@@ -419,7 +419,7 @@ public class FootFlagEncoderTest {
     @Test
     public void testBlockByDefault() {
         FootTagParser tmpFootEncoder = new FootTagParser();
-        EncodingManager.create(tmpFootEncoder);
+        TagParserManager.create(tmpFootEncoder);
 
         ReaderNode node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "gate");
@@ -438,7 +438,7 @@ public class FootFlagEncoderTest {
 
         // pass potential barriers per default (if no other access tag exists)
         tmpFootEncoder = new FootTagParser();
-        EncodingManager.create(tmpFootEncoder);
+        TagParserManager.create(tmpFootEncoder);
         node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "gate");
         assertFalse(tmpFootEncoder.isBarrier(node));
@@ -451,7 +451,7 @@ public class FootFlagEncoderTest {
 
         // don't block potential barriers: barrier:cattle_grid should not block here
         tmpFootEncoder = new FootTagParser();
-        EncodingManager.create(tmpFootEncoder);
+        TagParserManager.create(tmpFootEncoder);
         node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "cattle_grid");
         assertFalse(tmpFootEncoder.isBarrier(node));

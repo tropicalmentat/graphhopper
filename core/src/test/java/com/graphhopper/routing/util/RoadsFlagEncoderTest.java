@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RoadsFlagEncoderTest {
 
-    private final EncodingManager encodingManager = EncodingManager.create("roads");
-    private final RoadsFlagEncoder roadsEncoder = (RoadsFlagEncoder) encodingManager.getEncoder("roads");
+    private final TagParserManager encodingManager = TagParserManager.create("roads");
+    private final RoadsTagParser roadsEncoder = (RoadsTagParser) encodingManager.getEncoder("roads");
 
     @Test
     public void testAccess() {

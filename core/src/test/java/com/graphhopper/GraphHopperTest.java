@@ -1054,7 +1054,7 @@ public class GraphHopperTest {
                     // do not change RoadEnvironment to avoid triggering tunnel interpolation
                     return edgeFlags;
                 }
-            }).addIfAbsent(new DefaultFlagEncoderFactory(), vehicle);
+            }).addIfAbsent(new DefaultVehicleTagParserFactory(), vehicle);
         }
 
         hopper.setElevationProvider(new SRTMProvider(DIR));
@@ -2123,7 +2123,7 @@ public class GraphHopperTest {
         GraphHopper hopper = new GraphHopper();
         hopper.getTagParserManagerBuilder()
                 .add(new OSMMaxSpeedParser())
-                .add(new CarFlagEncoder());
+                .add(new CarTagParser());
         hopper.setOSMFile(BAYREUTH).
                 setProfiles(new Profile(profile).setVehicle("car").setWeighting("fastest")).
                 setGraphHopperLocation(GH_LOCATION);

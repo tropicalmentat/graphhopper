@@ -24,41 +24,41 @@ import com.graphhopper.util.PMap;
  *
  * @author Peter Karich
  */
-public class DefaultFlagEncoderFactory implements FlagEncoderFactory {
+public class DefaultVehicleTagParserFactory implements VehicleTagParserFactory {
     @Override
-    public DummyFlagEncoder createFlagEncoder(String name, PMap configuration) {
+    public AbstractFlagEncoder createFlagEncoder(String name, PMap configuration) {
         if (name.equals(ROADS))
-            return new RoadsFlagEncoder();
+            return new RoadsTagParser();
 
         if (name.equals(CAR))
-            return new CarFlagEncoder(configuration);
+            return new CarTagParser(configuration);
 
         if (name.equals(CAR4WD))
-            return new Car4WDFlagEncoder(configuration);
+            return new Car4WDTagParser(configuration);
 
         if (name.equals(BIKE))
-            return new BikeFlagEncoder(configuration);
+            return new BikeTagParser(configuration);
 
         if (name.equals(BIKE2))
-            return new Bike2WeightFlagEncoder(configuration);
+            return new Bike2WeightTagParser(configuration);
 
         if (name.equals(RACINGBIKE))
-            return new RacingBikeFlagEncoder(configuration);
+            return new RacingBikeTagParser(configuration);
 
         if (name.equals(MOUNTAINBIKE))
-            return new MountainBikeFlagEncoder(configuration);
+            return new MountainBikeTagParser(configuration);
 
         if (name.equals(FOOT))
-            return new FootFlagEncoder(configuration);
+            return new FootTagParser(configuration);
 
         if (name.equals(HIKE))
-            return new HikeFlagEncoder(configuration);
+            return new HikeTagParser(configuration);
 
         if (name.equals(MOTORCYCLE))
-            return new MotorcycleFlagEncoder(configuration);
+            return new MotorcycleTagParser(configuration);
 
         if (name.equals(WHEELCHAIR))
-            return new WheelchairFlagEncoder(configuration);
+            return new WheelchairTagParser(configuration);
 
         throw new IllegalArgumentException("entry in encoder list not supported: " + name);
     }

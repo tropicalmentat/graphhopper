@@ -15,21 +15,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package com.graphhopper.routing.util;
 
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.util.PMap;
 
-import java.util.List;
+/**
+ * @author Peter Karich
+ */
+public interface VehicleTagParserFactory {
+    String ROADS = "roads";
+    String CAR = "car";
+    String CAR4WD = "car4wd";
+    String BIKE = "bike";
+    String BIKE2 = "bike2";
+    String RACINGBIKE = "racingbike";
+    String MOUNTAINBIKE = "mtb";
+    String FOOT = "foot";
+    String HIKE = "hike";
+    String MOTORCYCLE = "motorcycle";
+    String WHEELCHAIR = "wheelchair";
 
-public interface DummyFlagEncoder extends FlagEncoder {
-
-    void setEncodedValueLookup(EncodedValueLookup encodedValueLookup);
-
-    void createEncodedValues(List<EncodedValue> encodedValues);
-
-    void createTurnCostEncodedValues(List<EncodedValue> turnCostEncodedValues);
-
-    String getName();
+    AbstractFlagEncoder createFlagEncoder(String name, PMap configuration);
 }

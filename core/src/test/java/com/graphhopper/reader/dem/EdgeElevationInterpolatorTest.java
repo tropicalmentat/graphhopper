@@ -22,8 +22,8 @@ import com.graphhopper.coll.GHIntHashSet;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.RoadEnvironment;
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
+import com.graphhopper.routing.util.FootTagParser;
 import com.graphhopper.routing.util.TagParserManager;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.IntsRef;
@@ -49,7 +49,7 @@ public abstract class EdgeElevationInterpolatorTest {
     @SuppressWarnings("resource")
     @BeforeEach
     public void setUp() {
-        tagParserManager = new TagParserManager.Builder().add(new CarFlagEncoder()).add(new FootFlagEncoder()).build();
+        tagParserManager = new TagParserManager.Builder().add(new CarTagParser()).add(new FootTagParser()).build();
         graph = new BaseGraph.Builder(tagParserManager.getEncodingManager()).set3D(true).create();
         roadEnvEnc = tagParserManager.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
         edgeElevationInterpolator = createEdgeElevationInterpolator();

@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Karich
  */
 public class PathTest {
-    private final FlagEncoder encoder = new CarTagParser();
+    private final CarTagParser encoder = new CarTagParser();
     private final TagParserManager tagParserManager = TagParserManager.create(encoder);
     private final EncodingManager carManager = tagParserManager.getEncodingManager();
     private final BooleanEncodedValue carAccessEnc = encoder.getAccessEnc();

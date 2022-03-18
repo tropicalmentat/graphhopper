@@ -19,7 +19,7 @@ package com.graphhopper.storage;
 
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.TurnCost;
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class GraphHopperStorageWithTurnCostsTest extends GraphHopperStorageTest {
     @Override
-    CarFlagEncoder createCarFlagEncoder() {
-        return new CarFlagEncoder(5, 5, 1400);
+    CarTagParser createCarTagParser() {
+        return new CarTagParser(5, 5, 1400);
     }
 
     @Override

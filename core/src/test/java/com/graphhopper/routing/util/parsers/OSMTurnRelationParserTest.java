@@ -2,7 +2,7 @@ package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.OSMTurnRelation;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TagParserManager;
 import com.graphhopper.routing.util.TransportationMode;
@@ -21,7 +21,7 @@ public class OSMTurnRelationParserTest {
 
     @Test
     public void testGetRestrictionAsEntries() {
-        CarFlagEncoder encoder = new CarFlagEncoder(5, 5, 1);
+        CarTagParser encoder = new CarTagParser(5, 5, 1);
         final Map<Long, Integer> osmNodeToInternal = new HashMap<>();
         final Map<Integer, Long> internalToOSMEdge = new HashMap<>();
 

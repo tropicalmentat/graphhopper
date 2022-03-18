@@ -117,7 +117,7 @@ public class GraphHopper {
     // for data reader
     private String osmFile;
     private ElevationProvider eleProvider = ElevationProvider.NOOP;
-    private FlagEncoderFactory flagEncoderFactory = new DefaultFlagEncoderFactory();
+    private VehicleTagParserFactory vehicleTagParserFactory = new DefaultVehicleTagParserFactory();
     private EncodedValueFactory encodedValueFactory = new DefaultEncodedValueFactory();
     private TagParserFactory tagParserFactory = new DefaultTagParserFactory();
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
@@ -365,8 +365,8 @@ public class GraphHopper {
         return trMap;
     }
 
-    public GraphHopper setFlagEncoderFactory(FlagEncoderFactory factory) {
-        this.flagEncoderFactory = factory;
+    public GraphHopper setVehicleTagParserFactory(VehicleTagParserFactory factory) {
+        this.vehicleTagParserFactory = factory;
         return this;
     }
 
@@ -537,7 +537,7 @@ public class GraphHopper {
                 implicitFlagEncoderMap.put(profile.getVehicle(), profile.getVehicle() + (profile.isTurnCosts() ? "|turn_costs=true" : ""));
         }
         flagEncoderMap.putAll(implicitFlagEncoderMap);
-        flagEncoderMap.values().forEach(s -> emBuilder.addIfAbsent(flagEncoderFactory, s));
+        flagEncoderMap.values().forEach(s -> emBuilder.addIfAbsent(vehicleTagParserFactory, s));
 
         String encodedValueStr = ghConfig.getString("graph.encoded_values", "");
         for (String tpStr : encodedValueStr.split(",")) {
@@ -760,7 +760,7 @@ public class GraphHopper {
         if (tagParserManager == null) {
             StorableProperties properties = new StorableProperties(new GHDirectory(ghLocation, dataAccessDefaultType));
             tagParserManager = properties.loadExisting()
-                    ? TagParserManager.create(emBuilder, encodedValueFactory, flagEncoderFactory, properties)
+                    ? TagParserManager.create(emBuilder, encodedValueFactory, vehicleTagParserFactory, properties)
                     : buildEncodingManager(new GraphHopperConfig());
         }
 

@@ -19,7 +19,7 @@ package com.graphhopper.storage;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.util.BikeFlagEncoder;
+import com.graphhopper.routing.util.BikeTagParser;
 import com.graphhopper.routing.util.TagParserManager;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
@@ -227,7 +227,7 @@ public class GraphHopperStorageTest extends AbstractGraphStorageTester {
     @Test
     public void testLoadGraph_implicitEncodedValues_issue1862() {
         Helper.removeDir(new File(defaultGraphLoc));
-        tagParserManager = new TagParserManager.Builder().add(createCarFlagEncoder()).add(new BikeFlagEncoder()).build();
+        tagParserManager = new TagParserManager.Builder().add(createCarTagParser()).add(new BikeTagParser()).build();
         graph = newGHStorage(new RAMDirectory(defaultGraphLoc, true), false).create(defaultSize);
         NodeAccess na = graph.getNodeAccess();
         na.setNode(0, 12, 23);
@@ -254,7 +254,7 @@ public class GraphHopperStorageTest extends AbstractGraphStorageTester {
 
         hopper = new GraphHopper();
         // load via explicitly configured FlagEncoders then we can define only one profile
-        hopper.getTagParserManagerBuilder().add(createCarFlagEncoder()).add(new BikeFlagEncoder());
+        hopper.getTagParserManagerBuilder().add(createCarTagParser()).add(new BikeTagParser());
         hopper.setProfiles(Collections.singletonList(new Profile("p_car").setVehicle("car").setWeighting("fastest")));
         hopper.setGraphHopperLocation(defaultGraphLoc);
         assertTrue(hopper.load());

@@ -23,9 +23,10 @@ import com.graphhopper.util.PMap;
 import java.util.List;
 
 public class CarFlagEncoder extends BaseDummyFlagEncoder {
-    private final int maxTurnCosts;
+    private final String name;
     private final BooleanEncodedValue accessEnc;
     private final DecimalEncodedValue avgSpeedEnc;
+    private final DecimalEncodedValue turnCostEnc;
 
     public CarFlagEncoder() {
         this(new PMap());
@@ -41,12 +42,18 @@ public class CarFlagEncoder extends BaseDummyFlagEncoder {
     }
 
     public CarFlagEncoder(PMap properties) {
+        this("car", properties);
+    }
+
+    public CarFlagEncoder(String name, PMap properties) {
+        this.name = name;
         boolean speedTwoDirections = properties.getBool("speed_two_directions", false);
-        maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
-        accessEnc = new SimpleBooleanEncodedValue(EncodingManager.getKey("car", "access"), true);
+        int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
+        accessEnc = new SimpleBooleanEncodedValue(EncodingManager.getKey(name, "access"), true);
         int speedBits = properties.getInt("speed_bits", 5);
         double speedFactor = properties.getInt("speed_factor", 5);
-        avgSpeedEnc = new DecimalEncodedValueImpl(EncodingManager.getKey("car", "average_speed"), speedBits, speedFactor, speedTwoDirections);
+        avgSpeedEnc = new DecimalEncodedValueImpl(EncodingManager.getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections);
+        turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
     }
 
     @Override
@@ -71,7 +78,7 @@ public class CarFlagEncoder extends BaseDummyFlagEncoder {
 
     @Override
     public boolean supportsTurnCosts() {
-        return maxTurnCosts > 0;
+        return turnCostEnc != null;
     }
 
     @Override
@@ -80,4 +87,19 @@ public class CarFlagEncoder extends BaseDummyFlagEncoder {
         encodedValues.add(avgSpeedEnc);
     }
 
+    @Override
+    public void createTurnCostEncodedValues(List<EncodedValue> turnCostEncodedValues) {
+        if (supportsTurnCosts())
+            turnCostEncodedValues.add(turnCostEnc);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

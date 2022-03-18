@@ -44,11 +44,11 @@ public abstract class AbstractGraphStorageTester {
     private final String locationParent = "./target/graphstorage";
     protected int defaultSize = 100;
     protected String defaultGraphLoc = "./target/graphstorage/default";
-    protected CarFlagEncoder carEncoder = createCarFlagEncoder();
-    protected TagParserManager tagParserManager = new TagParserManager.Builder().add(carEncoder).add(new FootFlagEncoder()).build();
+    protected CarTagParser carEncoder = createCarTagParser();
+    protected TagParserManager tagParserManager = new TagParserManager.Builder().add(carEncoder).add(new FootTagParser()).build();
     protected BooleanEncodedValue carAccessEnc = carEncoder.getAccessEnc();
     protected DecimalEncodedValue carAvSpeedEnc = carEncoder.getAverageSpeedEnc();
-    protected FootFlagEncoder footEncoder = (FootFlagEncoder) tagParserManager.getEncoder("foot");
+    protected FootTagParser footEncoder = (FootTagParser) tagParserManager.getEncoder("foot");
     protected GraphHopperStorage graph;
     EdgeFilter carOutFilter = AccessFilter.outEdges(carEncoder.getAccessEnc());
     EdgeFilter carInFilter = AccessFilter.inEdges(carEncoder.getAccessEnc());
@@ -86,8 +86,8 @@ public abstract class AbstractGraphStorageTester {
         throw new IllegalArgumentException("did not find node with location " + (float) latitude + "," + (float) longitude);
     }
 
-    CarFlagEncoder createCarFlagEncoder() {
-        return new CarFlagEncoder(5, 5, 0);
+    CarTagParser createCarTagParser() {
+        return new CarTagParser(5, 5, 0);
     }
 
     protected GraphHopperStorage createGHStorage() {
@@ -656,14 +656,14 @@ public abstract class AbstractGraphStorageTester {
 
     @Test
     public void test8AndMoreBytesForEdgeFlags() {
-        List<FlagEncoder> list = new ArrayList<>();
+        List<CarTagParser> list = new ArrayList<>();
         list.add(new CarTagParser(29, 0.001, 0) {
             @Override
             public String getName() {
                 return "car0";
             }
         });
-        list.add(new CarFlagEncoder(29, 0.001, 0));
+        list.add(new CarTagParser(29, 0.001, 0));
         TagParserManager manager = TagParserManager.create(list);
         graph = new GraphBuilder(manager).create();
 

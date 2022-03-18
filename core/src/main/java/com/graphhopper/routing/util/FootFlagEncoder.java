@@ -25,7 +25,7 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class FootFlagEncoder extends BaseDummyFlagEncoder {
-    protected final boolean speedTwoDirections;
+    private final String name;
     private final BooleanEncodedValue accessEnc;
     private final DecimalEncodedValue avgSpeedEnc;
     protected DecimalEncodedValue priorityWayEncoder;
@@ -47,7 +47,7 @@ public class FootFlagEncoder extends BaseDummyFlagEncoder {
     }
 
     protected FootFlagEncoder(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        this.speedTwoDirections = speedTwoDirections;
+        this.name = name;
         accessEnc = new SimpleBooleanEncodedValue(getKey(name, "access"), true);
         avgSpeedEnc = new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         priorityWayEncoder = new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false);
@@ -85,4 +85,17 @@ public class FootFlagEncoder extends BaseDummyFlagEncoder {
         encodedValues.add(priorityWayEncoder);
     }
 
+    @Override
+    public void createTurnCostEncodedValues(List<EncodedValue> turnCostEncodedValues) {
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

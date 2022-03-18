@@ -1,54 +1,64 @@
 package com.graphhopper.routing.util;
 
-import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.storage.IntsRef;
+import com.graphhopper.routing.ev.*;
 
 import java.util.List;
 
-public class RoadsFlagEncoder extends AbstractFlagEncoder {
-
-    final boolean speedTwoDirections = true;
+public class RoadsFlagEncoder extends BaseDummyFlagEncoder {
+    private final BooleanEncodedValue accessEnc;
+    private final DecimalEncodedValue avgSpeedEnc;
+    private final DecimalEncodedValue turnCostEnc;
 
     public RoadsFlagEncoder() {
-        super(7, 2, 3);
-        avgSpeedEnc = new DecimalEncodedValueImpl(EncodingManager.getKey(getName(), "average_speed"), speedBits, speedFactor, speedTwoDirections);
-        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(254);
-    }
-
-    @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(registerNewEncodedValue);
-        registerNewEncodedValue.add(avgSpeedEnc);
-    }
-
-    @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
-        // let's make it high and let it be reduced in the custom model
-        double speed = maxPossibleSpeed;
-        accessEnc.setBool(true, edgeFlags, true);
-        accessEnc.setBool(false, edgeFlags, true);
-        setSpeed(false, edgeFlags, speed);
-        if (speedTwoDirections)
-            setSpeed(true, edgeFlags, speed);
-        return edgeFlags;
-    }
-
-    @Override
-    public EncodingManager.Access getAccess(ReaderWay way) {
-        if (way.getTag("highway", "").isEmpty())
-            return EncodingManager.Access.CAN_SKIP;
-        return EncodingManager.Access.WAY;
+        accessEnc = new SimpleBooleanEncodedValue(EncodingManager.getKey("roads", "access"), true);
+        avgSpeedEnc = new DecimalEncodedValueImpl(EncodingManager.getKey("roads", "average_speed"), 7, 2, true);
+        final int maxTurnCosts = 3;
+        turnCostEnc = TurnCost.create("roads", maxTurnCosts);
     }
 
     @Override
     public TransportationMode getTransportationMode() {
-        return TransportationMode.VEHICLE;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double getMaxSpeed() {
+        return avgSpeedEnc.getMaxDecimal();
+    }
+
+    @Override
+    public BooleanEncodedValue getAccessEnc() {
+        return accessEnc;
+    }
+
+    @Override
+    public DecimalEncodedValue getAverageSpeedEnc() {
+        return avgSpeedEnc;
+    }
+
+    @Override
+    public boolean supportsTurnCosts() {
+        return true;
+    }
+
+    @Override
+    public void createEncodedValues(List<EncodedValue> encodedValues) {
+        encodedValues.add(accessEnc);
+        encodedValues.add(avgSpeedEnc);
+    }
+
+    @Override
+    public void createTurnCostEncodedValues(List<EncodedValue> turnCostEncodedValues) {
+        turnCostEncodedValues.add(turnCostEnc);
     }
 
     @Override
     public String getName() {
         return "roads";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

@@ -30,7 +30,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     protected WheelchairFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor, true);
+        super("wheelchair", speedBits, speedFactor, true);
     }
 
 }

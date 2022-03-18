@@ -61,10 +61,10 @@ public class TagParserManager implements EncodedValueLookup {
      * encoders using DefaultFlagEncoderFactory.
      */
     public static TagParserManager create(String flagEncodersStr) {
-        return create(new DefaultFlagEncoderFactory(), flagEncodersStr);
+        return create(new DefaultVehicleTagParserFactory(), flagEncodersStr);
     }
 
-    public static TagParserManager create(FlagEncoderFactory factory, String flagEncodersStr) {
+    public static TagParserManager create(VehicleTagParserFactory factory, String flagEncodersStr) {
         return createBuilder(Arrays.stream(flagEncodersStr.split(",")).filter(s -> !s.trim().isEmpty()).
                 map(s -> parseEncoderString(factory, s)).collect(Collectors.toList())).build();
     }
@@ -72,20 +72,20 @@ public class TagParserManager implements EncodedValueLookup {
     /**
      * Instantiate manager with the given list of encoders.
      */
-    public static TagParserManager create(FlagEncoder... flagEncoders) {
+    public static TagParserManager create(AbstractFlagEncoder... flagEncoders) {
         return create(Arrays.asList(flagEncoders));
     }
 
     /**
      * Instantiate manager with the given list of encoders.
      */
-    public static TagParserManager create(List<? extends FlagEncoder> flagEncoders) {
+    public static TagParserManager create(List<? extends AbstractFlagEncoder> flagEncoders) {
         return createBuilder(flagEncoders).build();
     }
 
-    private static TagParserManager.Builder createBuilder(List<? extends FlagEncoder> flagEncoders) {
+    private static TagParserManager.Builder createBuilder(List<? extends AbstractFlagEncoder> flagEncoders) {
         Builder builder = new Builder();
-        for (FlagEncoder flagEncoder : flagEncoders) {
+        for (AbstractFlagEncoder flagEncoder : flagEncoders) {
             builder.add(flagEncoder);
         }
         return builder;
@@ -95,14 +95,14 @@ public class TagParserManager implements EncodedValueLookup {
      * Create the EncodingManager from the provided GraphHopper location. Throws an
      * IllegalStateException if it fails. Used if no EncodingManager specified on load.
      */
-    public static TagParserManager create(TagParserManager.Builder builder, EncodedValueFactory evFactory, FlagEncoderFactory flagEncoderFactory, StorableProperties properties) {
+    public static TagParserManager create(TagParserManager.Builder builder, EncodedValueFactory evFactory, VehicleTagParserFactory vehicleTagParserFactory, StorableProperties properties) {
         String encodedValuesStr = properties.get("graph.encoded_values");
         for (String evString : encodedValuesStr.split(",")) {
             builder.addIfAbsent(evFactory, evString);
         }
         String flagEncoderValuesStr = properties.get("graph.flag_encoders");
         for (String encoderString : flagEncoderValuesStr.split(",")) {
-            builder.addIfAbsent(flagEncoderFactory, encoderString);
+            builder.addIfAbsent(vehicleTagParserFactory, encoderString);
         }
         return builder.build();
     }
@@ -143,7 +143,7 @@ public class TagParserManager implements EncodedValueLookup {
             em = new TagParserManager();
         }
 
-        public boolean addIfAbsent(FlagEncoderFactory factory, String flagEncoderString) {
+        public boolean addIfAbsent(VehicleTagParserFactory factory, String flagEncoderString) {
             check();
             String key = flagEncoderString.split("\\|")[0].trim();
             if (flagEncoderMap.containsKey(key))
@@ -184,11 +184,11 @@ public class TagParserManager implements EncodedValueLookup {
             return this;
         }
 
-        public Builder add(FlagEncoder encoder) {
+        public Builder add(AbstractFlagEncoder encoder) {
             check();
             if (flagEncoderMap.containsKey(encoder.toString()))
                 throw new IllegalArgumentException("FlagEncoder already exists: " + encoder);
-            flagEncoderMap.put(encoder.toString(), (AbstractFlagEncoder) encoder);
+            flagEncoderMap.put(encoder.toString(), encoder);
             return this;
         }
 
@@ -293,7 +293,7 @@ public class TagParserManager implements EncodedValueLookup {
                 dateRangeParser = new DateRangeParser(DateRangeParser.createCalendar());
 
             for (AbstractFlagEncoder encoder : flagEncoderMap.values()) {
-                if (encoder instanceof RoadsFlagEncoder) {
+                if (encoder instanceof RoadsTagParser) {
                     // TODO Later these EncodedValues can be added independently of RoadsFlagEncoder. Maybe add a foot_access and hgv_access? and remove the others "xy$access"
                     if (!em.hasEncodedValue("car_access"))
                         _addEdgeTagParser(new DefaultTagParserFactory().create("car_access", new PMap()), false);
@@ -331,7 +331,7 @@ public class TagParserManager implements EncodedValueLookup {
                 throw new IllegalStateException("No EncodedValues found");
 
             em.encodingManager = new EncodingManager(new ArrayList<>(em.edgeEncoders), em.encodedValueMap,
-                    em.turnCostParsers, em.turnCostConfig, em.edgeConfig);
+                    em.turnCostConfig, em.edgeConfig);
 
             TagParserManager tmp = em;
             em = null;
@@ -339,7 +339,7 @@ public class TagParserManager implements EncodedValueLookup {
         }
     }
 
-    static FlagEncoder parseEncoderString(FlagEncoderFactory factory, String encoderString) {
+    static AbstractFlagEncoder parseEncoderString(VehicleTagParserFactory factory, String encoderString) {
         if (!encoderString.equals(toLowerCase(encoderString)))
             throw new IllegalArgumentException("An upper case name for the FlagEncoder is not allowed: " + encoderString);
 
@@ -474,7 +474,7 @@ public class TagParserManager implements EncodedValueLookup {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        for (FlagEncoder encoder : edgeEncoders) {
+        for (AbstractFlagEncoder encoder : edgeEncoders) {
             if (str.length() > 0)
                 str.append(",");
 
