@@ -299,14 +299,14 @@ public class TagParserManager implements EncodedValueLookup {
                         _addEdgeTagParser(new DefaultTagParserFactory().create("car_access", new PMap()), false);
                     if (!em.hasEncodedValue("bike_access"))
                         _addEdgeTagParser(new DefaultTagParserFactory().create("bike_access", new PMap()), false);
-                } else if (encoder instanceof BikeCommonFlagEncoder) {
+                } else if (encoder instanceof BikeCommonTagParser) {
                     if (!em.hasEncodedValue(RouteNetwork.key("bike")))
                         _addRelationTagParser(new OSMBikeNetworkTagParser());
                     if (!em.hasEncodedValue(GetOffBike.KEY))
                         _addEdgeTagParser(new OSMGetOffBikeParser(), false);
                     if (!em.hasEncodedValue(Smoothness.KEY))
                         _addEdgeTagParser(new OSMSmoothnessParser(), false);
-                } else if (encoder instanceof FootFlagEncoder) {
+                } else if (encoder instanceof FootTagParser) {
                     if (!em.hasEncodedValue(RouteNetwork.key("foot")))
                         _addRelationTagParser(new OSMFootNetworkTagParser());
                 }

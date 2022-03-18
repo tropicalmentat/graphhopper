@@ -37,18 +37,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Karich
  */
-public class CarFlagEncoderTest {
-    final CarFlagEncoder encoder = createEncoder();
+public class CarTagParserTest {
+    final CarTagParser encoder = createParser();
     private final TagParserManager tpm = new TagParserManager.Builder().
             add(encoder).
-            add(new BikeFlagEncoder()).add(new FootFlagEncoder()).build();
+            add(new BikeTagParser()).add(new FootTagParser()).build();
 
     private final BooleanEncodedValue roundaboutEnc = tpm.getBooleanEncodedValue(Roundabout.KEY);
     private final DecimalEncodedValue avSpeedEnc = encoder.getAverageSpeedEnc();
     private final BooleanEncodedValue accessEnc = encoder.getAccessEnc();
 
-    CarFlagEncoder createEncoder() {
-        return new CarFlagEncoder(new PMap("speed_two_directions=true|block_fords=true"));
+    CarTagParser createParser() {
+        return new CarTagParser(new PMap("speed_two_directions=true|block_fords=true"));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class CarFlagEncoderTest {
         assertTrue(encoder.getAccess(way).canSkip());
         assertTrue(encoder.isBarrier(node));
 
-        CarFlagEncoder tmpEncoder = new CarFlagEncoder(new PMap("block_fords=false"));
+        CarTagParser tmpEncoder = new CarTagParser(new PMap("block_fords=false"));
         EncodingManager.create(tmpEncoder);
         assertTrue(tmpEncoder.getAccess(way).isWay());
         assertFalse(tmpEncoder.isBarrier(node));
@@ -229,8 +229,8 @@ public class CarFlagEncoderTest {
     @Test
     public void testPrivateTag() {
         // allow private access
-        CarFlagEncoder carEncoder = new CarFlagEncoder(new PMap("block_private=false"));
-        FlagEncoder bikeEncoder = new BikeFlagEncoder(new PMap("block_private=false"));
+        CarTagParser carEncoder = new CarTagParser(new PMap("block_private=false"));
+        FlagEncoder bikeEncoder = new BikeTagParser(new PMap("block_private=false"));
         TagParserManager em = new TagParserManager.Builder().add(carEncoder).add(bikeEncoder).build();
 
         FastestWeighting weighting = new FastestWeighting(carEncoder);
@@ -554,7 +554,7 @@ public class CarFlagEncoderTest {
         // barrier!
         assertTrue(encoder.isBarrier(node));
 
-        CarFlagEncoder tmpEncoder = new CarFlagEncoder();
+        CarTagParser tmpEncoder = new CarTagParser();
         EncodingManager.create(tmpEncoder);
 
         // Test if cattle_grid is not blocking
@@ -577,7 +577,7 @@ public class CarFlagEncoderTest {
 
     @Test
     public void testMaxValue() {
-        CarFlagEncoder instance = new CarFlagEncoder(10, 0.5, 0);
+        CarTagParser instance = new CarTagParser(10, 0.5, 0);
         EncodingManager em = EncodingManager.create(instance);
         DecimalEncodedValue avSpeedEnc = em.getDecimalEncodedValue(EncodingManager.getKey(instance, "average_speed"));
         ReaderWay way = new ReaderWay(1);
@@ -600,7 +600,7 @@ public class CarFlagEncoderTest {
 
     @Test
     public void testRegisterOnlyOnceAllowed() {
-        CarFlagEncoder instance = new CarFlagEncoder(10, 0.5, 0);
+        CarTagParser instance = new CarTagParser(10, 0.5, 0);
         EncodingManager tmpEM = EncodingManager.create(instance);
         try {
             tmpEM = EncodingManager.create(instance);
@@ -623,7 +623,7 @@ public class CarFlagEncoderTest {
         way.setTag("sac_scale", "hiking");
 
         assertEquals(EncodingManager.Access.CAN_SKIP, encoder.getAccess(way));
-        assertNotEquals(EncodingManager.Access.CAN_SKIP, ((BikeFlagEncoder) tpm.getEncoder("bike")).getAccess(way));
+        assertNotEquals(EncodingManager.Access.CAN_SKIP, ((BikeTagParser) tpm.getEncoder("bike")).getAccess(way));
         IntsRef edgeFlags = tpm.handleWayTags(way, tpm.createRelationFlags());
         assertFalse(accessEnc.getBool(true, edgeFlags));
         assertFalse(accessEnc.getBool(false, edgeFlags));
@@ -652,7 +652,7 @@ public class CarFlagEncoderTest {
         assertEquals(5, encoder.getAverageSpeedEnc().getDecimal(false, edgeFlags), .1);
 
         // for a smaller speed factor the minimum speed is also smaller
-        CarFlagEncoder lowFactorCar = new CarFlagEncoder(10, 1, 0);
+        CarTagParser lowFactorCar = new CarTagParser(10, 1, 0);
         EncodingManager lowFactorEm = EncodingManager.create(lowFactorCar);
         edgeFlags = lowFactorEm.createEdgeFlags();
         lowFactorCar.handleWayTags(edgeFlags, way);

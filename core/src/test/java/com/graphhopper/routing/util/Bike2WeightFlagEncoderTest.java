@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class Bike2WeightFlagEncoderTest extends BikeFlagEncoderTest {
 
     @Override
-    protected BikeCommonFlagEncoder createBikeEncoder() {
-        return new Bike2WeightFlagEncoder(new PMap("block_fords=true"));
+    protected BikeCommonTagParser createBikeEncoder() {
+        return new Bike2WeightTagParser(new PMap("block_fords=true"));
     }
 
     private Graph initExampleGraph() {

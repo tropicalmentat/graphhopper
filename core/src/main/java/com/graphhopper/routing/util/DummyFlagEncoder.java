@@ -15,16 +15,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.graphhopper.routing.util;
 
-import com.graphhopper.util.PMap;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
 
-public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
-    public Bike2WeightFlagEncoder() {
-        this(new PMap());
-    }
+import java.util.List;
 
-    public Bike2WeightFlagEncoder(PMap properties) {
-        super("bike", new PMap(properties).putObject("speed_two_directions", true));
-    }
+public interface DummyFlagEncoder extends FlagEncoder {
+
+    void setEncodedValueLookup(EncodedValueLookup encodedValueLookup);
+
+    void createEncodedValues(List<EncodedValue> encodedValues);
 }

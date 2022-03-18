@@ -23,14 +23,14 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
 
-import static com.graphhopper.routing.util.BikeCommonFlagEncoder.PUSHING_SECTION_SPEED;
+import static com.graphhopper.routing.util.BikeCommonTagParser.PUSHING_SECTION_SPEED;
 import static com.graphhopper.routing.util.PriorityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MountainBikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
     @Override
-    protected BikeCommonFlagEncoder createBikeEncoder() {
-        return new MountainBikeFlagEncoder(new PMap("block_fords=true"));
+    protected BikeCommonTagParser createBikeEncoder() {
+        return new MountainBikeTagParser(new PMap("block_fords=true"));
     }
 
     @Test

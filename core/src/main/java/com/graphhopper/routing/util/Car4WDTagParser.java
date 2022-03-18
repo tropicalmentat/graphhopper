@@ -15,16 +15,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.graphhopper.routing.util;
 
 import com.graphhopper.util.PMap;
 
-public class Bike2WeightFlagEncoder extends BikeFlagEncoder {
-    public Bike2WeightFlagEncoder() {
-        this(new PMap());
+public class Car4WDTagParser extends CarTagParser {
+    public Car4WDTagParser(PMap properties) {
+        super(properties);
+        trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
+        trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
     }
 
-    public Bike2WeightFlagEncoder(PMap properties) {
-        super("bike", new PMap(properties).putObject("speed_two_directions", true));
+    @Override
+    public String getName() {
+        return "car4wd";
     }
 }

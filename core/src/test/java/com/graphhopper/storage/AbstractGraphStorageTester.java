@@ -657,7 +657,7 @@ public abstract class AbstractGraphStorageTester {
     @Test
     public void test8AndMoreBytesForEdgeFlags() {
         List<FlagEncoder> list = new ArrayList<>();
-        list.add(new CarFlagEncoder(29, 0.001, 0) {
+        list.add(new CarTagParser(29, 0.001, 0) {
             @Override
             public String getName() {
                 return "car0";
@@ -700,14 +700,14 @@ public abstract class AbstractGraphStorageTester {
         assertTrue(edgeIter.getReverse(access1Enc));
 
         list.clear();
-        list.add(new CarFlagEncoder(29, 0.001, 0) {
+        list.add(new CarTagParser(29, 0.001, 0) {
             @Override
             public String getName() {
                 return "car0";
             }
         });
-        list.add(new CarFlagEncoder(29, 0.001, 0));
-        list.add(new CarFlagEncoder(30, 0.001, 0) {
+        list.add(new CarTagParser(29, 0.001, 0));
+        list.add(new CarTagParser(30, 0.001, 0) {
             @Override
             public String getName() {
                 return "car2";

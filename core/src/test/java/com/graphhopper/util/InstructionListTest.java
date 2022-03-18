@@ -395,7 +395,7 @@ public class InstructionListTest {
         na.setNode(3, 43.729821, 7.41725);
         na.setNode(4, 43.729476, 7.417633);
 
-        DecimalEncodedValue priorityEnc = tmpEM.getDecimalEncodedValue(EncodingManager.getKey(foot.getName(), "priority")); // default is priority=0 so set it to 1
+        DecimalEncodedValue priorityEnc = tmpEM.getDecimalEncodedValue(EncodingManager.getKey("foot", "priority")); // default is priority=0 so set it to 1
         GHUtility.setSpeed(5, true, true, foot, g.edge(1, 2).setDistance(20).setName("myroad").set(priorityEnc, 1));
         GHUtility.setSpeed(5, true, true, foot, g.edge(2, 3).setDistance(20).setName("myroad").set(priorityEnc, 1));
         PointList pointList = new PointList();

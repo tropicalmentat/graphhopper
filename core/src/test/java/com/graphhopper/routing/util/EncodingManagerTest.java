@@ -51,34 +51,7 @@ public class EncodingManagerTest {
         }
     }
 
-    @Test
-    public void testSupportFords() {
-        // 1) no encoder crossing fords
-        String flagEncoderStrings = "car,bike,foot";
-        EncodingManager manager = EncodingManager.create(flagEncoderStrings);
-
-        assertFalse(((CarFlagEncoder) manager.getEncoder("car")).isBlockFords());
-        assertFalse(((BikeFlagEncoder) manager.getEncoder("bike")).isBlockFords());
-        assertFalse(((FootFlagEncoder) manager.getEncoder("foot")).isBlockFords());
-
-        // 2) two encoders crossing fords
-        flagEncoderStrings = "car, bike|block_fords=true, foot|block_fords=false";
-        manager = EncodingManager.create(flagEncoderStrings);
-
-        assertFalse(((CarFlagEncoder) manager.getEncoder("car")).isBlockFords());
-        assertTrue(((BikeFlagEncoder) manager.getEncoder("bike")).isBlockFords());
-        assertFalse(((FootFlagEncoder) manager.getEncoder("foot")).isBlockFords());
-
-        // 2) Try combined with another tag
-        flagEncoderStrings = "car|turn_costs=true|block_fords=true, bike, foot|block_fords=false";
-        manager = EncodingManager.create(flagEncoderStrings);
-
-        assertTrue(((CarFlagEncoder) manager.getEncoder("car")).isBlockFords());
-        assertFalse(((BikeFlagEncoder) manager.getEncoder("bike")).isBlockFords());
-        assertFalse(((FootFlagEncoder) manager.getEncoder("foot")).isBlockFords());
-    }
-
-    @Test
+       @Test
     public void validEV() {
         for (String str : Arrays.asList("blup_test", "test", "test12", "tes$0", "car_test_test", "small_car$average_speed")) {
             assertTrue(EncodingManager.isValidEncodedValue(str), str);

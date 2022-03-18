@@ -22,7 +22,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.Dijkstra;
 import com.graphhopper.routing.InstructionsFromEdges;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TagParserManager;
 import com.graphhopper.routing.util.TraversalMode;
@@ -50,11 +50,11 @@ public class PathSimplificationTest {
     private final Translation usTR = trMap.getWithFallBack(Locale.US);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private TagParserManager carManager;
-    private CarFlagEncoder carEncoder;
+    private CarTagParser carEncoder;
 
     @BeforeEach
     public void setUp() {
-        carEncoder = new CarFlagEncoder();
+        carEncoder = new CarTagParser();
         carManager = TagParserManager.create(carEncoder);
     }
 

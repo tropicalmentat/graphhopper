@@ -24,7 +24,7 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
 
-import static com.graphhopper.routing.util.BikeCommonFlagEncoder.PUSHING_SECTION_SPEED;
+import static com.graphhopper.routing.util.BikeCommonTagParser.PUSHING_SECTION_SPEED;
 import static com.graphhopper.routing.util.PriorityCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BikeFlagEncoderTest extends AbstractBikeFlagEncoderTester {
 
     @Override
-    protected BikeCommonFlagEncoder createBikeEncoder() {
-        return new BikeFlagEncoder(new PMap("block_fords=true"));
+    protected BikeCommonTagParser createBikeEncoder() {
+        return new BikeTagParser(new PMap("block_fords=true"));
     }
 
     @Test

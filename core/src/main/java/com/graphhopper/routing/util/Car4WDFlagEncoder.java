@@ -19,21 +19,8 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.util.PMap;
 
-/**
- * Defines bit layout for cars with four wheel drive
- *
- * @author zstadler
- */
 public class Car4WDFlagEncoder extends CarFlagEncoder {
-
     public Car4WDFlagEncoder(PMap properties) {
         super(properties);
-        trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
-        trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
-    }
-
-    @Override
-    public String getName() {
-        return "car4wd";
     }
 }

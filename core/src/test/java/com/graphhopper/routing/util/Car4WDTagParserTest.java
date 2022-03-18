@@ -31,11 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Peter Karich
  * @author zstadler
  */
-public class Car4WDFlagEncoderTest extends CarFlagEncoderTest {
+public class Car4WDTagParserTest extends CarTagParserTest {
 
     @Override
-    CarFlagEncoder createEncoder() {
-        return new Car4WDFlagEncoder(new PMap("speed_two_directions=true|block_fords=true"));
+    CarTagParser createParser() {
+        return new Car4WDTagParser(new PMap("speed_two_directions=true|block_fords=true"));
     }
 
     @Override

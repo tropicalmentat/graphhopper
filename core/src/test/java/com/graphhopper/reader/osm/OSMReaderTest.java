@@ -661,8 +661,8 @@ public class OSMReaderTest {
      */
     @Test
     public void testTurnFlagCombination() {
-        CarFlagEncoder car = new CarFlagEncoder(5, 5, 24);
-        CarFlagEncoder truck = new CarFlagEncoder(5, 5, 24) {
+        CarTagParser car = new CarTagParser(5, 5, 24);
+        CarTagParser truck = new CarTagParser(5, 5, 24) {
             @Override
             public TransportationMode getTransportationMode() {
                 return TransportationMode.HGV;
