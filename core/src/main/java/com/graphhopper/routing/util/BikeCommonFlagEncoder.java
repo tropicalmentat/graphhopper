@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.weighting.PriorityWeighting;
 
 import java.util.List;
 
@@ -40,7 +41,15 @@ abstract public class BikeCommonFlagEncoder extends BaseDummyFlagEncoder {
 
     @Override
     public TransportationMode getTransportationMode() {
-        throw new UnsupportedOperationException();
+        return TransportationMode.BIKE;
+    }
+
+    @Override
+    public boolean supports(Class<?> feature) {
+        if (super.supports(feature))
+            return true;
+
+        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class RoadsFlagEncoder extends BaseDummyFlagEncoder {
 
     @Override
     public TransportationMode getTransportationMode() {
-        throw new UnsupportedOperationException();
+        return TransportationMode.VEHICLE;
     }
 
     @Override

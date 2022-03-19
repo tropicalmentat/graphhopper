@@ -58,7 +58,7 @@ public class CarFlagEncoder extends BaseDummyFlagEncoder {
 
     @Override
     public TransportationMode getTransportationMode() {
-        throw new UnsupportedOperationException();
+        return TransportationMode.CAR;
     }
 
     @Override

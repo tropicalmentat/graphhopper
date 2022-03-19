@@ -72,7 +72,7 @@ public abstract class BaseDummyFlagEncoder implements DummyFlagEncoder {
 
     @Override
     public boolean supports(Class<?> feature) {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class LowLevelAPIExample {
     private static final String graphLocation = "target/lowlevel-graph";
 
     public static void createAndSaveGraph() {
-        CarFlagEncoder encoder = new CarFlagEncoder();
+        CarTagParser encoder = new CarTagParser();
         TagParserManager em = TagParserManager.create(encoder);
         GraphHopperStorage graph = new GraphBuilder(em).setRAM(graphLocation, true).create();
         // Make a weighted edge between two nodes and set average speed to 50km/h
