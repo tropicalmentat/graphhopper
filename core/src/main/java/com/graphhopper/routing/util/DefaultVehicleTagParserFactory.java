@@ -26,7 +26,7 @@ import com.graphhopper.util.PMap;
  */
 public class DefaultVehicleTagParserFactory implements VehicleTagParserFactory {
     @Override
-    public AbstractFlagEncoder createFlagEncoder(String name, PMap configuration) {
+    public VehicleTagParser createFlagEncoder(String name, PMap configuration) {
         if (name.equals(ROADS))
             return new RoadsTagParser();
 

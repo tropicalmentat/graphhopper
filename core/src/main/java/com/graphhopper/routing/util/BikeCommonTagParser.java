@@ -36,7 +36,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Nop
  * @author ratrun
  */
-abstract public class BikeCommonTagParser extends AbstractFlagEncoder {
+abstract public class BikeCommonTagParser extends VehicleTagParser {
 
     protected static final int PUSHING_SECTION_SPEED = 4;
     // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)

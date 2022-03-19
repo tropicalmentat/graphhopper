@@ -39,7 +39,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Nop
  * @author Karl Hübner
  */
-public class FootTagParser extends AbstractFlagEncoder {
+public class FootTagParser extends VehicleTagParser {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;

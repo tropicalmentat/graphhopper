@@ -35,5 +35,5 @@ public interface VehicleTagParserFactory {
     String MOTORCYCLE = "motorcycle";
     String WHEELCHAIR = "wheelchair";
 
-    AbstractFlagEncoder createFlagEncoder(String name, PMap configuration);
+    VehicleTagParser createFlagEncoder(String name, PMap configuration);
 }

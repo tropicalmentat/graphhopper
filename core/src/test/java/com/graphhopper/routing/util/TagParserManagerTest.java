@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TagParserManagerTest {
     @Test
     public void testToDetailsString() {
-        AbstractFlagEncoder encoder = new AbstractFlagEncoder(1, 2.0, 0) {
+        VehicleTagParser encoder = new VehicleTagParser(1, 2.0, 0) {
             @Override
             public TransportationMode getTransportationMode() {
                 return TransportationMode.BIKE;

@@ -32,7 +32,7 @@ import java.util.*;
  * @author Peter Karich
  * @author Nop
  */
-public class CarTagParser extends AbstractFlagEncoder {
+public class CarTagParser extends VehicleTagParser {
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<>();
     protected final Set<String> badSurfaceSpeedMap = new HashSet<>();
     private final boolean speedTwoDirections;

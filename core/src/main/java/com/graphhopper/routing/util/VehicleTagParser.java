@@ -39,7 +39,7 @@ import java.util.*;
  * @author Nop
  * @see EncodingManager
  */
-public abstract class AbstractFlagEncoder implements FlagEncoder {
+public abstract class VehicleTagParser implements FlagEncoder {
     protected final Set<String> intendedValues = new HashSet<>(5);
     // order is important
     protected final List<String> restrictions = new ArrayList<>(5);
@@ -70,7 +70,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
      * @param maxTurnCosts specify the maximum value used for turn costs, if this value is reached a
      *                     turn is forbidden and results in costs of positive infinity.
      */
-    protected AbstractFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
+    protected VehicleTagParser(int speedBits, double speedFactor, int maxTurnCosts) {
         this.maxTurnCosts = maxTurnCosts <= 0 ? 0 : maxTurnCosts;
         this.speedBits = speedBits;
         this.speedFactor = speedFactor;

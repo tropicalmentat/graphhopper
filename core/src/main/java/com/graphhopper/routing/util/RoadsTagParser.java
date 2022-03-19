@@ -7,7 +7,7 @@ import com.graphhopper.storage.IntsRef;
 
 import java.util.List;
 
-public class RoadsTagParser extends AbstractFlagEncoder {
+public class RoadsTagParser extends VehicleTagParser {
 
     final boolean speedTwoDirections = true;
 
