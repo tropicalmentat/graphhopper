@@ -18,9 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
-import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import com.graphhopper.routing.weighting.CurvatureWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
@@ -53,10 +51,33 @@ public class MotorcycleTagParser extends CarTagParser {
     }
 
     public MotorcycleTagParser(PMap properties) {
-        super(properties.putObject("name", "motorcycle").putObject("speed_two_directions", true));
+        this(
+                new SimpleBooleanEncodedValue(getKey("motorcycle", "access"), true),
+                new DecimalEncodedValueImpl(getKey("motorcycle", "average_speed"), properties.getInt("speed_bits", 5), properties.getDouble("speed_factor", 5), true),
+                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create("motorcycle", properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
+                new DecimalEncodedValueImpl(getKey("motorcycle", "priority"), 4, PriorityCode.getFactor(1), false),
+                new DecimalEncodedValueImpl(getKey("motorcycle", "curvature"), 4, 0.1, false),
+                new PMap(properties).putObject("name", "motorcycle")
+        );
+    }
 
-        priorityWayEncoder = new DecimalEncodedValueImpl(getKey(getName(), "priority"), 4, PriorityCode.getFactor(1), false);
-        curvatureEncoder = new DecimalEncodedValueImpl(getKey(getName(), "curvature"), 4, 0.1, false);
+    public MotorcycleTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey("motorcycle", "access")),
+                lookup.getDecimalEncodedValue(getKey("motorcycle", "average_speed")),
+                lookup.hasEncodedValue(TurnCost.key("motorcycle")) ? lookup.getDecimalEncodedValue(TurnCost.key("motorcycle")) : null,
+                lookup.getDecimalEncodedValue(getKey("motorcycle", "priority")),
+                lookup.getDecimalEncodedValue(getKey("motorcycle", "curvature")),
+                new PMap(properties).putObject("name", "motorcycle")
+        );
+        roundaboutEnc = lookup.getBooleanEncodedValue(Roundabout.KEY);
+    }
+
+    public MotorcycleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
+                               DecimalEncodedValue priorityWayEncoder, DecimalEncodedValue curvatureEnc, PMap properties) {
+        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", "motorcycle"));
+        this.priorityWayEncoder = priorityWayEncoder;
+        this.curvatureEncoder = curvatureEnc;
 
         barriers.remove("bus_trap");
         barriers.remove("sump_buster");

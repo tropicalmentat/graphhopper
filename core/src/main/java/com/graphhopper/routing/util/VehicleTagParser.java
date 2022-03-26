@@ -74,13 +74,22 @@ public abstract class VehicleTagParser implements FlagEncoder {
      *                     turn is forbidden and results in costs of positive infinity.
      */
     protected VehicleTagParser(String name, int speedBits, double speedFactor, boolean speedTwoDirections, int maxTurnCosts) {
+        this(
+                new SimpleBooleanEncodedValue(getKey(name, "access"), true),
+                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
+                name, speedBits, speedFactor,
+                maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
+        );
+    }
+
+    protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
         this.name = name;
         this.speedBits = speedBits;
         this.speedFactor = speedFactor;
 
-        this.accessEnc = new SimpleBooleanEncodedValue(getKey(name, "access"), true);
-        this.avgSpeedEnc = new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections);
-        this.turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
+        this.accessEnc = accessEnc;
+        this.avgSpeedEnc = speedEnc;
+        this.turnCostEnc = turnCostEnc;
 
         oneways.add("yes");
         oneways.add("true");

@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing.util;
 
+import com.graphhopper.routing.ev.Smoothness;
 import com.graphhopper.util.PMap;
 
 /**
@@ -71,15 +72,15 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.EXCELLENT, 1.1d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.GOOD, 1.0d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.INTERMEDIATE, 0.9d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.BAD, 0.7d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.VERY_BAD, 0.6d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.HORRIBLE, 0.5d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.VERY_HORRIBLE, 0.4d);
+        setSmoothnessSpeedFactor(Smoothness.EXCELLENT, 1.1d);
+        setSmoothnessSpeedFactor(Smoothness.GOOD, 1.0d);
+        setSmoothnessSpeedFactor(Smoothness.INTERMEDIATE, 0.9d);
+        setSmoothnessSpeedFactor(Smoothness.BAD, 0.7d);
+        setSmoothnessSpeedFactor(Smoothness.VERY_BAD, 0.6d);
+        setSmoothnessSpeedFactor(Smoothness.HORRIBLE, 0.5d);
+        setSmoothnessSpeedFactor(Smoothness.VERY_HORRIBLE, 0.4d);
         // SmoothnessSpeed <= smoothnessFactorPushingSectionThreshold gets mapped to speed PUSHING_SECTION_SPEED
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.IMPASSABLE, smoothnessFactorPushingSectionThreshold);
+        setSmoothnessSpeedFactor(Smoothness.IMPASSABLE, smoothnessFactorPushingSectionThreshold);
 
         barriers.add("kissing_gate");
         barriers.add("stile");

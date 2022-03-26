@@ -18,12 +18,14 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.util.Helper.keepIn;
 
 /**
@@ -38,7 +40,37 @@ public class Bike2WeightTagParser extends BikeTagParser {
     }
 
     public Bike2WeightTagParser(PMap properties) {
-        super(new PMap(properties).putObject("speed_two_directions", true).putObject("name", properties.getString("name", "bike2")));
+        this(
+                new SimpleBooleanEncodedValue(getKey(properties.getString("name", "bike2"), "access")),
+                new DecimalEncodedValueImpl(getKey(properties.getString("name", "bike2"), "average_speed"), properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 2), true),
+                new DecimalEncodedValueImpl(getKey(properties.getString("name", "bike2"), "priority"), 4, PriorityCode.getFactor(1), false),
+                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create("bike2", properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
+                new PMap(properties).putObject("name", properties.getString("name", "bike2"))
+        );
+    }
+
+    public Bike2WeightTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey(properties.getString("name", "bike2"), "access")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike2"), "average_speed")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike2"), "priority")),
+                lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "bike2"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "bike2"))) : null,
+                properties
+        );
+        // todonow: we can move this to bike common tag parser once we clean up constructors
+        encodedValueLookup = lookup;
+        bikeRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
+        smoothnessEnc = lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class);
+        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
+    }
+
+    public Bike2WeightTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc,
+                                DecimalEncodedValue priorityEnc, DecimalEncodedValue turnCostEnc, PMap properties) {
+        super(accessEnc, speedEnc, priorityEnc, properties.getString("name", "bike2"),
+                properties.getInt("speed_bits", 4),
+                properties.getDouble("speed_factor", 2), turnCostEnc);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", false));
     }
 
     @Override

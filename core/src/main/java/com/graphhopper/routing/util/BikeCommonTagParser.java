@@ -61,9 +61,17 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
     private String classBicycleKey;
 
     protected BikeCommonTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        super(name, speedBits, speedFactor, speedTwoDirections, maxTurnCosts);
+        this(
+                new SimpleBooleanEncodedValue(getKey(name, "access")),
+                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
+                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
+                name, speedBits, speedFactor, maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
+        );
+    }
 
-        priorityEnc = new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false);
+    protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, name, speedBits, speedFactor, turnCostEnc);
+        this.priorityEnc = priorityEnc;
 
         restrictedValues.add("agricultural");
         restrictedValues.add("forestry");

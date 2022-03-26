@@ -1,12 +1,31 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
+
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class RoadsTagParser extends VehicleTagParser {
 
     public RoadsTagParser() {
-        super("roads", 7, 2, true, 3);
+        this(
+                new SimpleBooleanEncodedValue(getKey("roads", "access")),
+                new DecimalEncodedValueImpl(getKey("roads", "average_speed"), 7, 2, true),
+                TurnCost.create("roads", 3)
+        );
+    }
+
+    public RoadsTagParser(EncodedValueLookup lookup) {
+        this(
+                lookup.getBooleanEncodedValue(EncodingManager.getKey("roads", "access")),
+                lookup.getDecimalEncodedValue(EncodingManager.getKey("roads", "average_speed")),
+                lookup.getDecimalEncodedValue(TurnCost.key("roads"))
+        );
+    }
+
+    public RoadsTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, "roads", 7, 2, turnCostEnc);
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(254);
     }
 

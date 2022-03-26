@@ -81,7 +81,7 @@ public class OSMMaxSpeedParser implements TagParser {
         carMaxSpeedEnc.setDecimal(true, edgeFlags, bwdSpeed);
         return edgeFlags;
     }
-    
+
     /**
      * @return <i>true</i> if the given speed is not {@link Double#NaN}
      */

@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.AVOID;
 import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
 
@@ -56,7 +58,29 @@ public class WheelchairTagParser extends FootTagParser {
     }
 
     protected WheelchairTagParser(int speedBits, double speedFactor) {
-        super("wheelchair", speedBits, speedFactor, true);
+        this(
+                new SimpleBooleanEncodedValue(getKey("wheelchair", "access")),
+                new DecimalEncodedValueImpl(getKey("wheelchair", "average_speed"), speedBits, speedFactor, true),
+                new DecimalEncodedValueImpl(getKey("wheelchair", "priority"), 4, PriorityCode.getFactor(1), false),
+                speedBits, speedFactor
+        );
+    }
+
+    public WheelchairTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey("wheelchair", "access")),
+                lookup.getDecimalEncodedValue(getKey("wheelchair", "average_speed")),
+                lookup.getDecimalEncodedValue(getKey("wheelchair", "priority")),
+                properties.getInt("speed_bits", 4),
+                properties.getDouble("speed_factor", 1)
+        );
+        footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", false));
+    }
+
+    protected WheelchairTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, int speedBits, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, "wheelchair", speedBits, speedFactor);
 
         restrictions.add("wheelchair");
 

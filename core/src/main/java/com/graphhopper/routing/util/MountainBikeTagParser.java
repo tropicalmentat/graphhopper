@@ -18,11 +18,13 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.util.PMap;
 
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 
 /**
@@ -47,7 +49,36 @@ public class MountainBikeTagParser extends BikeCommonTagParser {
     }
 
     protected MountainBikeTagParser(int speedBits, double speedFactor, int maxTurnCosts) {
-        super("mtb", speedBits, speedFactor, maxTurnCosts, false);
+        this(
+                new SimpleBooleanEncodedValue(getKey("mtb", "access")),
+                new DecimalEncodedValueImpl(getKey("mtb", "average_speed"), speedBits, speedFactor, false),
+                new DecimalEncodedValueImpl(getKey("mtb", "priority"), 4, PriorityCode.getFactor(1), false),
+                speedBits, speedFactor,
+                maxTurnCosts > 0 ? TurnCost.create("mtb", maxTurnCosts) : null
+        );
+    }
+
+    public MountainBikeTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey("mtb", "access")),
+                lookup.getDecimalEncodedValue(getKey("mtb", "average_speed")),
+                lookup.getDecimalEncodedValue(getKey("mtb", "priority")),
+                properties.getInt("speed_bits", 4),
+                properties.getDouble("speed_factor", 2),
+                lookup.hasEncodedValue(TurnCost.key("mtb")) ? lookup.getDecimalEncodedValue(TurnCost.key("mtb")) : null
+        );
+        // todonow: we can move this to bike common tag parser once we clean up constructors
+        encodedValueLookup = lookup;
+        bikeRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
+        smoothnessEnc = lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class);
+        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", false));
+    }
+
+    protected MountainBikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                                    int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, priorityEnc, "mtb", speedBits, speedFactor, turnCostEnc);
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);

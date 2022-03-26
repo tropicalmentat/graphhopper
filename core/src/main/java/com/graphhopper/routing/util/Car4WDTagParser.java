@@ -17,7 +17,10 @@
  */
 package com.graphhopper.routing.util;
 
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.util.PMap;
+
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 /**
  * Defines bit layout for cars with four wheel drive
@@ -27,7 +30,28 @@ import com.graphhopper.util.PMap;
 public class Car4WDTagParser extends CarTagParser {
 
     public Car4WDTagParser(PMap properties) {
-        super(new PMap(properties).putObject("name", properties.getString("name", "car4wd")));
+        this(
+                new SimpleBooleanEncodedValue(getKey(properties.getString("name", "car4wd"), "access")),
+                new DecimalEncodedValueImpl(getKey(properties.getString("name", "car4wd"), "average_speed"), properties.getInt("speed_bits", 5), properties.getDouble("speed_factor", 5), properties.getBool("speed_two_directions", false)),
+                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create(properties.getString("name", "car4wd"), properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
+                new PMap(properties).putObject("name", "car4wd")
+        );
+    }
+
+    public Car4WDTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey(properties.getString("name", "car4wd"), "access")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "car4wd"), "average_speed")),
+                lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "car4wd"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "car4wd"))) : null,
+                new PMap(properties).putObject("name", "car4wd")
+        );
+        encodedValueLookup = lookup;
+        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
+    }
+
+    public Car4WDTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
+                           PMap properties) {
+        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", properties.getString("name", "car4wd")));
         trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
     }

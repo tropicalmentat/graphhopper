@@ -17,7 +17,11 @@
  */
 package com.graphhopper.routing.util;
 
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.util.PMap;
+
+import static com.graphhopper.routing.ev.Smoothness.*;
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 /**
  * Specifies the settings for cycletouring/trekking
@@ -50,7 +54,38 @@ public class BikeTagParser extends BikeCommonTagParser {
     }
 
     public BikeTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        super(name, speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
+        this(
+                new SimpleBooleanEncodedValue(getKey(name, "access")),
+                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
+                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
+                name, speedBits, speedFactor,
+                maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
+        );
+    }
+
+    public BikeTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey(properties.getString("name", "bike"), "access")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike"), "average_speed")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike"), "priority")),
+                properties.getString("name", "bike"),
+                properties.getInt("speed_bits", 4),
+                properties.getDouble("speed_factor", 2),
+                // todonow: why do we not just return null when EV is missing? just like java.util.Map?
+                lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "bike"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "bike"))) : null
+        );
+        // todonow: we can move this to bike common tag parser once we clean up constructors
+        encodedValueLookup = lookup;
+        bikeRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
+        smoothnessEnc = lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class);
+        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", false));
+    }
+
+    public BikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                         String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, priorityEnc, name, speedBits, speedFactor, turnCostEnc);
         addPushingSection("path");
         addPushingSection("footway");
         addPushingSection("pedestrian");
@@ -71,15 +106,15 @@ public class BikeTagParser extends BikeCommonTagParser {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.EXCELLENT, 1.1d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.GOOD, 1.0d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.INTERMEDIATE, 0.9d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.BAD, 0.7d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.VERY_BAD, 0.6d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.HORRIBLE, 0.5d);
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.VERY_HORRIBLE, 0.4d);
+        setSmoothnessSpeedFactor(EXCELLENT, 1.1d);
+        setSmoothnessSpeedFactor(GOOD, 1.0d);
+        setSmoothnessSpeedFactor(INTERMEDIATE, 0.9d);
+        setSmoothnessSpeedFactor(BAD, 0.7d);
+        setSmoothnessSpeedFactor(VERY_BAD, 0.6d);
+        setSmoothnessSpeedFactor(HORRIBLE, 0.5d);
+        setSmoothnessSpeedFactor(VERY_HORRIBLE, 0.4d);
         // SmoothnessSpeed <= smoothnessFactorPushingSectionThreshold gets mapped to speed PUSHING_SECTION_SPEED
-        setSmoothnessSpeedFactor(com.graphhopper.routing.ev.Smoothness.IMPASSABLE, smoothnessFactorPushingSectionThreshold);
+        setSmoothnessSpeedFactor(IMPASSABLE, smoothnessFactorPushingSectionThreshold);
 
         barriers.add("kissing_gate");
         barriers.add("stile");

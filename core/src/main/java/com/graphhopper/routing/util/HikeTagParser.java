@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
@@ -25,6 +26,7 @@ import com.graphhopper.util.*;
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 
 /**
@@ -54,7 +56,30 @@ public class HikeTagParser extends FootTagParser {
     }
 
     protected HikeTagParser(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        super(name, speedBits, speedFactor, speedTwoDirections);
+        this(
+                new SimpleBooleanEncodedValue(getKey(name, "access")),
+                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
+                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
+                name, speedBits, speedFactor
+        );
+    }
+
+    public HikeTagParser(EncodedValueLookup lookup, PMap properties) {
+        this(
+                lookup.getBooleanEncodedValue(getKey(properties.getString("name", "hike"), "access")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "average_speed")),
+                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "priority")),
+                properties.getString("name", "hike"),
+                properties.getInt("speed_bits", 4),
+                properties.getDouble("speed_factor", 1)
+        );
+        footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", false));
+    }
+
+    protected HikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, name, speedBits, speedFactor);
 
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());
