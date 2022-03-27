@@ -166,8 +166,8 @@ public class FootTagParser extends VehicleTagParser {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(registerNewEncodedValue);
+    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
+        super.createEncodedValues(lookup, registerNewEncodedValue);
         registerNewEncodedValue.add(priorityWayEncoder);
 
         footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);

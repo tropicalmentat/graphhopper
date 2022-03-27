@@ -24,6 +24,7 @@ import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
+import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
@@ -41,7 +42,7 @@ import static com.graphhopper.routing.util.EncodingManager.getKey;
  * @author Nop
  * @see EncodingManager
  */
-public abstract class VehicleTagParser implements FlagEncoder {
+public abstract class VehicleTagParser implements TagParser, FlagEncoder {
     private final String name;
     protected final Set<String> intendedValues = new HashSet<>(5);
     // order is important
@@ -102,7 +103,7 @@ public abstract class VehicleTagParser implements FlagEncoder {
         restrictions.addAll(OSMRoadAccessParser.toOSMRestrictions(getTransportationMode()));
     }
 
-    protected void init(DateRangeParser dateRangeParser) {
+    public void init(DateRangeParser dateRangeParser) {
         if (registered)
             throw new IllegalStateException("You must not register a TagParser (" + this + ") twice or for two EncodingManagers!");
         registered = true;
@@ -144,7 +145,8 @@ public abstract class VehicleTagParser implements FlagEncoder {
     /**
      * Defines bits used for edge flags used for access, speed etc.
      */
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
+    @Override
+    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
         registerNewEncodedValue.add(accessEnc);
         registerNewEncodedValue.add(avgSpeedEnc);
         roundaboutEnc = getBooleanEncodedValue(Roundabout.KEY);
@@ -153,6 +155,11 @@ public abstract class VehicleTagParser implements FlagEncoder {
     public void createTurnCostEncodedValues(List<EncodedValue> registerNewTurnCostEncodedValues) {
         if (supportsTurnCosts())
             registerNewTurnCostEncodedValues.add(turnCostEnc);
+    }
+
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, IntsRef relationFlags) {
+        return handleWayTags(edgeFlags, way);
     }
 
     /**

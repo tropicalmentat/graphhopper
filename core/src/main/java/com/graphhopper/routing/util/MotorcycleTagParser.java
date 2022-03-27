@@ -133,8 +133,8 @@ public class MotorcycleTagParser extends CarTagParser {
      * Define the place of the speedBits in the edge flags for car.
      */
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(registerNewEncodedValue);
+    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
+        super.createEncodedValues(lookup, registerNewEncodedValue);
         registerNewEncodedValue.add(priorityWayEncoder);
         registerNewEncodedValue.add(curvatureEncoder);
     }

@@ -196,8 +196,8 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(registerNewEncodedValue);
+    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
+        super.createEncodedValues(lookup, registerNewEncodedValue);
         registerNewEncodedValue.add(priorityEnc);
 
         bikeRouteEnc = getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
