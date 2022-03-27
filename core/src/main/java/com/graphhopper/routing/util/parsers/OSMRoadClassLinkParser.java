@@ -28,7 +28,11 @@ public class OSMRoadClassLinkParser implements TagParser {
     private final BooleanEncodedValue linkEnc;
 
     public OSMRoadClassLinkParser() {
-        this.linkEnc = new SimpleBooleanEncodedValue(RoadClassLink.KEY);
+        this(new SimpleBooleanEncodedValue(RoadClassLink.KEY));
+    }
+
+    public OSMRoadClassLinkParser(BooleanEncodedValue linkEnc) {
+        this.linkEnc = linkEnc;
     }
 
     @Override

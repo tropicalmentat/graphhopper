@@ -30,7 +30,7 @@ import static com.graphhopper.routing.ev.RoadClass.OTHER;
 
 public class OSMRoadClassParser implements TagParser {
 
-    private final EnumEncodedValue<RoadClass> roadClassEnc;
+    protected final EnumEncodedValue<RoadClass> roadClassEnc;
 
     public OSMRoadClassParser() {
         this(new EnumEncodedValue<>(RoadClass.KEY, RoadClass.class));

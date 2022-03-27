@@ -28,13 +28,25 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class OSMBikeNetworkTagParser implements RelationTagParser {
-    private EnumEncodedValue<RouteNetwork> bikeRouteEnc;
+    private final EnumEncodedValue<RouteNetwork> bikeRouteEnc;
     // used only for internal transformation from relations into edge flags
-    private EnumEncodedValue<RouteNetwork> transformerRouteRelEnc;
+    private final EnumEncodedValue<RouteNetwork> transformerRouteRelEnc;
+
+    public OSMBikeNetworkTagParser() {
+        this(
+                new EnumEncodedValue<>(BikeNetwork.KEY, RouteNetwork.class),
+                new EnumEncodedValue<>(getKey("bike", "route_relation"), RouteNetwork.class)
+        );
+    }
+
+    public OSMBikeNetworkTagParser(EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<RouteNetwork> relationEnc) {
+        this.bikeRouteEnc = bikeRouteEnc;
+        this.transformerRouteRelEnc = relationEnc;
+    }
 
     @Override
     public void createRelationEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        registerNewEncodedValue.add(transformerRouteRelEnc = new EnumEncodedValue<>(getKey("bike", "route_relation"), RouteNetwork.class));
+        registerNewEncodedValue.add(transformerRouteRelEnc);
     }
 
     @Override
@@ -61,7 +73,7 @@ public class OSMBikeNetworkTagParser implements RelationTagParser {
 
     @Override
     public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        registerNewEncodedValue.add(bikeRouteEnc = new EnumEncodedValue<>(BikeNetwork.KEY, RouteNetwork.class));
+        registerNewEncodedValue.add(bikeRouteEnc);
     }
 
     @Override

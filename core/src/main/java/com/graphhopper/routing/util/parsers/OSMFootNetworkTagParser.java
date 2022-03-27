@@ -28,13 +28,26 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class OSMFootNetworkTagParser implements RelationTagParser {
-    private EnumEncodedValue<RouteNetwork> footRouteEnc;
+    private final EnumEncodedValue<RouteNetwork> footRouteEnc;
     // used for internal transformation from relations into footRouteEnc
-    private EnumEncodedValue<RouteNetwork> transformerRouteRelEnc;
+    private final EnumEncodedValue<RouteNetwork> transformerRouteRelEnc;
+
+    public OSMFootNetworkTagParser() {
+        this(
+                new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class),
+                new EnumEncodedValue<>(getKey("foot", "route_relation"), RouteNetwork.class)
+        );
+    }
+
+    public OSMFootNetworkTagParser(EnumEncodedValue<RouteNetwork> footRouteEnc,
+                                   EnumEncodedValue<RouteNetwork> relationEnc) {
+        this.footRouteEnc = footRouteEnc;
+        this.transformerRouteRelEnc = relationEnc;
+    }
 
     @Override
     public void createRelationEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        registerNewEncodedValue.add(transformerRouteRelEnc = new EnumEncodedValue<>(getKey("foot", "route_relation"), RouteNetwork.class));
+        registerNewEncodedValue.add(transformerRouteRelEnc);
     }
 
     @Override
@@ -61,7 +74,7 @@ public class OSMFootNetworkTagParser implements RelationTagParser {
 
     @Override
     public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        registerNewEncodedValue.add(footRouteEnc = new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class));
+        registerNewEncodedValue.add(footRouteEnc);
     }
 
     @Override
