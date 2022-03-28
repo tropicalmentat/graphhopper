@@ -20,6 +20,12 @@ package com.graphhopper.routing.util;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.BikeNetwork;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.RouteNetwork;
+import com.graphhopper.routing.ev.Smoothness;
+import com.graphhopper.routing.util.parsers.OSMBikeNetworkTagParser;
+import com.graphhopper.routing.util.parsers.OSMSmoothnessParser;
 import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +35,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MountainBikeTagParserTest extends AbstractBikeTagParserTester {
     @Override
-    protected BikeCommonFlagEncoder createBikeTagParser() {
-        return new MountainBikeFlagEncoder(new PMap("block_fords=true"));
+    protected EncodingManager createEncodingManager() {
+        return EncodingManager.create("mtb");
+    }
+
+    @Override
+    protected BikeCommonTagParser createBikeTagParser(EncodedValueLookup lookup) {
+        return new MountainBikeTagParser(lookup, new PMap("block_fords=true"));
+    }
+
+    @Override
+    protected TagParserBundle createParserBundle(BikeCommonTagParser parser, EncodedValueLookup lookup) {
+        return new TagParserBundle()
+                .addRelationTagParser(relConfig -> new OSMBikeNetworkTagParser(lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class), relConfig))
+                .addWayTagParser(new OSMSmoothnessParser(lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class)))
+                .addWayTagParser(parser);
     }
 
     @Test

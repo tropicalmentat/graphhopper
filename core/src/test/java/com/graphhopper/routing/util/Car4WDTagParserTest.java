@@ -18,6 +18,8 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
+import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
@@ -34,8 +36,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class Car4WDTagParserTest extends CarTagParserTest {
 
     @Override
-    CarFlagEncoder createParser() {
-        return new Car4WDFlagEncoder(new PMap("speed_two_directions=true|block_fords=true"));
+    CarFlagEncoder createEncoder(PMap properties) {
+        return new Car4WDFlagEncoder(properties);
+    }
+
+    @Override
+    CarTagParser createParser(EncodedValueLookup lookup, PMap properties) {
+        Car4WDTagParser parser = new Car4WDTagParser(lookup, properties);
+        parser.init(new DateRangeParser());
+        return parser;
     }
 
     @Override

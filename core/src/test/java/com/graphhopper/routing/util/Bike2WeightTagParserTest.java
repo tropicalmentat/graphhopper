@@ -18,7 +18,9 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.util.parsers.OSMBikeNetworkTagParser;
+import com.graphhopper.routing.util.parsers.OSMSmoothnessParser;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.IntsRef;
@@ -34,12 +36,25 @@ import static org.junit.jupiter.api.Assertions.*;
 public class Bike2WeightTagParserTest extends BikeTagParserTest {
 
     @Override
-    protected BikeCommonFlagEncoder createBikeTagParser() {
-        return new Bike2WeightFlagEncoder(new PMap("block_fords=true"));
+    protected EncodingManager createEncodingManager() {
+        return EncodingManager.create("bike2");
+    }
+
+    @Override
+    protected BikeCommonTagParser createBikeTagParser(EncodedValueLookup lookup) {
+        return new Bike2WeightTagParser(lookup, new PMap("block_fords=true"));
+    }
+
+    @Override
+    protected TagParserBundle createParserBundle(BikeCommonTagParser parser, EncodedValueLookup lookup) {
+        return new TagParserBundle()
+                .addRelationTagParser(relConfig -> new OSMBikeNetworkTagParser(lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class), relConfig))
+                .addWayTagParser(new OSMSmoothnessParser(lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class)))
+                .addWayTagParser(parser);
     }
 
     private Graph initExampleGraph() {
-        BaseGraph gs = new BaseGraph.Builder(encodingManager.getEncodingManager()).set3D(true).create();
+        BaseGraph gs = new BaseGraph.Builder(encodingManager).set3D(true).create();
         NodeAccess na = gs.getNodeAccess();
         // 50--(0.0001)-->49--(0.0004)-->55--(0.0005)-->60
         na.setNode(0, 51.1, 12.001, 50);
@@ -92,14 +107,15 @@ public class Bike2WeightTagParserTest extends BikeTagParserTest {
 
     @Test
     public void testRoutingFailsWithInvalidGraph_issue665() {
-        BaseGraph graph = new BaseGraph.Builder(encodingManager.getEncodingManager()).set3D(true).create();
+        BaseGraph graph = new BaseGraph.Builder(encodingManager).set3D(true).create();
         ReaderWay way = new ReaderWay(0);
         way.setTag("route", "ferry");
         way.setTag("edge_distance", 500.0);
 
         assertNotEquals(EncodingManager.Access.CAN_SKIP, parser.getAccess(way));
-        IntsRef wayFlags = encodingManager.handleWayTags(way, encodingManager.createRelationFlags());
-        graph.edge(0, 1).setDistance(247).setFlags(wayFlags);
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        edgeFlags = parserBundle.handleWayTags(edgeFlags, way, encodingManager.createRelationFlags());
+        graph.edge(0, 1).setDistance(247).setFlags(edgeFlags);
 
         assertTrue(isGraphValid(graph, parser));
     }

@@ -4,11 +4,14 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -34,8 +37,10 @@ public class GraphHopperStorageLMTest {
         GHUtility.setSpeed(60, true, true, carFlagEncoder, graph.edge(0, 1).setDistance(1));
         updateDistancesFor(graph, 0, 0.00, 0.00);
         updateDistancesFor(graph, 1, 0.01, 0.01);
+        CarTagParser parser = new CarTagParser(encodingManager, new PMap());
+        parser.init(new DateRangeParser());
         graph.getEdgeIteratorState(0, 1).setFlags(
-                carFlagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way_0_1));
+                parser.handleWayTags(encodingManager.createEdgeFlags(), way_0_1));
 
         // 1-2
         ReaderWay way_1_2 = new ReaderWay(28l);
@@ -45,7 +50,7 @@ public class GraphHopperStorageLMTest {
         GHUtility.setSpeed(60, true, true, carFlagEncoder, graph.edge(1, 2).setDistance(1));
         updateDistancesFor(graph, 2, 0.02, 0.02);
         graph.getEdgeIteratorState(1, 2).setFlags(
-                carFlagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way_1_2));
+                parser.handleWayTags(encodingManager.createEdgeFlags(), way_1_2));
 
         graph.flush();
         graph.close();

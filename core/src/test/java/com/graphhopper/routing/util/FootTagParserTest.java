@@ -19,6 +19,7 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.storage.BaseGraph;
@@ -36,11 +37,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class FootTagParserTest {
     private final EncodingManager encodingManager = EncodingManager.create("car,bike,foot");
-    private final FootFlagEncoder footEncoder = (FootFlagEncoder) encodingManager.getEncoder("foot");
+    private final FootTagParser footEncoder = new FootTagParser(encodingManager, new PMap());
     private final DecimalEncodedValue footAvgSpeedEnc = footEncoder.getAverageSpeedEnc();
     private final BooleanEncodedValue footAccessEnc = footEncoder.getAccessEnc();
     private final DecimalEncodedValue carAvSpeedEnc = encodingManager.getEncoder("car").getAverageSpeedEnc();
     private final BooleanEncodedValue carAccessEnc = encodingManager.getEncoder("car").getAccessEnc();
+
+    public FootTagParserTest() {
+        footEncoder.init(new DateRangeParser());
+    }
 
     @Test
     public void testGetSpeed() {
@@ -405,8 +410,7 @@ public class FootTagParserTest {
         node.setTag("foot", "no");
         assertTrue(footEncoder.isBarrier(node));
 
-        FootFlagEncoder tmpEncoder = new FootFlagEncoder(new PMap("block_fords=true"));
-        EncodingManager.create(tmpEncoder);
+        FootTagParser tmpEncoder = new FootTagParser(encodingManager, new PMap("block_fords=true"));
         node = new ReaderNode(1, -1, -1);
         node.setTag("ford", "no");
         assertFalse(tmpEncoder.isBarrier(node));
@@ -418,9 +422,6 @@ public class FootTagParserTest {
 
     @Test
     public void testBlockByDefault() {
-        FootFlagEncoder footEncoder = new FootFlagEncoder();
-        EncodingManager.create(footEncoder);
-
         ReaderNode node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "gate");
         // potential barriers are no barrier by default
@@ -437,8 +438,6 @@ public class FootTagParserTest {
         assertFalse(footEncoder.isBarrier(node));
 
         // pass potential barriers per default (if no other access tag exists)
-        footEncoder = new FootFlagEncoder();
-        EncodingManager.create(footEncoder);
         node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "gate");
         assertFalse(footEncoder.isBarrier(node));
@@ -450,8 +449,6 @@ public class FootTagParserTest {
         assertTrue(footEncoder.isBarrier(node));
 
         // don't block potential barriers: barrier:cattle_grid should not block here
-        footEncoder = new FootFlagEncoder();
-        EncodingManager.create(footEncoder);
         node = new ReaderNode(1, -1, -1);
         node.setTag("barrier", "cattle_grid");
         assertFalse(footEncoder.isBarrier(node));

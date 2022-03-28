@@ -30,19 +30,15 @@ import static com.graphhopper.routing.util.EncodingManager.getKey;
 public class OSMFootNetworkTagParser implements RelationTagParser {
     private final EnumEncodedValue<RouteNetwork> footRouteEnc;
     // used for internal transformation from relations into footRouteEnc
-    private final EnumEncodedValue<RouteNetwork> transformerRouteRelEnc;
+    private final EnumEncodedValue<RouteNetwork> transformerRouteRelEnc = new EnumEncodedValue<>(getKey("foot", "route_relation"), RouteNetwork.class);
 
     public OSMFootNetworkTagParser() {
-        this(
-                new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class),
-                new EnumEncodedValue<>(getKey("foot", "route_relation"), RouteNetwork.class)
-        );
+        this.footRouteEnc = new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class);
     }
 
-    public OSMFootNetworkTagParser(EnumEncodedValue<RouteNetwork> footRouteEnc,
-                                   EnumEncodedValue<RouteNetwork> relationEnc) {
+    public OSMFootNetworkTagParser(EnumEncodedValue<RouteNetwork> footRouteEnc, EncodedValue.InitializerConfig relConfig) {
         this.footRouteEnc = footRouteEnc;
-        this.transformerRouteRelEnc = relationEnc;
+        this.transformerRouteRelEnc.init(relConfig);
     }
 
     @Override

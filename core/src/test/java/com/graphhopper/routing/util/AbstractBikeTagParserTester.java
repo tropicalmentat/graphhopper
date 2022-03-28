@@ -20,6 +20,7 @@ package com.graphhopper.routing.util;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -37,27 +38,35 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author ratrun
  */
 public abstract class AbstractBikeTagParserTester {
-    protected BikeCommonFlagEncoder parser;
-    protected TagParserManager encodingManager;
+    protected EncodingManager encodingManager;
+    protected BikeCommonTagParser parser;
+    protected TagParserBundle parserBundle;
     protected BooleanEncodedValue roundaboutEnc;
     protected DecimalEncodedValue priorityEnc;
     protected DecimalEncodedValue avgSpeedEnc;
 
     @BeforeEach
     public void setUp() {
-        encodingManager = TagParserManager.create(parser = createBikeTagParser());
+        encodingManager = createEncodingManager();
+        parser = createBikeTagParser(encodingManager);
+        parser.init(new DateRangeParser());
+        parserBundle = createParserBundle(parser, encodingManager);
         roundaboutEnc = encodingManager.getBooleanEncodedValue(Roundabout.KEY);
-        priorityEnc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser, "priority"));
+        priorityEnc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser.getName(), "priority"));
         avgSpeedEnc = parser.getAverageSpeedEnc();
     }
 
-    protected abstract BikeCommonFlagEncoder createBikeTagParser();
+    protected abstract EncodingManager createEncodingManager();
+
+    protected abstract BikeCommonTagParser createBikeTagParser(EncodedValueLookup lookup);
+
+    protected abstract TagParserBundle createParserBundle(BikeCommonTagParser parser, EncodedValueLookup lookup);
 
     protected void assertPriority(int expectedPrio, ReaderWay way) {
-        IntsRef relFlags = encodingManager.handleRelationTags(new ReaderRelation(0), encodingManager.createRelationFlags());
-        IntsRef edgeFlags = encodingManager.handleWayTags(way, relFlags);
-        DecimalEncodedValue enc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser.toString(), "priority"));
-        assertEquals(PriorityCode.getValue(expectedPrio), enc.getDecimal(false, edgeFlags), 0.01);
+        IntsRef relFlags = parserBundle.handleRelationTags(new ReaderRelation(0), parserBundle.createRelationFlags());
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        edgeFlags = parserBundle.handleWayTags(edgeFlags, way, relFlags);
+        assertEquals(PriorityCode.getValue(expectedPrio), priorityEnc.getDecimal(false, edgeFlags), 0.01);
     }
 
     protected void assertPriorityAndSpeed(int expectedPrio, double expectedSpeed, ReaderWay way) {
@@ -65,8 +74,9 @@ public abstract class AbstractBikeTagParserTester {
     }
 
     protected void assertPriorityAndSpeed(int expectedPrio, double expectedSpeed, ReaderWay way, ReaderRelation rel) {
-        IntsRef relFlags = encodingManager.handleRelationTags(rel, encodingManager.createRelationFlags());
-        IntsRef edgeFlags = encodingManager.handleWayTags(way, relFlags);
+        IntsRef relFlags = parserBundle.handleRelationTags(rel, parserBundle.createRelationFlags());
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        edgeFlags = parserBundle.handleWayTags(edgeFlags, way, relFlags);
         DecimalEncodedValue enc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser.toString(), "priority"));
         assertEquals(PriorityCode.getValue(expectedPrio), enc.getDecimal(false, edgeFlags), 0.01);
         assertEquals(expectedSpeed, parser.getAverageSpeedEnc().getDecimal(false, edgeFlags), 0.1);
@@ -74,8 +84,9 @@ public abstract class AbstractBikeTagParserTester {
     }
 
     protected double getSpeedFromFlags(ReaderWay way) {
-        IntsRef relFlags = encodingManager.createRelationFlags();
-        IntsRef flags = encodingManager.handleWayTags(way, relFlags);
+        IntsRef relFlags = parserBundle.createRelationFlags();
+        IntsRef flags = encodingManager.createEdgeFlags();
+        flags = parserBundle.handleWayTags(flags, way, relFlags);
         return avgSpeedEnc.getDecimal(false, flags);
     }
 
@@ -236,8 +247,10 @@ public abstract class AbstractBikeTagParserTester {
 
         // two relation tags => we currently cannot store a list, so pick the lower ordinal 'regional'
         // Example https://www.openstreetmap.org/way/213492914 => two hike 84544, 2768803 and two bike relations 3162932, 5254650
-        IntsRef relFlags = encodingManager.handleRelationTags(rel2, encodingManager.handleRelationTags(rel, encodingManager.createRelationFlags()));
-        IntsRef edgeFlags = encodingManager.handleWayTags(way, relFlags);
+        IntsRef relFlags = parserBundle.createRelationFlags();
+        relFlags = parserBundle.handleRelationTags(rel2, parserBundle.handleRelationTags(rel, relFlags));
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        edgeFlags = parserBundle.handleWayTags(edgeFlags, way, relFlags);
         EnumEncodedValue<RouteNetwork> enc = encodingManager.getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
         assertEquals(RouteNetwork.REGIONAL, enc.getEnum(false, edgeFlags));
     }

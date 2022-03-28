@@ -1,9 +1,12 @@
 package com.graphhopper.routing.ev;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,11 +28,13 @@ public class DecimalEncodedValueTest {
         CarFlagEncoder carEncoder = new CarFlagEncoder(10, 0.5, 0);
         EncodingManager em = EncodingManager.create(carEncoder);
         DecimalEncodedValue carAverageSpeedEnc = em.getDecimalEncodedValue(EncodingManager.getKey(carEncoder, "average_speed"));
+        CarTagParser carTagParser = new CarTagParser(em, new PMap());
+        carTagParser.init(new DateRangeParser());
 
         ReaderWay way = new ReaderWay(1);
         way.setTag("highway", "motorway_link");
         way.setTag("maxspeed", "70 mph");
-        IntsRef flags = carEncoder.handleWayTags(em.createEdgeFlags(), way);
+        IntsRef flags = carTagParser.handleWayTags(em.createEdgeFlags(), way);
         assertEquals(101.5, carAverageSpeedEnc.getDecimal(true, flags), 1e-1);
 
         DecimalEncodedValue instance1 = new DecimalEncodedValueImpl("test1", 8, 0.5, false);
