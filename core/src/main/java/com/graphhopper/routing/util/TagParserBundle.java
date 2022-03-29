@@ -18,13 +18,16 @@
 
 package com.graphhopper.routing.util;
 
+import com.graphhopper.reader.OSMTurnRelation;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.util.parsers.RelationTagParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TurnCostParser;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ import java.util.function.Function;
 
 public class TagParserBundle {
     private final List<TagParser> wayTagParsers;
+    private final List<VehicleTagParser> vehicleTagParsers = new ArrayList<>();
     private final List<RelationTagParser> relationTagParsers;
     private final List<TurnCostParser> turnCostParsers;
     private final EncodedValue.InitializerConfig relConfig = new EncodedValue.InitializerConfig();
@@ -48,6 +52,8 @@ public class TagParserBundle {
 
     public TagParserBundle addWayTagParser(TagParser tagParser) {
         wayTagParsers.add(tagParser);
+        if (tagParser instanceof VehicleTagParser)
+            vehicleTagParsers.add(((VehicleTagParser) tagParser));
         return this;
     }
 
@@ -59,6 +65,10 @@ public class TagParserBundle {
     public TagParserBundle addTurnCostTagParser(TurnCostParser turnCostParser) {
         turnCostParsers.add(turnCostParser);
         return this;
+    }
+
+    public boolean acceptWay(ReaderWay way) {
+        return vehicleTagParsers.stream().anyMatch(v -> !v.getAccess(way).equals(EncodingManager.Access.CAN_SKIP));
     }
 
     public IntsRef handleRelationTags(ReaderRelation relation, IntsRef relFlags) {
@@ -74,6 +84,14 @@ public class TagParserBundle {
         for (TagParser parser : wayTagParsers)
             parser.handleWayTags(edgeFlags, way, relationFlags);
         return edgeFlags;
+    }
+
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
+        wayTagParsers.forEach(t -> t.applyWayTags(way, edge));
+    }
+
+    public void handleTurnRelationTags(OSMTurnRelation turnRelation, TurnCostParser.ExternalInternalMap map, Graph graph) {
+        turnCostParsers.forEach(t -> t.handleTurnRelationTags(turnRelation, map, graph));
     }
 
     public IntsRef createRelationFlags() {

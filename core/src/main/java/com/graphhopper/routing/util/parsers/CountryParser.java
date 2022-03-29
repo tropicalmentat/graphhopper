@@ -30,7 +30,11 @@ public class CountryParser implements TagParser {
     private final EnumEncodedValue<Country> countryEnc;
 
     public CountryParser() {
-        this.countryEnc = Country.create();
+        this(Country.create());
+    }
+
+    public CountryParser(EnumEncodedValue<Country> countryEnc) {
+        this.countryEnc = countryEnc;
     }
 
     @Override

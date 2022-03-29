@@ -32,6 +32,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import java.util.*;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
+import static java.util.Collections.emptyMap;
 
 /**
  * Abstract class which handles flag decoding and encoding. Every encoder should be registered to a
@@ -159,14 +160,19 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, IntsRef relationFlags) {
-        return handleWayTags(edgeFlags, way);
+        edgeFlags = handleWayTags(edgeFlags, way);
+        if (!edgeFlags.isEmpty()) {
+            Map<String, Object> nodeTags = way.getTag("node_tags", emptyMap());
+            handleNodeTags(edgeFlags, nodeTags);
+        }
+        return edgeFlags;
     }
 
     /**
      * Analyze properties of a way and create the edge flags. This method is called in the second
      * parsing step.
      */
-    public abstract IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way);
+    protected abstract IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way);
 
     /**
      * Updates the given edge flags based on node tags
