@@ -61,7 +61,7 @@ public class Bike2WeightTagParserTest extends BikeTagParserTest {
         na.setNode(1, 51.1, 12.002, 60);
         EdgeIteratorState edge = gs.edge(0, 1).
                 setWayGeometry(Helper.createPointList3D(51.1, 12.0011, 49, 51.1, 12.0015, 55));
-        GHUtility.setSpeed(10, 15, parser, edge.setDistance(100));
+        GHUtility.setSpeed(10, 15, encodingManager.fetchEdgeEncoders().get(0), edge.setDistance(100));
         return gs;
     }
 
@@ -93,7 +93,7 @@ public class Bike2WeightTagParserTest extends BikeTagParserTest {
 
     @Test
     public void testSetSpeed0_issue367() {
-        IntsRef edgeFlags = GHUtility.setSpeed(10, 10, parser, encodingManager.createEdgeFlags());
+        IntsRef edgeFlags = GHUtility.setSpeed(10, 10, encodingManager.fetchEdgeEncoders().get(0), encodingManager.createEdgeFlags());
         assertEquals(10, avgSpeedEnc.getDecimal(false, edgeFlags), .1);
         assertEquals(10, avgSpeedEnc.getDecimal(true, edgeFlags), .1);
 
@@ -117,13 +117,11 @@ public class Bike2WeightTagParserTest extends BikeTagParserTest {
         edgeFlags = parserBundle.handleWayTags(edgeFlags, way, encodingManager.createRelationFlags());
         graph.edge(0, 1).setDistance(247).setFlags(edgeFlags);
 
-        assertTrue(isGraphValid(graph, parser));
+        assertTrue(isGraphValid(graph, parser.getAccessEnc()));
     }
 
-    private boolean isGraphValid(Graph graph, FlagEncoder encoder) {
+    private boolean isGraphValid(Graph graph, BooleanEncodedValue accessEnc) {
         EdgeExplorer explorer = graph.createEdgeExplorer();
-
-        BooleanEncodedValue accessEnc = encoder.getAccessEnc();
         // iterator at node 0 considers the edge 0-1 to be undirected
         EdgeIterator iter0 = explorer.setBaseNode(0);
         iter0.next();

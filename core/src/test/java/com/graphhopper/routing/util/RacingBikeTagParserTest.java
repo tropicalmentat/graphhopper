@@ -105,7 +105,7 @@ public class RacingBikeTagParserTest extends AbstractBikeTagParserTester {
 
     @Test
     public void testGetSpeed() {
-        IntsRef intsRef = GHUtility.setSpeed(10, 0, parser, encodingManager.createEdgeFlags());
+        IntsRef intsRef = GHUtility.setSpeed(10, 0, encodingManager.fetchEdgeEncoders().get(0), encodingManager.createEdgeFlags());
         assertEquals(10, avgSpeedEnc.getDecimal(false, intsRef), 1e-1);
         ReaderWay way = new ReaderWay(1);
         way.setTag("highway", "track");

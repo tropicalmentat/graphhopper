@@ -20,8 +20,6 @@ package com.graphhopper.routing.util;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
-import com.graphhopper.routing.weighting.CurvatureWeighting;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
@@ -52,14 +50,15 @@ public class MotorcycleTagParser extends CarTagParser {
                 lookup.hasEncodedValue(TurnCost.key("motorcycle")) ? lookup.getDecimalEncodedValue(TurnCost.key("motorcycle")) : null,
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "priority")),
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "curvature")),
-                new PMap(properties).putObject("name", "motorcycle")
+                new PMap(properties).putObject("name", "motorcycle"),
+                TransportationMode.MOTORCYCLE
         );
         roundaboutEnc = lookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     public MotorcycleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
-                               DecimalEncodedValue priorityWayEncoder, DecimalEncodedValue curvatureEnc, PMap properties) {
-        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", "motorcycle"));
+                               DecimalEncodedValue priorityWayEncoder, DecimalEncodedValue curvatureEnc, PMap properties, TransportationMode transportationMode) {
+        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", "motorcycle"), transportationMode);
         this.priorityWayEncoder = priorityWayEncoder;
         this.curvatureEncoder = curvatureEnc;
 
@@ -269,23 +268,6 @@ public class MotorcycleTagParser extends CarTagParser {
      */
     protected double increaseBendinessImpact(double bendiness) {
         return (Math.pow(bendiness, 2));
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.MOTORCYCLE;
-    }
-
-    @Override
-    public boolean supports(Class<?> feature) {
-        if (super.supports(feature))
-            return true;
-
-        if (CurvatureWeighting.class.isAssignableFrom(feature)) {
-            return true;
-        }
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
 }

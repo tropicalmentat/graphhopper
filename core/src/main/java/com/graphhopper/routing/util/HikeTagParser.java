@@ -19,7 +19,6 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
 
@@ -43,7 +42,6 @@ public class HikeTagParser extends FootTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 properties.getString("name", "hike"),
-                properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 1)
         );
         footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
@@ -52,8 +50,8 @@ public class HikeTagParser extends FootTagParser {
     }
 
     protected HikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
-                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, int speedBits, double speedFactor) {
-        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, name, speedBits, speedFactor);
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, name, speedFactor);
 
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());
@@ -126,14 +124,6 @@ public class HikeTagParser extends FootTagParser {
             double newSpeed = Math.sqrt(1 + slope * slope) / (slope + 1 / 5.4);
             edge.set(avgSpeedEnc, Helper.keepIn(newSpeed, 1, 5));
         }
-    }
-
-    @Override
-    public boolean supports(Class<?> feature) {
-        if (super.supports(feature))
-            return true;
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
 }

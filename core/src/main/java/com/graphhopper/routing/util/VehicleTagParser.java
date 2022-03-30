@@ -22,7 +22,10 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
@@ -31,7 +34,6 @@ import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.*;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -43,7 +45,7 @@ import static java.util.Collections.emptyMap;
  * @author Nop
  * @see EncodingManager
  */
-public abstract class VehicleTagParser implements TagParser, FlagEncoder {
+public abstract class VehicleTagParser implements TagParser {
     private final String name;
     protected final Set<String> intendedValues = new HashSet<>(5);
     // order is important
@@ -53,7 +55,7 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
     protected final Set<String> oneways = new HashSet<>(5);
     // http://wiki.openstreetmap.org/wiki/Mapfeatures#Barrier
     protected final Set<String> barriers = new HashSet<>(5);
-    protected final int speedBits;
+    // todonow: better replace this with some kind of minimum speed or take this from avgSpeedEnc directly
     protected final double speedFactor;
     protected final BooleanEncodedValue accessEnc;
     protected final DecimalEncodedValue avgSpeedEnc;
@@ -68,25 +70,9 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
     private ConditionalTagInspector conditionalTagInspector;
     protected FerrySpeedCalculator ferrySpeedCalc;
 
-    /**
-     * @param speedBits    specify the number of bits used for speed
-     * @param speedFactor  specify the factor to multiply the stored value (can be used to increase
-     *                     or decrease accuracy of speed value)
-     * @param maxTurnCosts specify the maximum value used for turn costs, if this value is reached a
-     *                     turn is forbidden and results in costs of positive infinity.
-     */
-    protected VehicleTagParser(String name, int speedBits, double speedFactor, boolean speedTwoDirections, int maxTurnCosts) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(name, "access"), true),
-                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
-                name, speedBits, speedFactor,
-                maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
-        );
-    }
-
-    protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
+    protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name,
+                               double speedFactor, DecimalEncodedValue turnCostEnc, TransportationMode transportationMode) {
         this.name = name;
-        this.speedBits = speedBits;
         this.speedFactor = speedFactor;
 
         this.accessEnc = accessEnc;
@@ -101,7 +87,7 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
         ferries.add("shuttle_train");
         ferries.add("ferry");
 
-        restrictions.addAll(OSMRoadAccessParser.toOSMRestrictions(getTransportationMode()));
+        restrictions.addAll(OSMRoadAccessParser.toOSMRestrictions(transportationMode));
     }
 
     public void init(DateRangeParser dateRangeParser) {
@@ -116,11 +102,6 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
 
     protected void setConditionalTagInspector(ConditionalTagInspector inspector) {
         conditionalTagInspector = inspector;
-    }
-
-    @Override
-    public boolean isRegistered() {
-        return registered;
     }
 
     public boolean isBlockFords() {
@@ -205,8 +186,8 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
             return blockFords && node.hasTag("ford", "yes");
     }
 
-    @Override
     public double getMaxSpeed() {
+        // todonow: double check this is set correctly or better take it via constructor if it is actually needed
         return maxPossibleSpeed;
     }
 
@@ -261,66 +242,12 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
         }
     }
 
-    protected String getPropertiesString() {
-        return "speed_factor=" + speedFactor + "|speed_bits=" + speedBits + "|turn_costs=" + supportsTurnCosts();
-    }
-
-    @Override
-    public List<EncodedValue> getEncodedValues() {
-        return encodedValueLookup.getEncodedValues();
-    }
-
-    @Override
-    public <T extends EncodedValue> T getEncodedValue(String key, Class<T> encodedValueType) {
-        return encodedValueLookup.getEncodedValue(key, encodedValueType);
-    }
-
-    @Override
-    public BooleanEncodedValue getBooleanEncodedValue(String key) {
-        return encodedValueLookup.getBooleanEncodedValue(key);
-    }
-
-    @Override
-    public IntEncodedValue getIntEncodedValue(String key) {
-        return encodedValueLookup.getIntEncodedValue(key);
-    }
-
-    @Override
-    public DecimalEncodedValue getDecimalEncodedValue(String key) {
-        return encodedValueLookup.getDecimalEncodedValue(key);
-    }
-
-    @Override
-    public <T extends Enum<?>> EnumEncodedValue<T> getEnumEncodedValue(String key, Class<T> enumType) {
-        return encodedValueLookup.getEnumEncodedValue(key, enumType);
-    }
-
-    @Override
-    public StringEncodedValue getStringEncodedValue(String key) {
-        return encodedValueLookup.getStringEncodedValue(key);
-    }
-
-    public void setEncodedValueLookup(EncodedValueLookup encodedValueLookup) {
-        this.encodedValueLookup = encodedValueLookup;
-    }
-
-    @Override
     public boolean supportsTurnCosts() {
         return turnCostEnc != null;
     }
 
     public DecimalEncodedValue getTurnCostEnc() {
         return turnCostEnc;
-    }
-
-    @Override
-    public boolean supports(Class<?> feature) {
-        return false;
-    }
-
-    @Override
-    public boolean hasEncodedValue(String key) {
-        return encodedValueLookup.hasEncodedValue(key);
     }
 
     public final List<String> getRestrictions() {

@@ -43,7 +43,6 @@ public class MountainBikeTagParser extends BikeCommonTagParser {
                 lookup.getDecimalEncodedValue(getKey("mtb", "priority")),
                 lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class),
                 lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class),
-                properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 2),
                 lookup.hasEncodedValue(TurnCost.key("mtb")) ? lookup.getDecimalEncodedValue(TurnCost.key("mtb")) : null
         );
@@ -56,8 +55,8 @@ public class MountainBikeTagParser extends BikeCommonTagParser {
 
     protected MountainBikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                                     EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
-                                    int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, "mtb", speedBits, speedFactor, turnCostEnc);
+                                    double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, "mtb", speedFactor, turnCostEnc);
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 16); // now unpaved ...
         setTrackTypeSpeed("grade3", 12);

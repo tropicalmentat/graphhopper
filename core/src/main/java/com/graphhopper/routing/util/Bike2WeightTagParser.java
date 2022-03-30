@@ -54,7 +54,6 @@ public class Bike2WeightTagParser extends BikeTagParser {
                                 DecimalEncodedValue priorityEnc, EnumEncodedValue<RouteNetwork> bikeRouteEnc,
                                 EnumEncodedValue<Smoothness> smoothnessEnc, DecimalEncodedValue turnCostEnc, PMap properties) {
         super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, properties.getString("name", "bike2"),
-                properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 2), turnCostEnc);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));

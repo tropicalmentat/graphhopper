@@ -49,7 +49,6 @@ public class WheelchairTagParser extends FootTagParser {
                 lookup.getDecimalEncodedValue(getKey("wheelchair", "average_speed")),
                 lookup.getDecimalEncodedValue(getKey("wheelchair", "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
-                properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 1)
         );
         footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
@@ -58,8 +57,8 @@ public class WheelchairTagParser extends FootTagParser {
     }
 
     protected WheelchairTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
-                                  EnumEncodedValue<RouteNetwork> footRouteEnc, int speedBits, double speedFactor) {
-        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, "wheelchair", speedBits, speedFactor);
+                                  EnumEncodedValue<RouteNetwork> footRouteEnc, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, "wheelchair", speedFactor);
 
         restrictions.add("wheelchair");
 

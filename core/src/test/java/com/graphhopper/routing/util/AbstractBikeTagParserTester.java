@@ -48,6 +48,8 @@ public abstract class AbstractBikeTagParserTester {
     @BeforeEach
     public void setUp() {
         encodingManager = createEncodingManager();
+        if (encodingManager.fetchEdgeEncoders().size() > 1)
+            fail("currently we assume there is only one encoder per test");
         parser = createBikeTagParser(encodingManager);
         parser.init(new DateRangeParser());
         parserBundle = createParserBundle(parser, encodingManager);
@@ -367,7 +369,7 @@ public abstract class AbstractBikeTagParserTester {
         ReaderWay osmWay = new ReaderWay(1);
         osmWay.setTag("highway", "cycleway");
         IntsRef edgeFlags = parser.handleWayTags(encodingManager.createEdgeFlags(), osmWay);
-        DecimalEncodedValue priorityEnc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser, "priority"));
+        DecimalEncodedValue priorityEnc = encodingManager.getDecimalEncodedValue(EncodingManager.getKey(parser.toString(), "priority"));
         assertEquals(PriorityCode.getValue(VERY_NICE.getValue()), priorityEnc.getDecimal(false, edgeFlags), 1e-3);
     }
 

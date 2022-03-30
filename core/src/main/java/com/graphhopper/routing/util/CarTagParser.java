@@ -52,18 +52,19 @@ public class CarTagParser extends VehicleTagParser {
                 lookup.getBooleanEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "access")),
                 lookup.getDecimalEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "average_speed")),
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "car"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "car"))) : null,
-                properties
+                properties,
+                TransportationMode.CAR
         );
         encodedValueLookup = lookup;
         roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
-    public CarTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc, PMap properties) {
+    public CarTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc, PMap properties,
+                        TransportationMode transportationMode) {
         super(accessEnc, speedEnc,
                 properties.getString("name", "car"),
-                properties.getInt("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
-                turnCostEnc);
+                turnCostEnc, transportationMode);
         restrictedValues.add("agricultural");
         restrictedValues.add("forestry");
         restrictedValues.add("no");
@@ -136,11 +137,6 @@ public class CarTagParser extends VehicleTagParser {
         // limit speed on bad surfaces to 30 km/h
         badSurfaceSpeed = 30;
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(properties.getDouble("max_speed", 140));
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.CAR;
     }
 
     protected double getSpeed(ReaderWay way) {

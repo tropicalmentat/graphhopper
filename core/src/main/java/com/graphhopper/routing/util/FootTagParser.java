@@ -19,7 +19,6 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
@@ -61,15 +60,15 @@ public class FootTagParser extends VehicleTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 "foot",
-                properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1)
+             properties.getDouble("speed_factor", 1)
         );
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
 
     protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
-                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, int speedBits, double speedFactor) {
-        super(accessEnc, speedEnc, name, speedBits, speedFactor, null);
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
+        super(accessEnc, speedEnc, name, speedFactor, null, TransportationMode.FOOT);
         this.footRouteEnc = footRouteEnc;
         priorityWayEncoder = priorityEnc;
 
@@ -133,11 +132,6 @@ public class FootTagParser extends VehicleTagParser {
         allowedSacScale.add("demanding_mountain_hiking");
 
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(FERRY_SPEED);
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.FOOT;
     }
 
     /**
@@ -277,11 +271,4 @@ public class FootTagParser extends VehicleTagParser {
             weightToPrioMap.put(44d, SLIGHT_AVOID.getValue());
     }
 
-    @Override
-    public boolean supports(Class<?> feature) {
-        if (super.supports(feature))
-            return true;
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
-    }
 }

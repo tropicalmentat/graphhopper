@@ -19,7 +19,6 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 
@@ -61,8 +60,8 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
 
     protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                                   EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
-                                  String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, name, speedBits, speedFactor, turnCostEnc);
+                                  String name, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, name, speedFactor, turnCostEnc, TransportationMode.BIKE);
         this.bikeRouteEnc = bikeRouteEnc;
         this.smoothnessEnc = smoothnessEnc;
         this.priorityEnc = priorityEnc;
@@ -182,11 +181,6 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
         setSmoothnessSpeedFactor(Smoothness.OTHER, 0.7d);
 
         setAvoidSpeedLimit(71);
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.BIKE;
     }
 
     @Override
@@ -554,14 +548,6 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
 
     void addPushingSection(String highway) {
         pushingSectionsHighways.add(highway);
-    }
-
-    @Override
-    public boolean supports(Class<?> feature) {
-        if (super.supports(feature))
-            return true;
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
     void setAvoidSpeedLimit(int limit) {

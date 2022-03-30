@@ -18,7 +18,7 @@ public class RoadsTagParser extends VehicleTagParser {
     }
 
     public RoadsTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, "roads", 7, 2, turnCostEnc);
+        super(accessEnc, speedEnc, "roads", 2, turnCostEnc, TransportationMode.VEHICLE);
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(254);
     }
 
@@ -39,11 +39,6 @@ public class RoadsTagParser extends VehicleTagParser {
         if (way.getTag("highway", "").isEmpty())
             return EncodingManager.Access.CAN_SKIP;
         return EncodingManager.Access.WAY;
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.VEHICLE;
     }
 
 }

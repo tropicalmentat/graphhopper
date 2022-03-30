@@ -180,7 +180,7 @@ public class MotorcycleTagParserTest {
         IntsRef flags = encoder.handleWayTags(em.createEdgeFlags(), way);
         edge.setFlags(flags);
         encoder.applyWayTags(way, edge);
-        DecimalEncodedValue curvatureEnc = encoder.getDecimalEncodedValue(EncodingManager.getKey(encoder, "curvature"));
+        DecimalEncodedValue curvatureEnc = em.getDecimalEncodedValue(EncodingManager.getKey("motorcycle", "curvature"));
         return edge.get(curvatureEnc);
     }
 }
