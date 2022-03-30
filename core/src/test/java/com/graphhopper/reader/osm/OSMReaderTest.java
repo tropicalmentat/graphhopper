@@ -397,9 +397,9 @@ public class OSMReaderTest {
 
     @Test
     public void testFords() {
+        // todonow: make sure block fords is passed on to the *parser*
         CarFlagEncoder car = new CarFlagEncoder(new PMap("block_fords=true"));
         GraphHopper hopper = new GraphHopper();
-        hopper.getTagParserManagerBuilder().add(car);
         hopper.setOSMFile(getClass().getResource("test-barriers3.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(
@@ -593,7 +593,13 @@ public class OSMReaderTest {
     public void testRoadAttributes() {
         String fileRoadAttributes = "test-road-attributes.xml";
         GraphHopper hopper = new GraphHopperFacade(fileRoadAttributes);
-        hopper.getTagParserManagerBuilder().add(new OSMMaxWidthParser()).add(new OSMMaxHeightParser()).add(new OSMMaxWeightParser());
+        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        builder.addEncodedValue(MaxWidth.create());
+        builder.addEncodedValue(MaxHeight.create());
+        builder.addEncodedValue(MaxWeight.create());
+        builder.addWayTagParser(lookup -> new OSMMaxWidthParser(lookup.getDecimalEncodedValue(MaxWidth.KEY)));
+        builder.addWayTagParser(lookup -> new OSMMaxHeightParser(lookup.getDecimalEncodedValue(MaxHeight.KEY)));
+        builder.addWayTagParser(lookup -> new OSMMaxWeightParser(lookup.getDecimalEncodedValue(MaxWeight.KEY)));
         hopper.importOrLoad();
 
         DecimalEncodedValue widthEnc = hopper.getEncodingManager().getDecimalEncodedValue(MaxWidth.KEY);
@@ -672,7 +678,6 @@ public class OSMReaderTest {
         BikeFlagEncoder bike = new BikeFlagEncoder(4, 2, 24, false);
 
         GraphHopper hopper = new GraphHopper();
-        hopper.getTagParserManagerBuilder().add(bike).add(truck).add(car);
         hopper.setOSMFile(getClass().getResource("test-multi-profile-turn-restrictions.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(
@@ -995,7 +1000,25 @@ public class OSMReaderTest {
             }
 
             footEncoder = new FootFlagEncoder();
-            getTagParserManagerBuilder().add(footEncoder).add(carEncoder).add(bikeEncoder);
+            EncodingAndParserBuilder builder = getTagParserManagerBuilder();
+            builder.addFlagEncoder(footEncoder);
+            builder.addFlagEncoder(carEncoder);
+            builder.addFlagEncoder(bikeEncoder);
+            builder.addWayTagParser(lookup -> {
+                FootTagParser footTagParser = new FootTagParser(lookup, new PMap());
+                footTagParser.init(new DateRangeParser());
+                return footTagParser;
+            });
+            builder.addWayTagParser(lookup -> {
+                CarTagParser carTagParser = new CarTagParser(lookup, new PMap());
+                carTagParser.init(new DateRangeParser());
+                return carTagParser;
+            });
+            builder.addWayTagParser(lookup -> {
+                BikeTagParser bikeTagParser = new BikeTagParser(lookup, new PMap());
+                bikeTagParser.init(new DateRangeParser());
+                return bikeTagParser;
+            });
             getReaderConfig().setPreferredLanguage(prefLang);
         }
 

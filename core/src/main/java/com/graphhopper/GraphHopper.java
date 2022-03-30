@@ -37,8 +37,7 @@ import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks;
 import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks.PrepareJob;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.countryrules.CountryRuleFactory;
-import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
-import com.graphhopper.routing.util.parsers.TagParserFactory;
+import com.graphhopper.routing.util.parsers.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.routing.weighting.custom.CustomWeighting;
@@ -87,8 +86,9 @@ public class GraphHopper {
     private String customAreasDirectory = "";
     // for graph:
     private GraphHopperStorage ghStorage;
-    private final TagParserManager.Builder emBuilder = new TagParserManager.Builder();
-    private TagParserManager tagParserManager;
+    private final EncodingAndParserBuilder encodingAndParserBuilder = new EncodingAndParserBuilder();
+    private EncodingManager encodingManager;
+    private TagParserBundle tagParserBundle;
     private int defaultSegmentSize = -1;
     private String ghLocation = "";
     private DAType dataAccessDefaultType = DAType.RAM_STORE;
@@ -118,22 +118,19 @@ public class GraphHopper {
     private String osmFile;
     private ElevationProvider eleProvider = ElevationProvider.NOOP;
     private FlagEncoderFactory flagEncoderFactory = new DefaultFlagEncoderFactory();
+    private DefaultVehicleTagParserFactory vehicleTagParserFactory = new DefaultVehicleTagParserFactory();
     private EncodedValueFactory encodedValueFactory = new DefaultEncodedValueFactory();
     private TagParserFactory tagParserFactory = new DefaultTagParserFactory();
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
 
-    public TagParserManager.Builder getTagParserManagerBuilder() {
-        return emBuilder;
-    }
-
-    public TagParserManager getTagParserManager() {
-        if (tagParserManager == null)
-            throw new IllegalStateException("EncodingManager not yet built");
-        return tagParserManager;
+    public EncodingAndParserBuilder getTagParserManagerBuilder() {
+        return encodingAndParserBuilder;
     }
 
     public EncodingManager getEncodingManager() {
-        return getTagParserManager().getEncodingManager();
+        if (encodingManager == null)
+            throw new IllegalStateException("EncodingManager not yet built");
+        return encodingManager;
     }
 
     public ElevationProvider getElevationProvider() {
@@ -225,7 +222,7 @@ public class GraphHopper {
     public GraphHopper setProfiles(List<Profile> profiles) {
         if (!profilesByName.isEmpty())
             throw new IllegalArgumentException("Cannot initialize profiles multiple times");
-        if (tagParserManager != null)
+        if (encodingManager != null)
             throw new IllegalArgumentException("Cannot set profiles after EncodingManager was built");
         for (Profile profile : profiles) {
             Profile previous = this.profilesByName.put(profile.getName(), profile);
@@ -465,11 +462,10 @@ public class GraphHopper {
         if (!ghConfig.getString("spatial_rules.max_bbox", "").isEmpty())
             throw new IllegalArgumentException("spatial_rules.max_bbox has been deprecated. There is no replacement, all custom areas will be considered.");
 
-        if (tagParserManager != null)
+        if (encodingManager != null)
             throw new IllegalStateException("Cannot call init twice. EncodingManager was already initialized.");
-        emBuilder.setDateRangeParser(DateRangeParser.createInstance(ghConfig.getString("datareader.date_range_parser_day", "")));
         setProfiles(ghConfig.getProfiles());
-        tagParserManager = buildEncodingManager(ghConfig);
+        buildEncodingManagerAndTagParserBundle(ghConfig);
 
         if (ghConfig.getString("graph.locktype", "native").equals("simple"))
             lockFactory = new SimpleFSLockFactory();
@@ -518,10 +514,11 @@ public class GraphHopper {
         return this;
     }
 
-    private TagParserManager buildEncodingManager(GraphHopperConfig ghConfig) {
+    private void buildEncodingManagerAndTagParserBundle(GraphHopperConfig ghConfig) {
         if (profilesByName.isEmpty())
             throw new IllegalStateException("no profiles exist but assumed to create EncodingManager. E.g. provide them in GraphHopperConfig when calling GraphHopper.init");
 
+        DateRangeParser dateRangeParser = DateRangeParser.createInstance(ghConfig.getString("datareader.date_range_parser_day", ""));
         String flagEncodersStr = ghConfig.getString("graph.flag_encoders", "");
         Map<String, String> flagEncoderMap = new LinkedHashMap<>();
         for (String encoderStr : flagEncodersStr.split(",")) {
@@ -534,21 +531,45 @@ public class GraphHopper {
         }
         Map<String, String> implicitFlagEncoderMap = new HashMap<>();
         for (Profile profile : profilesByName.values()) {
-            emBuilder.add(Subnetwork.create(profile.getName()));
+            encodingAndParserBuilder.addEncodedValue(Subnetwork.create(profile.getName()));
             if (!flagEncoderMap.containsKey(profile.getVehicle())
                     // overwrite key in implicit map if turn cost support required
                     && (!implicitFlagEncoderMap.containsKey(profile.getVehicle()) || profile.isTurnCosts()))
                 implicitFlagEncoderMap.put(profile.getVehicle(), profile.getVehicle() + (profile.isTurnCosts() ? "|turn_costs=true" : ""));
         }
         flagEncoderMap.putAll(implicitFlagEncoderMap);
-        flagEncoderMap.values().forEach(s -> emBuilder.addIfAbsent(flagEncoderFactory, s));
+        flagEncoderMap.entrySet().stream().filter(e -> !encodingAndParserBuilder.hasFlagEncoder(e.getKey()))
+                .forEach(e -> {
+                    encodingAndParserBuilder.addFlagEncoder(parseEncoderString(flagEncoderFactory, e.getValue()));
+                    String name = e.getKey();
+                    PMap config = new PMap(e.getValue());
+                    encodingAndParserBuilder.addWayTagParser(lookup -> {
+                        VehicleTagParser parser = vehicleTagParserFactory.createParser(lookup, name, config);
+                        // todonow: we only consider date range parser when we add the parser here, but not when it is set
+                        // from the outside using the builder directly
+                        parser.init(dateRangeParser);
+                        return parser;
+                    });
+                });
 
         String encodedValueStr = ghConfig.getString("graph.encoded_values", "");
         for (String tpStr : encodedValueStr.split(",")) {
-            if (!tpStr.isEmpty()) emBuilder.addIfAbsent(tagParserFactory, tpStr);
+            String name = tpStr.trim();
+            if (!tpStr.isEmpty()) {
+                encodingAndParserBuilder.addWayTagParser(lookup -> tagParserFactory.create(lookup, name, new PMap()));
+            }
         }
 
-        return emBuilder.build();
+        // todonow: we risk adding the same parser multiple times
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoundaboutParser(lookup.getBooleanEncodedValue(Roundabout.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassParser(lookup.getEnumEncodedValue(RoadClass.KEY, RoadClass.class)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassLinkParser(lookup.getBooleanEncodedValue(RoadClassLink.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMMaxSpeedParser(lookup.getDecimalEncodedValue(MaxSpeed.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadAccessParser(lookup.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class)));
+
+        encodingManager = encodingAndParserBuilder.buildEncodingManager();
+        tagParserBundle = encodingAndParserBuilder.buildTagParserBundle(encodingManager);
     }
 
     private static ElevationProvider createElevationProvider(GraphHopperConfig ghConfig) {
@@ -690,7 +711,7 @@ public class GraphHopper {
         AreaIndex<CustomArea> areaIndex = new AreaIndex<>(customAreas);
 
         logger.info("start creating graph from " + osmFile);
-        OSMReader reader = new OSMReader(ghStorage.getBaseGraph(), tagParserManager.getEncodingManager(), new TagParserBundle(), osmReaderConfig).setFile(_getOSMFile()).
+        OSMReader reader = new OSMReader(ghStorage.getBaseGraph(), encodingManager, tagParserBundle, osmReaderConfig).setFile(_getOSMFile()).
                 setAreaIndex(areaIndex).
                 setElevationProvider(eleProvider).
                 setCountryRuleFactory(countryRuleFactory);
@@ -761,11 +782,13 @@ public class GraphHopper {
 
         if (!allowWrites && dataAccessDefaultType.isMMap())
             dataAccessDefaultType = DAType.MMAP_RO;
-        if (tagParserManager == null) {
+        if (encodingManager == null) {
             StorableProperties properties = new StorableProperties(new GHDirectory(ghLocation, dataAccessDefaultType));
-            tagParserManager = properties.loadExisting()
-                    ? TagParserManager.create(emBuilder, encodedValueFactory, flagEncoderFactory, properties)
-                    : buildEncodingManager(new GraphHopperConfig());
+            if (properties.loadExisting()) {
+                throw new UnsupportedOperationException("todonow");
+//                TagParserManager.create(emBuilder, encodedValueFactory, flagEncoderFactory, properties);
+            } else
+                buildEncodingManagerAndTagParserBundle(new GraphHopperConfig());
         }
 
         GHDirectory directory = new GHDirectory(ghLocation, dataAccessDefaultType);
@@ -773,7 +796,7 @@ public class GraphHopper {
         ghStorage = new GraphBuilder(getEncodingManager())
                 .setDir(directory)
                 .set3D(hasElevation())
-                .withTurnCosts(tagParserManager.needsTurnCostsSupport())
+                .withTurnCosts(encodingManager.needsTurnCostsSupport())
                 .setSegmentSize(defaultSegmentSize)
                 .build();
         checkProfilesConsistency();
@@ -806,7 +829,6 @@ public class GraphHopper {
     }
 
     private void checkProfilesConsistency() {
-        TagParserManager encodingManager = getTagParserManager();
         for (Profile profile : profilesByName.values()) {
             if (!encodingManager.hasEncoder(profile.getVehicle())) {
                 throw new IllegalArgumentException("Unknown vehicle '" + profile.getVehicle() + "' in profile: " + profile + ". Make sure all vehicles used in 'profiles' exist in 'graph.flag_encoders'");
@@ -1118,7 +1140,7 @@ public class GraphHopper {
         for (Profile profile : profilesByName.values()) {
             // if turn costs are enabled use u-turn costs of zero as we only want to make sure the graph is fully connected assuming finite u-turn costs
             Weighting weighting = createWeighting(profile, new PMap().putObject(Parameters.Routing.U_TURN_COSTS, 0));
-            jobs.add(new PrepareJob(tagParserManager.getBooleanEncodedValue(Subnetwork.key(profile.getName())), weighting));
+            jobs.add(new PrepareJob(encodingManager.getBooleanEncodedValue(Subnetwork.key(profile.getName())), weighting));
         }
         return jobs;
     }
@@ -1188,5 +1210,22 @@ public class GraphHopper {
 
     public OSMReaderConfig getReaderConfig() {
         return osmReaderConfig;
+    }
+
+    public static FlagEncoder parseEncoderString(FlagEncoderFactory factory, String encoderString) {
+        if (!encoderString.equals(toLowerCase(encoderString)))
+            throw new IllegalArgumentException("An upper case name for the FlagEncoder is not allowed: " + encoderString);
+
+        encoderString = encoderString.trim();
+        if (encoderString.isEmpty())
+            throw new IllegalArgumentException("FlagEncoder cannot be empty. " + encoderString);
+
+        String entryVal = "";
+        if (encoderString.contains("|")) {
+            entryVal = encoderString;
+            encoderString = encoderString.split("\\|")[0];
+        }
+        PMap configuration = new PMap(entryVal);
+        return factory.createFlagEncoder(encoderString, configuration);
     }
 }

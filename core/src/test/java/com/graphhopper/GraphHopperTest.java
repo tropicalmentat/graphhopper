@@ -24,10 +24,11 @@ import com.graphhopper.json.Statement;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.dem.SRTMProvider;
 import com.graphhopper.reader.dem.SkadiProvider;
+import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.RoadEnvironment;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.countryrules.CountryRuleFactory;
-import com.graphhopper.routing.util.parsers.OSMMaxSpeedParser;
 import com.graphhopper.routing.util.parsers.OSMRoadEnvironmentParser;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
@@ -1048,13 +1049,16 @@ public class GraphHopperTest {
                 setStoreOnFlush(true);
 
         if (!withTunnelInterpolation) {
-            hopper.getTagParserManagerBuilder().add(new OSMRoadEnvironmentParser() {
+            EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+            builder.addEncodedValue(new EnumEncodedValue<>(RoadEnvironment.KEY, RoadEnvironment.class));
+            builder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)) {
                 @Override
                 public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay readerWay, IntsRef relationFlags) {
                     // do not change RoadEnvironment to avoid triggering tunnel interpolation
                     return edgeFlags;
                 }
-            }).addIfAbsent(new DefaultFlagEncoderFactory(), vehicle);
+            });
+            builder.addFlagEncoder(new DefaultFlagEncoderFactory().createFlagEncoder(vehicle, new PMap()));
         }
 
         hopper.setElevationProvider(new SRTMProvider(DIR));
@@ -2121,9 +2125,6 @@ public class GraphHopperTest {
     public void simplifyWithInstructionsAndPathDetails() {
         final String profile = "profile";
         GraphHopper hopper = new GraphHopper();
-        hopper.getTagParserManagerBuilder()
-                .add(new OSMMaxSpeedParser())
-                .add(new CarFlagEncoder());
         hopper.setOSMFile(BAYREUTH).
                 setProfiles(new Profile(profile).setVehicle("car").setWeighting("fastest")).
                 setGraphHopperLocation(GH_LOCATION);
@@ -2505,7 +2506,9 @@ public class GraphHopperTest {
 
         // load via explicitly configured FlagEncoders then we can define only one profile
         hopper = new GraphHopper();
-        hopper.getTagParserManagerBuilder().add(new CarFlagEncoder()).add(new BikeFlagEncoder());
+        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        builder.addFlagEncoder(new CarFlagEncoder());
+        builder.addFlagEncoder(new BikeFlagEncoder());
         hopper.setProfiles(Collections.singletonList(new Profile("p_car").setVehicle("car").setWeighting("fastest")));
         hopper.setGraphHopperLocation(GH_LOCATION);
         assertTrue(hopper.load());

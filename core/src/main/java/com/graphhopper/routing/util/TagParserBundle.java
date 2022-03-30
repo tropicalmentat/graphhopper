@@ -22,6 +22,7 @@ import com.graphhopper.reader.OSMTurnRelation;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.util.parsers.OSMTurnRelationParser;
 import com.graphhopper.routing.util.parsers.RelationTagParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TurnCostParser;
@@ -52,8 +53,12 @@ public class TagParserBundle {
 
     public TagParserBundle addWayTagParser(TagParser tagParser) {
         wayTagParsers.add(tagParser);
-        if (tagParser instanceof VehicleTagParser)
-            vehicleTagParsers.add(((VehicleTagParser) tagParser));
+        if (tagParser instanceof VehicleTagParser) {
+            VehicleTagParser vehicleTagParser = (VehicleTagParser) tagParser;
+            vehicleTagParsers.add(vehicleTagParser);
+            if (vehicleTagParser.supportsTurnCosts())
+                turnCostParsers.add(new OSMTurnRelationParser(vehicleTagParser.getAccessEnc(), vehicleTagParser.getTurnCostEnc(), vehicleTagParser.getRestrictions()));
+        }
         return this;
     }
 
