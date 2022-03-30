@@ -36,7 +36,11 @@ public class OSMHikeRatingParser implements TagParser {
     private final IntEncodedValue sacScaleEnc;
 
     public OSMHikeRatingParser() {
-        this.sacScaleEnc = HikeRating.create();
+        this(HikeRating.create());
+    }
+
+    public OSMHikeRatingParser(IntEncodedValue sacScaleEnc) {
+        this.sacScaleEnc = sacScaleEnc;
     }
 
     @Override

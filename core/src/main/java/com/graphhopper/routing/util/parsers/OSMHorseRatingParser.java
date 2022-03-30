@@ -36,7 +36,11 @@ public class OSMHorseRatingParser implements TagParser {
     private final IntEncodedValue horseScale;
 
     public OSMHorseRatingParser() {
-        this.horseScale = HorseRating.create();
+        this(HorseRating.create());
+    }
+
+    public OSMHorseRatingParser(IntEncodedValue horseScale) {
+        this.horseScale = horseScale;
     }
 
     @Override
