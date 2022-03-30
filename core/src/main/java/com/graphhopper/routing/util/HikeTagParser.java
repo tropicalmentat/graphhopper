@@ -18,10 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.RouteNetwork;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
@@ -44,6 +41,7 @@ public class HikeTagParser extends FootTagParser {
                 lookup.getBooleanEncodedValue(getKey(properties.getString("name", "hike"), "access")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "average_speed")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "priority")),
+                lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 properties.getString("name", "hike"),
                 properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 1)
@@ -53,8 +51,9 @@ public class HikeTagParser extends FootTagParser {
         blockFords(properties.getBool("block_fords", false));
     }
 
-    protected HikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor) {
-        super(accessEnc, speedEnc, priorityEnc, name, speedBits, speedFactor);
+    protected HikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, int speedBits, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, name, speedBits, speedFactor);
 
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());

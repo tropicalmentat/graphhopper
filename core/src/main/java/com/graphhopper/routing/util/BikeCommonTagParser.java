@@ -59,8 +59,12 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
     // This is the specific bicycle class
     private String classBicycleKey;
 
-    protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
+    protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                                  EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
+                                  String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
         super(accessEnc, speedEnc, name, speedBits, speedFactor, turnCostEnc);
+        this.bikeRouteEnc = bikeRouteEnc;
+        this.smoothnessEnc = smoothnessEnc;
         this.priorityEnc = priorityEnc;
 
         restrictedValues.add("agricultural");
@@ -183,15 +187,6 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
     @Override
     public TransportationMode getTransportationMode() {
         return TransportationMode.BIKE;
-    }
-
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(lookup, registerNewEncodedValue);
-        registerNewEncodedValue.add(priorityEnc);
-
-        bikeRouteEnc = getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
-        smoothnessEnc = getEnumEncodedValue(Smoothness.KEY, Smoothness.class);
     }
 
     @Override

@@ -40,20 +40,21 @@ public class RacingBikeTagParser extends BikeCommonTagParser {
                 lookup.getBooleanEncodedValue(getKey("racingbike", "access")),
                 lookup.getDecimalEncodedValue(getKey("racingbike", "average_speed")),
                 lookup.getDecimalEncodedValue(getKey("racingbike", "priority")),
+                lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class),
+                lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class),
                 properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 2),
                 lookup.hasEncodedValue(TurnCost.key("racingbike")) ? lookup.getDecimalEncodedValue(TurnCost.key("racingbike")) : null
         );
         // todonow: we can move this to bike common tag parser once we clean up constructors
         encodedValueLookup = lookup;
-        bikeRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
-        smoothnessEnc = lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class);
         roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     protected RacingBikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                                  EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
                                   int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, priorityEnc, "racingbike", speedBits, speedFactor, turnCostEnc);
+        super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, "racingbike", speedBits, speedFactor, turnCostEnc);
         preferHighwayTags.add("road");
         preferHighwayTags.add("secondary");
         preferHighwayTags.add("secondary_link");

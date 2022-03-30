@@ -29,7 +29,6 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 
 import java.util.HashSet;
-import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
@@ -112,16 +111,6 @@ public class MotorcycleTagParser extends CarTagParser {
         defaultSpeedMap.put("road", 20);
         // forestry stuff
         defaultSpeedMap.put("track", 15);
-    }
-
-    /**
-     * Define the place of the speedBits in the edge flags for car.
-     */
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(lookup, registerNewEncodedValue);
-        registerNewEncodedValue.add(priorityWayEncoder);
-        registerNewEncodedValue.add(curvatureEncoder);
     }
 
     @Override

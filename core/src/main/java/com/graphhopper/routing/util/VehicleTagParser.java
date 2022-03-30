@@ -143,16 +143,6 @@ public abstract class VehicleTagParser implements TagParser, FlagEncoder {
         return conditionalTagInspector;
     }
 
-    /**
-     * Defines bits used for edge flags used for access, speed etc.
-     */
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        registerNewEncodedValue.add(accessEnc);
-        registerNewEncodedValue.add(avgSpeedEnc);
-        roundaboutEnc = getBooleanEncodedValue(Roundabout.KEY);
-    }
-
     public void createTurnCostEncodedValues(List<EncodedValue> registerNewTurnCostEncodedValues) {
         if (supportsTurnCosts())
             registerNewTurnCostEncodedValues.add(turnCostEnc);

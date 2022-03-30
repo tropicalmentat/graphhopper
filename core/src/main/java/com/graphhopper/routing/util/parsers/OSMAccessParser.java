@@ -18,7 +18,9 @@
 package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.RoadAccess;
+import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.util.countryrules.CountryRule;
 import com.graphhopper.storage.IntsRef;
@@ -45,6 +47,8 @@ public class OSMAccessParser implements TagParser {
     private Set<String> intendedValues = new HashSet<>(5);
 
     public OSMAccessParser(String name, List<String> restrictions, TransportationMode transportationMode) {
+        // todonow:
+        this.roundaboutEnc = null;
         this.accessEnc = new SimpleBooleanEncodedValue(name, true);
         this.restrictions = restrictions;
         this.transportationMode = transportationMode;
@@ -71,12 +75,6 @@ public class OSMAccessParser implements TagParser {
         oppositeLanes.add("opposite");
         oppositeLanes.add("opposite_lane");
         oppositeLanes.add("opposite_track");
-    }
-
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> list) {
-        list.add(accessEnc);
-        roundaboutEnc = lookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     @Override

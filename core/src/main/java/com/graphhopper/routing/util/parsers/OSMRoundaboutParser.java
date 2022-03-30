@@ -19,11 +19,7 @@ package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.storage.IntsRef;
-
-import java.util.List;
 
 public class OSMRoundaboutParser implements TagParser {
 
@@ -31,11 +27,6 @@ public class OSMRoundaboutParser implements TagParser {
 
     public OSMRoundaboutParser(BooleanEncodedValue roundaboutEnc) {
         this.roundaboutEnc = roundaboutEnc;
-    }
-
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> list) {
-        list.add(roundaboutEnc);
     }
 
     @Override

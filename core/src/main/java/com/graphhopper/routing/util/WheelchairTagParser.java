@@ -18,10 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.RouteNetwork;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
@@ -51,6 +48,7 @@ public class WheelchairTagParser extends FootTagParser {
                 lookup.getBooleanEncodedValue(getKey("wheelchair", "access")),
                 lookup.getDecimalEncodedValue(getKey("wheelchair", "average_speed")),
                 lookup.getDecimalEncodedValue(getKey("wheelchair", "priority")),
+                lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 properties.getInt("speed_bits", 4),
                 properties.getDouble("speed_factor", 1)
         );
@@ -59,8 +57,9 @@ public class WheelchairTagParser extends FootTagParser {
         blockFords(properties.getBool("block_fords", false));
     }
 
-    protected WheelchairTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, int speedBits, double speedFactor) {
-        super(accessEnc, speedEnc, priorityEnc, "wheelchair", speedBits, speedFactor);
+    protected WheelchairTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                                  EnumEncodedValue<RouteNetwork> footRouteEnc, int speedBits, double speedFactor) {
+        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, "wheelchair", speedBits, speedFactor);
 
         restrictions.add("wheelchair");
 

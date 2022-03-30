@@ -59,16 +59,18 @@ public class FootTagParser extends VehicleTagParser {
                 lookup.getBooleanEncodedValue(getKey(properties.getString("name", "foot"), "access")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "average_speed")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "priority")),
+                lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 "foot",
                 properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1)
         );
-        footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
 
-    protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor) {
+    protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, int speedBits, double speedFactor) {
         super(accessEnc, speedEnc, name, speedBits, speedFactor, null);
+        this.footRouteEnc = footRouteEnc;
         priorityWayEncoder = priorityEnc;
 
         restrictedValues.add("no");
@@ -136,14 +138,6 @@ public class FootTagParser extends VehicleTagParser {
     @Override
     public TransportationMode getTransportationMode() {
         return TransportationMode.FOOT;
-    }
-
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> registerNewEncodedValue) {
-        super.createEncodedValues(lookup, registerNewEncodedValue);
-        registerNewEncodedValue.add(priorityWayEncoder);
-
-        footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
     }
 
     /**

@@ -18,8 +18,6 @@
 package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.RoadAccess;
 import com.graphhopper.routing.util.TransportationMode;
@@ -42,11 +40,6 @@ public class OSMRoadAccessParser implements TagParser {
     public OSMRoadAccessParser(EnumEncodedValue<RoadAccess> roadAccessEnc, List<String> restrictions) {
         this.roadAccessEnc = roadAccessEnc;
         this.restrictions = restrictions;
-    }
-
-    @Override
-    public void createEncodedValues(EncodedValueLookup lookup, List<EncodedValue> list) {
-        list.add(roadAccessEnc);
     }
 
     @Override
