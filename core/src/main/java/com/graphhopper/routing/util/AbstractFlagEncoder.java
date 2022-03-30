@@ -31,7 +31,6 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     protected final BooleanEncodedValue accessEnc;
     protected final DecimalEncodedValue avgSpeedEnc;
     private final DecimalEncodedValue turnCostEnc;
-    protected BooleanEncodedValue roundaboutEnc;
     // This value determines the maximal possible speed of any road regardless of the maxspeed value
     // lower values allow more compact representation of the routing graph
     protected double maxPossibleSpeed;
@@ -62,7 +61,6 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
         registerNewEncodedValue.add(accessEnc);
         registerNewEncodedValue.add(avgSpeedEnc);
-        roundaboutEnc = getBooleanEncodedValue(Roundabout.KEY);
     }
 
     public void createTurnCostEncodedValues(List<EncodedValue> registerNewTurnCostEncodedValues) {
