@@ -29,10 +29,6 @@ import java.util.List;
 public class CountryParser implements TagParser {
     private final EnumEncodedValue<Country> countryEnc;
 
-    public CountryParser() {
-        this(Country.create());
-    }
-
     public CountryParser(EnumEncodedValue<Country> countryEnc) {
         this.countryEnc = countryEnc;
     }

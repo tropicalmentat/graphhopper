@@ -567,6 +567,7 @@ public class GraphHopper {
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMMaxSpeedParser(lookup.getDecimalEncodedValue(MaxSpeed.KEY)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadAccessParser(lookup.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class)));
+        // todonow: add more parsers for specific vehicles like foot, bike etc., see old EncodingManager!
 
         encodingManager = encodingAndParserBuilder.buildEncodingManager();
         tagParserBundle = encodingAndParserBuilder.buildTagParserBundle(encodingManager);

@@ -35,10 +35,6 @@ public class OSMTollParser implements TagParser {
     private static final List<String> HGV_TAGS = Collections.unmodifiableList(Arrays.asList("toll:hgv", "toll:N2", "toll:N3"));
     private final EnumEncodedValue<Toll> tollEnc;
 
-    public OSMTollParser() {
-        this(new EnumEncodedValue<>(Toll.KEY, Toll.class));
-    }
-
     public OSMTollParser(EnumEncodedValue<Toll> tollEnc) {
         this.tollEnc = tollEnc;
     }

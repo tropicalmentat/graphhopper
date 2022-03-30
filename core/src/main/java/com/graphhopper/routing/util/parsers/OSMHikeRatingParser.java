@@ -20,7 +20,6 @@ package com.graphhopper.routing.util.parsers;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.HikeRating;
 import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.storage.IntsRef;
 
@@ -34,10 +33,6 @@ import java.util.List;
 public class OSMHikeRatingParser implements TagParser {
 
     private final IntEncodedValue sacScaleEnc;
-
-    public OSMHikeRatingParser() {
-        this(HikeRating.create());
-    }
 
     public OSMHikeRatingParser(IntEncodedValue sacScaleEnc) {
         this.sacScaleEnc = sacScaleEnc;

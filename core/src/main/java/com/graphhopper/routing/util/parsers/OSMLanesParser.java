@@ -22,7 +22,6 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.IntEncodedValue;
-import com.graphhopper.routing.ev.Lanes;
 import com.graphhopper.storage.IntsRef;
 
 import java.util.List;
@@ -32,10 +31,6 @@ import java.util.List;
  */
 public class OSMLanesParser implements TagParser {
     private final IntEncodedValue lanesEnc;
-
-    public OSMLanesParser() {
-        this(Lanes.create());
-    }
 
     public OSMLanesParser(IntEncodedValue lanesEnc) {
         this.lanesEnc = lanesEnc;

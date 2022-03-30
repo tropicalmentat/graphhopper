@@ -26,16 +26,11 @@ import com.graphhopper.storage.IntsRef;
 
 import java.util.List;
 
-import static com.graphhopper.routing.ev.Smoothness.KEY;
 import static com.graphhopper.routing.ev.Smoothness.MISSING;
 
 public class OSMSmoothnessParser implements TagParser {
 
     private final EnumEncodedValue<Smoothness> smoothnessEnc;
-
-    public OSMSmoothnessParser() {
-        this(new EnumEncodedValue<>(KEY, Smoothness.class));
-    }
 
     public OSMSmoothnessParser(EnumEncodedValue<Smoothness> smoothnessEnc) {
         this.smoothnessEnc = smoothnessEnc;

@@ -13,10 +13,6 @@ public class OSMHazmatParser implements TagParser {
 
     private final EnumEncodedValue<Hazmat> hazEnc;
 
-    public OSMHazmatParser() {
-        this(new EnumEncodedValue<>(Hazmat.KEY, Hazmat.class));
-    }
-
     public OSMHazmatParser(EnumEncodedValue<Hazmat> hazEnc) {
         this.hazEnc = hazEnc;
     }

@@ -19,7 +19,10 @@ package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.RouteNetwork;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 
@@ -31,10 +34,6 @@ public class OSMFootNetworkTagParser implements RelationTagParser {
     private final EnumEncodedValue<RouteNetwork> footRouteEnc;
     // used for internal transformation from relations into footRouteEnc
     private final EnumEncodedValue<RouteNetwork> transformerRouteRelEnc = new EnumEncodedValue<>(getKey("foot", "route_relation"), RouteNetwork.class);
-
-    public OSMFootNetworkTagParser() {
-        this.footRouteEnc = new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class);
-    }
 
     public OSMFootNetworkTagParser(EnumEncodedValue<RouteNetwork> footRouteEnc, EncodedValue.InitializerConfig relConfig) {
         this.footRouteEnc = footRouteEnc;

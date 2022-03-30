@@ -32,10 +32,6 @@ public class OSMSurfaceParser implements TagParser {
 
     private final EnumEncodedValue<Surface> surfaceEnc;
 
-    public OSMSurfaceParser() {
-        this(new EnumEncodedValue<>(KEY, Surface.class));
-    }
-
     public OSMSurfaceParser(EnumEncodedValue<Surface> surfaceEnc) {
         this.surfaceEnc = surfaceEnc;
     }

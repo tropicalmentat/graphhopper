@@ -35,10 +35,6 @@ public class OSMMaxSpeedParser implements TagParser {
 
     protected final DecimalEncodedValue carMaxSpeedEnc;
 
-    public OSMMaxSpeedParser() {
-        this(MaxSpeed.create());
-    }
-
     public OSMMaxSpeedParser(DecimalEncodedValue carMaxSpeedEnc) {
         if (!carMaxSpeedEnc.isStoreTwoDirections())
             throw new IllegalArgumentException("EncodedValue for maxSpeed must be able to store two directions");

@@ -32,10 +32,6 @@ public class OSMTrackTypeParser implements TagParser {
 
     private final EnumEncodedValue<TrackType> trackTypeEnc;
 
-    public OSMTrackTypeParser() {
-        this(new EnumEncodedValue<>(TrackType.KEY, TrackType.class));
-    }
-
     public OSMTrackTypeParser(EnumEncodedValue<TrackType> trackTypeEnc) {
         this.trackTypeEnc = trackTypeEnc;
     }
