@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.storage.BaseGraph;
@@ -40,6 +41,10 @@ public class MotorcycleTagParserTest {
     private final EncodingManager em = EncodingManager.create("motorcycle,foot");
     private final MotorcycleTagParser encoder = new MotorcycleTagParser(em, new PMap());
     private final BooleanEncodedValue accessEnc = encoder.getAccessEnc();
+
+    public MotorcycleTagParserTest() {
+        encoder.init(new DateRangeParser());
+    }
 
     private Graph initExampleGraph() {
         BaseGraph gs = new BaseGraph.Builder(em).set3D(true).create();

@@ -556,20 +556,30 @@ public class GraphHopper {
         for (String tpStr : encodedValueStr.split(",")) {
             String name = tpStr.trim();
             if (!tpStr.isEmpty()) {
+                encodingAndParserBuilder.addEncodedValue(encodedValueFactory.create(tpStr));
                 encodingAndParserBuilder.addWayTagParser(lookup -> tagParserFactory.create(lookup, name, new PMap()));
             }
         }
 
-        // todonow: we risk adding the same parser multiple times
+        encodingManager = encodingAndParserBuilder.buildEncodingManager();
+
+        // todonow: we risk adding the same parser multiple times, but anyway I think we should get rid of this
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoundaboutParser(lookup.getBooleanEncodedValue(Roundabout.KEY)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassParser(lookup.getEnumEncodedValue(RoadClass.KEY, RoadClass.class)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassLinkParser(lookup.getBooleanEncodedValue(RoadClassLink.KEY)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMMaxSpeedParser(lookup.getDecimalEncodedValue(MaxSpeed.KEY)));
         encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadAccessParser(lookup.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class)));
-        // todonow: add more parsers for specific vehicles like foot, bike etc., see old EncodingManager!
 
-        encodingManager = encodingAndParserBuilder.buildEncodingManager();
+        if (encodingManager.hasEncodedValue(BikeNetwork.KEY))
+            encodingAndParserBuilder.addRelationTagParser((lookup, relConf) -> new OSMBikeNetworkTagParser(lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class), relConf));
+        if (encodingManager.hasEncodedValue(FootNetwork.KEY))
+            encodingAndParserBuilder.addRelationTagParser((lookup, relConf) -> new OSMFootNetworkTagParser(lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class), relConf));
+        if (encodingManager.hasEncodedValue(GetOffBike.KEY))
+            encodingAndParserBuilder.addWayTagParser(lookup -> new OSMGetOffBikeParser(lookup.getBooleanEncodedValue(GetOffBike.KEY)));
+        if (encodingManager.hasEncodedValue(Smoothness.KEY))
+            encodingAndParserBuilder.addWayTagParser(lookup -> new OSMSmoothnessParser(lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class)));
+
         tagParserBundle = encodingAndParserBuilder.buildTagParserBundle(encodingManager);
     }
 

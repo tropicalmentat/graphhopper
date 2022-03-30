@@ -26,6 +26,7 @@ import com.graphhopper.util.PMap;
 import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
+import static com.graphhopper.routing.util.FootTagParser.FERRY_SPEED;
 
 public class FootFlagEncoder extends AbstractFlagEncoder {
     protected final DecimalEncodedValue priorityWayEncoder;
@@ -48,6 +49,7 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     protected FootFlagEncoder(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
         super(name, speedBits, speedFactor, speedTwoDirections, 0);
         priorityWayEncoder = new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false);
+        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(FERRY_SPEED);
     }
 
     @Override

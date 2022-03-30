@@ -19,6 +19,7 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.storage.BaseGraph;
@@ -42,6 +43,10 @@ public class WheelchairTagParserTest {
     private final BooleanEncodedValue wheelchairAccessEnc = wheelchairEncoder.getAccessEnc();
     private final DecimalEncodedValue carAvSpeedEnc = encodingManager.getEncoder("car").getAverageSpeedEnc();
     private final BooleanEncodedValue carAccessEnc = encodingManager.getEncoder("car").getAccessEnc();
+
+    public WheelchairTagParserTest() {
+        wheelchairEncoder.init(new DateRangeParser());
+    }
 
     @Test
     public void testGetSpeed() {
