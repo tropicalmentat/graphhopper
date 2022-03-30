@@ -17,7 +17,6 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.*;
 
 import java.util.List;
@@ -34,7 +33,6 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     // This value determines the maximal possible speed of any road regardless of the maxspeed value
     // lower values allow more compact representation of the routing graph
     protected double maxPossibleSpeed;
-    private boolean registered;
     protected EncodedValueLookup encodedValueLookup;
 
     protected AbstractFlagEncoder(String name, int speedBits, double speedFactor, boolean speedTwoDirections, int maxTurnCosts) {
@@ -47,15 +45,9 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
         this.turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
     }
 
-    protected void init(DateRangeParser dateRangeParser) {
-        if (registered)
-            throw new IllegalStateException("You must not register a FlagEncoder (" + this + ") twice or for two EncodingManagers!");
-        registered = true;
-    }
-
     @Override
     public boolean isRegistered() {
-        return registered;
+        return encodedValueLookup != null;
     }
 
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
@@ -74,13 +66,13 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     }
 
     public final DecimalEncodedValue getAverageSpeedEnc() {
-        if (avgSpeedEnc == null)
+        if (!isRegistered())
             throw new NullPointerException("FlagEncoder " + getName() + " not yet initialized");
         return avgSpeedEnc;
     }
 
     public final BooleanEncodedValue getAccessEnc() {
-        if (accessEnc == null)
+        if (!isRegistered())
             throw new NullPointerException("FlagEncoder " + getName() + " not yet initialized");
         return accessEnc;
     }

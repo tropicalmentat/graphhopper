@@ -17,7 +17,6 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
@@ -105,7 +104,6 @@ public class EncodingManager implements EncodedValueLookup {
 
     public static class Builder {
         private EncodingManager em;
-        private DateRangeParser dateRangeParser;
         private final Map<String, AbstractFlagEncoder> flagEncoderMap = new LinkedHashMap<>();
         private final Map<String, EncodedValue> encodedValueMap = new LinkedHashMap<>();
 
@@ -155,9 +153,6 @@ public class EncodingManager implements EncodedValueLookup {
                 em.addEncodedValue(new EnumEncodedValue<>(RoadAccess.KEY, RoadAccess.class), false);
             }
 
-            if (dateRangeParser == null)
-                dateRangeParser = new DateRangeParser(DateRangeParser.createCalendar());
-
             for (FlagEncoder encoder : flagEncoderMap.values()) {
                 if (encoder instanceof RoadsFlagEncoder) {
                     // TODO Later these EncodedValues can be added independently of RoadsFlagEncoder. Maybe add a foot_access and hgv_access? and remove the others "xy$access"
@@ -179,7 +174,6 @@ public class EncodingManager implements EncodedValueLookup {
             }
 
             for (AbstractFlagEncoder encoder : flagEncoderMap.values()) {
-                encoder.init(dateRangeParser);
                 em.addEncoder(encoder);
             }
 
