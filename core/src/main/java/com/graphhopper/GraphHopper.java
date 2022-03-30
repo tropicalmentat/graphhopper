@@ -518,6 +518,14 @@ public class GraphHopper {
         if (profilesByName.isEmpty())
             throw new IllegalStateException("no profiles exist but assumed to create EncodingManager. E.g. provide them in GraphHopperConfig when calling GraphHopper.init");
 
+        // todonow: we risk adding the same parser multiple times, but anyway I think we should get rid of this
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoundaboutParser(lookup.getBooleanEncodedValue(Roundabout.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassParser(lookup.getEnumEncodedValue(RoadClass.KEY, RoadClass.class)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassLinkParser(lookup.getBooleanEncodedValue(RoadClassLink.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMMaxSpeedParser(lookup.getDecimalEncodedValue(MaxSpeed.KEY)));
+        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadAccessParser(lookup.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class)));
+
         DateRangeParser dateRangeParser = DateRangeParser.createInstance(ghConfig.getString("datareader.date_range_parser_day", ""));
         String flagEncodersStr = ghConfig.getString("graph.flag_encoders", "");
         Map<String, String> flagEncoderMap = new LinkedHashMap<>();
@@ -529,6 +537,7 @@ public class GraphHopper {
                 flagEncoderMap.put(key, encoderStr);
             }
         }
+
         Map<String, String> implicitFlagEncoderMap = new HashMap<>();
         for (Profile profile : profilesByName.values()) {
             encodingAndParserBuilder.addEncodedValue(Subnetwork.create(profile.getName()));
@@ -562,14 +571,6 @@ public class GraphHopper {
         }
 
         encodingManager = encodingAndParserBuilder.buildEncodingManager();
-
-        // todonow: we risk adding the same parser multiple times, but anyway I think we should get rid of this
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoundaboutParser(lookup.getBooleanEncodedValue(Roundabout.KEY)));
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassParser(lookup.getEnumEncodedValue(RoadClass.KEY, RoadClass.class)));
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadClassLinkParser(lookup.getBooleanEncodedValue(RoadClassLink.KEY)));
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)));
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMMaxSpeedParser(lookup.getDecimalEncodedValue(MaxSpeed.KEY)));
-        encodingAndParserBuilder.addWayTagParser(lookup -> new OSMRoadAccessParser(lookup.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class)));
 
         if (encodingManager.hasEncodedValue(BikeNetwork.KEY))
             encodingAndParserBuilder.addRelationTagParser((lookup, relConf) -> new OSMBikeNetworkTagParser(lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class), relConf));
