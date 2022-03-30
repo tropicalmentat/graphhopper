@@ -68,7 +68,7 @@ public class FootTagParser extends VehicleTagParser {
 
     protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                             EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
-        super(accessEnc, speedEnc, name, speedFactor, null, TransportationMode.FOOT);
+        super(accessEnc, speedEnc, name, null, speedFactor, null, TransportationMode.FOOT);
         this.footRouteEnc = footRouteEnc;
         priorityWayEncoder = priorityEnc;
 

@@ -39,21 +39,19 @@ public class BikeTagParser extends BikeCommonTagParser {
                 lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class),
                 lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class),
                 properties.getString("name", "bike"),
+                lookup.getBooleanEncodedValue(Roundabout.KEY),
                 properties.getDouble("speed_factor", 2),
                 // todonow: why do we not just return null when EV is missing? just like java.util.Map?
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "bike"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "bike"))) : null
         );
-        // todonow: we can move this to bike common tag parser once we clean up constructors
-        encodedValueLookup = lookup;
-        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
 
     public BikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                          EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
-                         String name, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, name, speedFactor, turnCostEnc);
+                         String name, BooleanEncodedValue roundaboutEnc, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, name, roundaboutEnc, speedFactor, turnCostEnc);
         addPushingSection("path");
         addPushingSection("footway");
         addPushingSection("pedestrian");

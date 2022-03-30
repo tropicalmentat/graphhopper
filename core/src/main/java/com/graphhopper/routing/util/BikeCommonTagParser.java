@@ -60,8 +60,8 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
 
     protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                                   EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
-                                  String name, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, name, speedFactor, turnCostEnc, TransportationMode.BIKE);
+                                  String name, BooleanEncodedValue roundaboutEnc, double speedFactor, DecimalEncodedValue turnCostEnc) {
+        super(accessEnc, speedEnc, name, roundaboutEnc, speedFactor, turnCostEnc, TransportationMode.BIKE);
         this.bikeRouteEnc = bikeRouteEnc;
         this.smoothnessEnc = smoothnessEnc;
         this.priorityEnc = priorityEnc;

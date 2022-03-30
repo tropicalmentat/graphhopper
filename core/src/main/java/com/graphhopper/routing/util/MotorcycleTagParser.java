@@ -48,17 +48,18 @@ public class MotorcycleTagParser extends CarTagParser {
                 lookup.getBooleanEncodedValue(getKey("motorcycle", "access")),
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "average_speed")),
                 lookup.hasEncodedValue(TurnCost.key("motorcycle")) ? lookup.getDecimalEncodedValue(TurnCost.key("motorcycle")) : null,
+                lookup.getBooleanEncodedValue(Roundabout.KEY),
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "priority")),
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "curvature")),
                 new PMap(properties).putObject("name", "motorcycle"),
                 TransportationMode.MOTORCYCLE
         );
-        roundaboutEnc = lookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     public MotorcycleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
+                               BooleanEncodedValue roundaboutEnc,
                                DecimalEncodedValue priorityWayEncoder, DecimalEncodedValue curvatureEnc, PMap properties, TransportationMode transportationMode) {
-        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", "motorcycle"), transportationMode);
+        super(accessEnc, speedEnc, turnCostEnc, roundaboutEnc, new PMap(properties).putObject("name", "motorcycle"), transportationMode);
         this.priorityWayEncoder = priorityWayEncoder;
         this.curvatureEncoder = curvatureEnc;
 

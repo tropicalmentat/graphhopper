@@ -34,16 +34,16 @@ public class Car4WDTagParser extends CarTagParser {
                 lookup.getBooleanEncodedValue(getKey(properties.getString("name", "car4wd"), "access")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "car4wd"), "average_speed")),
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "car4wd"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "car4wd"))) : null,
+                lookup.getBooleanEncodedValue(Roundabout.KEY),
                 new PMap(properties).putObject("name", "car4wd"),
                 TransportationMode.CAR
         );
-        encodedValueLookup = lookup;
-        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     public Car4WDTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
+                           BooleanEncodedValue roundaboutEnc,
                            PMap properties, TransportationMode transportationMode) {
-        super(accessEnc, speedEnc, turnCostEnc, new PMap(properties).putObject("name", properties.getString("name", "car4wd")), transportationMode);
+        super(accessEnc, speedEnc, turnCostEnc, roundaboutEnc, new PMap(properties).putObject("name", properties.getString("name", "car4wd")), transportationMode);
         trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
     }

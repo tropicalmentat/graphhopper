@@ -52,17 +52,17 @@ public class CarTagParser extends VehicleTagParser {
                 lookup.getBooleanEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "access")),
                 lookup.getDecimalEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "average_speed")),
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "car"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "car"))) : null,
+                lookup.getBooleanEncodedValue(Roundabout.KEY),
                 properties,
                 TransportationMode.CAR
         );
-        encodedValueLookup = lookup;
-        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
-    public CarTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc, PMap properties,
+    public CarTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
+                        BooleanEncodedValue roundaboutEnc, PMap properties,
                         TransportationMode transportationMode) {
         super(accessEnc, speedEnc,
-                properties.getString("name", "car"),
+                properties.getString("name", "car"), roundaboutEnc,
                 properties.getDouble("speed_factor", 5),
                 turnCostEnc, transportationMode);
         restrictedValues.add("agricultural");

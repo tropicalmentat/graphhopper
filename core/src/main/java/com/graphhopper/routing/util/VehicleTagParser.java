@@ -25,7 +25,6 @@ import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
@@ -60,17 +59,17 @@ public abstract class VehicleTagParser implements TagParser {
     protected final BooleanEncodedValue accessEnc;
     protected final DecimalEncodedValue avgSpeedEnc;
     private final DecimalEncodedValue turnCostEnc;
-    protected BooleanEncodedValue roundaboutEnc;
+    protected final BooleanEncodedValue roundaboutEnc;
     // This value determines the maximal possible speed of any road regardless of the maxspeed value
     // lower values allow more compact representation of the routing graph
     protected double maxPossibleSpeed;
     private boolean blockFords = true;
     private boolean registered;
-    protected EncodedValueLookup encodedValueLookup;
     private ConditionalTagInspector conditionalTagInspector;
     protected FerrySpeedCalculator ferrySpeedCalc;
 
     protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name,
+                               BooleanEncodedValue roundaboutEnc,
                                double speedFactor, DecimalEncodedValue turnCostEnc, TransportationMode transportationMode) {
         this.name = name;
         this.speedFactor = speedFactor;
@@ -78,6 +77,7 @@ public abstract class VehicleTagParser implements TagParser {
         this.accessEnc = accessEnc;
         this.avgSpeedEnc = speedEnc;
         this.turnCostEnc = turnCostEnc;
+        this.roundaboutEnc = roundaboutEnc;
 
         oneways.add("yes");
         oneways.add("true");

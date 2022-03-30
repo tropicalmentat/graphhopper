@@ -41,20 +41,19 @@ public class Bike2WeightTagParser extends BikeTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike2"), "average_speed")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "bike2"), "priority")),
                 lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class),
+                lookup.getBooleanEncodedValue(Roundabout.KEY),
                 lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class),
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "bike2"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "bike2"))) : null,
                 properties
         );
-        // todonow: we can move this to bike common tag parser once we clean up constructors
-        encodedValueLookup = lookup;
-        roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
     }
 
     public Bike2WeightTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc,
                                 DecimalEncodedValue priorityEnc, EnumEncodedValue<RouteNetwork> bikeRouteEnc,
+                                BooleanEncodedValue roundaboutEnc,
                                 EnumEncodedValue<Smoothness> smoothnessEnc, DecimalEncodedValue turnCostEnc, PMap properties) {
         super(accessEnc, speedEnc, priorityEnc, bikeRouteEnc, smoothnessEnc, properties.getString("name", "bike2"),
-                properties.getDouble("speed_factor", 2), turnCostEnc);
+                roundaboutEnc, properties.getDouble("speed_factor", 2), turnCostEnc);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
