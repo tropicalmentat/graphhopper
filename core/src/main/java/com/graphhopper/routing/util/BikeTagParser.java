@@ -30,38 +30,6 @@ import static com.graphhopper.routing.util.EncodingManager.getKey;
  * @author Peter Karich
  */
 public class BikeTagParser extends BikeCommonTagParser {
-    public BikeTagParser() {
-        this("bike");
-    }
-
-    public BikeTagParser(String name) {
-        this(name, 4, 2, 0, false);
-    }
-
-    public BikeTagParser(PMap properties) {
-        this(properties.getString("name", "bike"),
-                properties.getInt("speed_bits", 4),
-                properties.getInt("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0,
-                properties.getBool("speed_two_directions", false));
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    public BikeTagParser(int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this("bike", speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
-    }
-
-    public BikeTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(name, "access")),
-                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
-                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
-                name, speedBits, speedFactor,
-                maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
-        );
-    }
 
     public BikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(

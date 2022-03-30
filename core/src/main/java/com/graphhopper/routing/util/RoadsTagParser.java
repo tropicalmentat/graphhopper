@@ -1,20 +1,13 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.storage.IntsRef;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
-
 public class RoadsTagParser extends VehicleTagParser {
-
-    public RoadsTagParser() {
-        this(
-                new SimpleBooleanEncodedValue(getKey("roads", "access")),
-                new DecimalEncodedValueImpl(getKey("roads", "average_speed"), 7, 2, true),
-                TurnCost.create("roads", 3)
-        );
-    }
 
     public RoadsTagParser(EncodedValueLookup lookup) {
         this(

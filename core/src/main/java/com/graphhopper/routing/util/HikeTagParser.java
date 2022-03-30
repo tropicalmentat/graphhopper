@@ -18,7 +18,10 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.RouteNetwork;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
@@ -35,34 +38,6 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  */
 public class HikeTagParser extends FootTagParser {
-
-    public HikeTagParser() {
-        this(4, 1, false);
-    }
-
-    public HikeTagParser(PMap properties) {
-        this(
-                properties.getString("name", "hike"),
-                properties.getInt("speed_bits", 4),
-                properties.getDouble("speed_factor", 1),
-                properties.getBool("speed_two_directions", false));
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected HikeTagParser(int speedBits, double speedFactor, boolean speedTwoDirections) {
-        this("hike", speedBits, speedFactor, speedTwoDirections);
-    }
-
-    protected HikeTagParser(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(name, "access")),
-                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
-                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
-                name, speedBits, speedFactor
-        );
-    }
 
     public HikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(

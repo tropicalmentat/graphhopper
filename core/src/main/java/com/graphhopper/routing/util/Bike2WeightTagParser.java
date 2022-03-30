@@ -35,20 +35,6 @@ import static com.graphhopper.util.Helper.keepIn;
  */
 public class Bike2WeightTagParser extends BikeTagParser {
 
-    public Bike2WeightTagParser() {
-        this(new PMap());
-    }
-
-    public Bike2WeightTagParser(PMap properties) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(properties.getString("name", "bike2"), "access")),
-                new DecimalEncodedValueImpl(getKey(properties.getString("name", "bike2"), "average_speed"), properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 2), true),
-                new DecimalEncodedValueImpl(getKey(properties.getString("name", "bike2"), "priority"), 4, PriorityCode.getFactor(1), false),
-                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create("bike2", properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
-                new PMap(properties).putObject("name", properties.getString("name", "bike2"))
-        );
-    }
-
     public Bike2WeightTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getBooleanEncodedValue(getKey(properties.getString("name", "bike2"), "access")),

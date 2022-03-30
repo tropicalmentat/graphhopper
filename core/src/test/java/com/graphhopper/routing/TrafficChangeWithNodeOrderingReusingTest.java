@@ -52,7 +52,7 @@ public class TrafficChangeWithNodeOrderingReusingTest {
             this.maxDeviationPercentage = maxDeviationPercentage;
             CarFlagEncoder encoder = new CarFlagEncoder();
             em = EncodingManager.create(encoder);
-            CarTagParser carParser = new CarTagParser();
+            CarTagParser carParser = new CarTagParser(em, new PMap());
             carParser.init(new DateRangeParser());
             tagParserBundle = new TagParserBundle()
                     .addWayTagParser(carParser);

@@ -46,21 +46,6 @@ public class MotorcycleTagParser extends CarTagParser {
     private final DecimalEncodedValue priorityWayEncoder;
     private final DecimalEncodedValue curvatureEncoder;
 
-    public MotorcycleTagParser() {
-        this(new PMap());
-    }
-
-    public MotorcycleTagParser(PMap properties) {
-        this(
-                new SimpleBooleanEncodedValue(getKey("motorcycle", "access"), true),
-                new DecimalEncodedValueImpl(getKey("motorcycle", "average_speed"), properties.getInt("speed_bits", 5), properties.getDouble("speed_factor", 5), true),
-                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create("motorcycle", properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
-                new DecimalEncodedValueImpl(getKey("motorcycle", "priority"), 4, PriorityCode.getFactor(1), false),
-                new DecimalEncodedValueImpl(getKey("motorcycle", "curvature"), 4, 0.1, false),
-                new PMap(properties).putObject("name", "motorcycle")
-        );
-    }
-
     public MotorcycleTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getBooleanEncodedValue(getKey("motorcycle", "access")),

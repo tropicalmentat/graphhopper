@@ -18,7 +18,10 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.RouteNetwork;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
@@ -42,29 +45,6 @@ public class WheelchairTagParser extends FootTagParser {
     private final Set<String> excludeSurfaces = new HashSet<>();
     private final Set<String> excludeSmoothness = new HashSet<>();
     private final int maxInclinePercent = 6;
-
-    /**
-     * Should be only instantiated via EncodingManager
-     */
-    public WheelchairTagParser() {
-        this(4, 1);
-    }
-
-    public WheelchairTagParser(PMap properties) {
-        this(properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1));
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected WheelchairTagParser(int speedBits, double speedFactor) {
-        this(
-                new SimpleBooleanEncodedValue(getKey("wheelchair", "access")),
-                new DecimalEncodedValueImpl(getKey("wheelchair", "average_speed"), speedBits, speedFactor, true),
-                new DecimalEncodedValueImpl(getKey("wheelchair", "priority"), 4, PriorityCode.getFactor(1), false),
-                speedBits, speedFactor
-        );
-    }
 
     public WheelchairTagParser(EncodedValueLookup lookup, PMap properties) {
         this(

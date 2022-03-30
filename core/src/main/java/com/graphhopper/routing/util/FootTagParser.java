@@ -54,24 +54,6 @@ public class FootTagParser extends VehicleTagParser {
     protected EnumEncodedValue<RouteNetwork> footRouteEnc;
     protected Map<RouteNetwork, Integer> routeMap = new HashMap<>();
 
-    public FootTagParser() {
-        this(4, 1, false);
-    }
-
-    public FootTagParser(PMap properties) {
-        this(properties.getString("name", "foot"),
-                properties.getInt("speed_bits", 4),
-                properties.getDouble("speed_factor", 1),
-                properties.getBool("speed_two_directions", false));
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected FootTagParser(int speedBits, double speedFactor, boolean speedTwoDirections) {
-        this("foot", speedBits, speedFactor, speedTwoDirections);
-    }
-
     public FootTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getBooleanEncodedValue(getKey(properties.getString("name", "foot"), "access")),
@@ -83,15 +65,6 @@ public class FootTagParser extends VehicleTagParser {
         footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected FootTagParser(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(name, "access")),
-                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
-                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
-                name, speedBits, speedFactor
-        );
     }
 
     protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor) {

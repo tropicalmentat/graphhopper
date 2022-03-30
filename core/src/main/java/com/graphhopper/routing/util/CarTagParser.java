@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
-
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
  *
@@ -49,27 +47,6 @@ public class CarTagParser extends VehicleTagParser {
      */
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<>();
 
-    public CarTagParser() {
-        this(new PMap());
-    }
-
-    public CarTagParser(int speedBits, double speedFactor, int maxTurnCosts) {
-        this("car", speedBits, speedFactor, maxTurnCosts);
-    }
-
-    public CarTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts) {
-        this(name, speedBits, speedFactor, maxTurnCosts, false);
-    }
-
-    public CarTagParser(int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this("car", speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
-    }
-
-    public CarTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this(new PMap().putObject("name", name).putObject("speed_bits", speedBits).putObject("speed_factor", speedFactor).
-                putObject("max_turn_costs", maxTurnCosts).putObject("speed_two_directions", speedTwoDirections));
-    }
-
     public CarTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
                 lookup.getBooleanEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "access")),
@@ -79,15 +56,6 @@ public class CarTagParser extends VehicleTagParser {
         );
         encodedValueLookup = lookup;
         roundaboutEnc = encodedValueLookup.getBooleanEncodedValue(Roundabout.KEY);
-    }
-
-    public CarTagParser(PMap properties) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(properties.getString("name", "car"), "access"), true),
-                new DecimalEncodedValueImpl(getKey(properties.getString("name", "car"), "average_speed"), properties.getInt("speed_bits", 5), properties.getDouble("speed_factor", 5), properties.getBool("speed_two_directions", false)),
-                properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0) > 0 ? TurnCost.create(properties.getString("name", "car"), properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0)) : null,
-                properties
-        );
     }
 
     public CarTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc, PMap properties) {

@@ -34,27 +34,6 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  */
 public class RacingBikeTagParser extends BikeCommonTagParser {
-    public RacingBikeTagParser() {
-        this(4, 2, 0);
-    }
-
-    public RacingBikeTagParser(PMap properties) {
-        this(properties.getInt("speed_bits", 4),
-                properties.getDouble("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0);
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected RacingBikeTagParser(int speedBits, double speedFactor, int maxTurnCosts) {
-        this(
-                new SimpleBooleanEncodedValue(getKey("racingbike", "access")),
-                new DecimalEncodedValueImpl(getKey("racingbike", "average_speed"), speedBits, speedFactor, false),
-                new DecimalEncodedValueImpl(getKey("racingbike", "priority"), 4, PriorityCode.getFactor(1), false),
-                speedBits, speedFactor, maxTurnCosts > 0 ? TurnCost.create("racingbike", maxTurnCosts) : null
-        );
-    }
 
     public RacingBikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(

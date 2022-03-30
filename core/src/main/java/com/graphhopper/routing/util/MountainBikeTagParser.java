@@ -35,28 +35,6 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  */
 public class MountainBikeTagParser extends BikeCommonTagParser {
-    public MountainBikeTagParser() {
-        this(4, 2, 0);
-    }
-
-    public MountainBikeTagParser(PMap properties) {
-        this(properties.getInt("speed_bits", 4),
-                properties.getDouble("speed_factor", 2),
-                properties.getBool("turn_costs", false) ? 1 : 0);
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
-    }
-
-    protected MountainBikeTagParser(int speedBits, double speedFactor, int maxTurnCosts) {
-        this(
-                new SimpleBooleanEncodedValue(getKey("mtb", "access")),
-                new DecimalEncodedValueImpl(getKey("mtb", "average_speed"), speedBits, speedFactor, false),
-                new DecimalEncodedValueImpl(getKey("mtb", "priority"), 4, PriorityCode.getFactor(1), false),
-                speedBits, speedFactor,
-                maxTurnCosts > 0 ? TurnCost.create("mtb", maxTurnCosts) : null
-        );
-    }
 
     public MountainBikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(

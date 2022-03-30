@@ -26,7 +26,6 @@ import com.graphhopper.util.Helper;
 import java.util.*;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 
 /**
@@ -59,15 +58,6 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
 
     // This is the specific bicycle class
     private String classBicycleKey;
-
-    protected BikeCommonTagParser(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        this(
-                new SimpleBooleanEncodedValue(getKey(name, "access")),
-                new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections),
-                new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false),
-                name, speedBits, speedFactor, maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null
-        );
-    }
 
     protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc, String name, int speedBits, double speedFactor, DecimalEncodedValue turnCostEnc) {
         super(accessEnc, speedEnc, name, speedBits, speedFactor, turnCostEnc);
