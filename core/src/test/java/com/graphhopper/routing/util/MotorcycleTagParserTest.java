@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MotorcycleTagParserTest {
     private final EncodingManager em = EncodingManager.create("motorcycle,foot");
-    private final MotorcycleFlagEncoder encoder = (MotorcycleFlagEncoder) em.getEncoder("motorcycle");
+    private final MotorcycleTagParser encoder = new MotorcycleTagParser(em, new PMap());
     private final BooleanEncodedValue accessEnc = encoder.getAccessEnc();
 
     private Graph initExampleGraph() {

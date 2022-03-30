@@ -24,10 +24,7 @@ import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.GHUtility;
-import com.graphhopper.util.Helper;
+import com.graphhopper.util.*;
 import org.junit.jupiter.api.Test;
 
 import java.text.DateFormat;
@@ -40,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class WheelchairTagParserTest {
     private final EncodingManager encodingManager = EncodingManager.create("car,wheelchair");
-    private final WheelchairFlagEncoder wheelchairEncoder = (WheelchairFlagEncoder) encodingManager.getEncoder("wheelchair");
+    private final WheelchairTagParser wheelchairEncoder = new WheelchairTagParser(encodingManager, new PMap());
     private final DecimalEncodedValue wheelchairAvSpeedEnc = wheelchairEncoder.getAverageSpeedEnc();
     private final BooleanEncodedValue wheelchairAccessEnc = wheelchairEncoder.getAccessEnc();
     private final DecimalEncodedValue carAvSpeedEnc = encodingManager.getEncoder("car").getAverageSpeedEnc();

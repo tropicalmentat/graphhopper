@@ -6,6 +6,7 @@ import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.TurnCostStorage;
 import com.graphhopper.util.GHUtility;
@@ -32,7 +33,7 @@ public class OSMTurnRelationParserTest {
 
         EncodingManager em = EncodingManager.create(encoder);
         DecimalEncodedValue tce = encoder.getDecimalEncodedValue(TurnCost.key("car"));
-        OSMTurnRelationParser parser = new OSMTurnRelationParser(encoder.getAccessEnc(), tce, encoder.getRestrictions());
+        OSMTurnRelationParser parser = new OSMTurnRelationParser(encoder.getAccessEnc(), tce, OSMRoadAccessParser.toOSMRestrictions(TransportationMode.CAR));
         BaseGraph graph = new BaseGraph.Builder(em.getIntsForFlags()).withTurnCosts(true).create();
         initGraph(graph, encoder);
         TurnCostParser.ExternalInternalMap map = new TurnCostParser.ExternalInternalMap() {
