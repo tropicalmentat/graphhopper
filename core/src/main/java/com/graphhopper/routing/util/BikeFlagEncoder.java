@@ -17,15 +17,8 @@
  */
 package com.graphhopper.routing.util;
 
-import com.graphhopper.routing.ev.Smoothness;
 import com.graphhopper.util.PMap;
 
-/**
- * Specifies the settings for cycletouring/trekking
- *
- * @author ratrun
- * @author Peter Karich
- */
 public class BikeFlagEncoder extends BikeCommonFlagEncoder {
     public BikeFlagEncoder() {
         this("bike");
@@ -41,9 +34,6 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
                 properties.getInt("speed_factor", 2),
                 properties.getBool("turn_costs", false) ? 1 : 0,
                 properties.getBool("speed_two_directions", false));
-
-        blockPrivate(properties.getBool("block_private", true));
-        blockFords(properties.getBool("block_fords", false));
     }
 
     public BikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
@@ -52,40 +42,5 @@ public class BikeFlagEncoder extends BikeCommonFlagEncoder {
 
     public BikeFlagEncoder(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
         super(name, speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
-        addPushingSection("path");
-        addPushingSection("footway");
-        addPushingSection("pedestrian");
-        addPushingSection("steps");
-        addPushingSection("platform");
-
-        avoidHighwayTags.add("trunk");
-        avoidHighwayTags.add("trunk_link");
-        avoidHighwayTags.add("primary");
-        avoidHighwayTags.add("primary_link");
-        avoidHighwayTags.add("secondary");
-        avoidHighwayTags.add("secondary_link");
-
-        // preferHighwayTags.add("road");
-        preferHighwayTags.add("service");
-        preferHighwayTags.add("tertiary");
-        preferHighwayTags.add("tertiary_link");
-        preferHighwayTags.add("residential");
-        preferHighwayTags.add("unclassified");
-
-        setSmoothnessSpeedFactor(Smoothness.EXCELLENT, 1.1d);
-        setSmoothnessSpeedFactor(Smoothness.GOOD, 1.0d);
-        setSmoothnessSpeedFactor(Smoothness.INTERMEDIATE, 0.9d);
-        setSmoothnessSpeedFactor(Smoothness.BAD, 0.7d);
-        setSmoothnessSpeedFactor(Smoothness.VERY_BAD, 0.6d);
-        setSmoothnessSpeedFactor(Smoothness.HORRIBLE, 0.5d);
-        setSmoothnessSpeedFactor(Smoothness.VERY_HORRIBLE, 0.4d);
-        // SmoothnessSpeed <= smoothnessFactorPushingSectionThreshold gets mapped to speed PUSHING_SECTION_SPEED
-        setSmoothnessSpeedFactor(Smoothness.IMPASSABLE, smoothnessFactorPushingSectionThreshold);
-
-        barriers.add("kissing_gate");
-        barriers.add("stile");
-        barriers.add("turnstile");
-
-        setSpecificClassBicycle("touring");
     }
 }
