@@ -59,7 +59,7 @@ public class MotorcycleTagParser extends CarTagParser {
     public MotorcycleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc,
                                BooleanEncodedValue roundaboutEnc,
                                DecimalEncodedValue priorityWayEncoder, DecimalEncodedValue curvatureEnc, PMap properties, TransportationMode transportationMode) {
-        super(accessEnc, speedEnc, turnCostEnc, roundaboutEnc, new PMap(properties).putObject("name", "motorcycle"), transportationMode);
+        super(accessEnc, speedEnc, turnCostEnc, roundaboutEnc, new PMap(properties).putObject("name", "motorcycle"), transportationMode, speedEnc.getNextStorableValue(120));
         this.priorityWayEncoder = priorityWayEncoder;
         this.curvatureEncoder = curvatureEnc;
 
@@ -83,8 +83,6 @@ public class MotorcycleTagParser extends CarTagParser {
         preferSet.add("primary");
         preferSet.add("secondary");
         preferSet.add("tertiary");
-
-        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(properties.getDouble("max_speed", 120));
 
         // autobahn
         defaultSpeedMap.put("motorway", 100);

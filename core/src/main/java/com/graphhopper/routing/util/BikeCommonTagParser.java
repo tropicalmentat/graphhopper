@@ -61,7 +61,7 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
     protected BikeCommonTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                                   EnumEncodedValue<RouteNetwork> bikeRouteEnc, EnumEncodedValue<Smoothness> smoothnessEnc,
                                   String name, BooleanEncodedValue roundaboutEnc, double speedFactor, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, name, roundaboutEnc, speedFactor, turnCostEnc, TransportationMode.BIKE);
+        super(accessEnc, speedEnc, name, roundaboutEnc, speedFactor, turnCostEnc, TransportationMode.BIKE, speedEnc.getNextStorableValue(30));
         this.bikeRouteEnc = bikeRouteEnc;
         this.smoothnessEnc = smoothnessEnc;
         this.priorityEnc = priorityEnc;
@@ -100,8 +100,6 @@ abstract public class BikeCommonTagParser extends VehicleTagParser {
         unpavedSurfaceTags.add("salt");
         unpavedSurfaceTags.add("sand");
         unpavedSurfaceTags.add("wood");
-
-        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(30);
 
         setTrackTypeSpeed("grade1", 18); // paved
         setTrackTypeSpeed("grade2", 12); // now unpaved ...

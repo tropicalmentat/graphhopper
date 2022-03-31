@@ -24,7 +24,6 @@ import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
@@ -62,17 +61,18 @@ public abstract class VehicleTagParser implements TagParser {
     protected final BooleanEncodedValue roundaboutEnc;
     // This value determines the maximal possible speed of any road regardless of the maxspeed value
     // lower values allow more compact representation of the routing graph
-    protected double maxPossibleSpeed;
+    protected final double maxPossibleSpeed;
     private boolean blockFords = true;
     private boolean registered;
     private ConditionalTagInspector conditionalTagInspector;
-    protected FerrySpeedCalculator ferrySpeedCalc;
+    protected final FerrySpeedCalculator ferrySpeedCalc;
 
     protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name,
                                BooleanEncodedValue roundaboutEnc,
-                               double speedFactor, DecimalEncodedValue turnCostEnc, TransportationMode transportationMode) {
+                               double speedFactor, DecimalEncodedValue turnCostEnc, TransportationMode transportationMode, double maxPossibleSpeed) {
         this.name = name;
         this.speedFactor = speedFactor;
+        this.maxPossibleSpeed = maxPossibleSpeed;
 
         this.accessEnc = accessEnc;
         this.avgSpeedEnc = speedEnc;
@@ -87,6 +87,7 @@ public abstract class VehicleTagParser implements TagParser {
         ferries.add("shuttle_train");
         ferries.add("ferry");
 
+        ferrySpeedCalc = new FerrySpeedCalculator(speedEnc.getSmallestNonZeroValue(), maxPossibleSpeed, 5);
         restrictions.addAll(OSMRoadAccessParser.toOSMRestrictions(transportationMode));
     }
 
@@ -94,8 +95,6 @@ public abstract class VehicleTagParser implements TagParser {
         if (registered)
             throw new IllegalStateException("You must not register a TagParser (" + this + ") twice or for two EncodingManagers!");
         registered = true;
-
-        ferrySpeedCalc = new FerrySpeedCalculator(speedFactor / 2, maxPossibleSpeed, 5);
         setConditionalTagInspector(new ConditionalOSMTagInspector(Collections.singletonList(dateRangeParser),
                 restrictions, restrictedValues, intendedValues, false));
     }
@@ -122,11 +121,6 @@ public abstract class VehicleTagParser implements TagParser {
 
     public ConditionalTagInspector getConditionalTagInspector() {
         return conditionalTagInspector;
-    }
-
-    public void createTurnCostEncodedValues(List<EncodedValue> registerNewTurnCostEncodedValues) {
-        if (supportsTurnCosts())
-            registerNewTurnCostEncodedValues.add(turnCostEnc);
     }
 
     @Override

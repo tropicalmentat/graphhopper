@@ -60,7 +60,7 @@ public class FootTagParser extends VehicleTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 "foot",
-             properties.getDouble("speed_factor", 1)
+                properties.getDouble("speed_factor", 1)
         );
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
@@ -68,7 +68,7 @@ public class FootTagParser extends VehicleTagParser {
 
     protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
                             EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
-        super(accessEnc, speedEnc, name, null, speedFactor, null, TransportationMode.FOOT);
+        super(accessEnc, speedEnc, name, null, speedFactor, null, TransportationMode.FOOT, speedEnc.getNextStorableValue(FERRY_SPEED));
         this.footRouteEnc = footRouteEnc;
         priorityWayEncoder = priorityEnc;
 
@@ -130,8 +130,6 @@ public class FootTagParser extends VehicleTagParser {
         allowedSacScale.add("hiking");
         allowedSacScale.add("mountain_hiking");
         allowedSacScale.add("demanding_mountain_hiking");
-
-        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(FERRY_SPEED);
     }
 
     /**

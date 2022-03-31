@@ -96,8 +96,6 @@ public class WheelchairTagParser extends FootTagParser {
         excludeSmoothness.add("impassable");
 
         allowedSacScale.clear();
-
-        maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(FERRY_SPEED);
     }
 
     /**
