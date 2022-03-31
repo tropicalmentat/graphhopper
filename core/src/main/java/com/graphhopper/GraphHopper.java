@@ -797,8 +797,7 @@ public class GraphHopper {
         if (encodingManager == null) {
             StorableProperties properties = new StorableProperties(new GHDirectory(ghLocation, dataAccessDefaultType));
             if (properties.loadExisting()) {
-                throw new UnsupportedOperationException("todonow");
-//                TagParserManager.create(emBuilder, encodedValueFactory, flagEncoderFactory, properties);
+                encodingManager = buildEncodingManagerFromProperties(encodedValueFactory, flagEncoderFactory, properties);
             } else
                 buildEncodingManagerAndTagParserBundle(new GraphHopperConfig());
         }
@@ -838,6 +837,21 @@ public class GraphHopper {
             if (lock != null)
                 lock.release();
         }
+    }
+
+    private static EncodingManager buildEncodingManagerFromProperties(EncodedValueFactory evFactory, FlagEncoderFactory flagEncoderFactory, StorableProperties properties) {
+        EncodingManager.Builder builder = new EncodingManager.Builder();
+        String encodedValuesStr = properties.get("graph.encoded_values");
+        for (String evString : encodedValuesStr.split(",")) {
+            String evName = evString.split("\\|")[0].trim();
+            builder.add(evFactory.create(evName));
+        }
+        String flagEncoderValuesStr = properties.get("graph.flag_encoders");
+        for (String encoderString : flagEncoderValuesStr.split(",")) {
+            String encoderName = encoderString.split("\\|")[0].trim();
+            builder.add(flagEncoderFactory.createFlagEncoder(encoderName, new PMap(encoderString)));
+        }
+        return builder.build();
     }
 
     private void checkProfilesConsistency() {
