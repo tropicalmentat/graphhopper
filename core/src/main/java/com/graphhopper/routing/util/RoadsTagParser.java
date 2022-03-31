@@ -18,7 +18,7 @@ public class RoadsTagParser extends VehicleTagParser {
     }
 
     public RoadsTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue turnCostEnc) {
-        super(accessEnc, speedEnc, "roads", null, 2, turnCostEnc, TransportationMode.VEHICLE, speedEnc.getNextStorableValue(254));
+        super(accessEnc, speedEnc, "roads", null, turnCostEnc, TransportationMode.VEHICLE, speedEnc.getNextStorableValue(254));
     }
 
     @Override

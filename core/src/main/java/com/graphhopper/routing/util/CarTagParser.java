@@ -64,7 +64,6 @@ public class CarTagParser extends VehicleTagParser {
                         TransportationMode transportationMode, double maxPossibleSpeed) {
         super(accessEnc, speedEnc,
                 properties.getString("name", "car"), roundaboutEnc,
-                properties.getDouble("speed_factor", 5),
                 turnCostEnc, transportationMode, maxPossibleSpeed);
         restrictedValues.add("agricultural");
         restrictedValues.add("forestry");

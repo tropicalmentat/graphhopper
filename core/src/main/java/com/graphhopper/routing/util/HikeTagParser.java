@@ -41,8 +41,7 @@ public class HikeTagParser extends FootTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "average_speed")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
-                properties.getString("name", "hike"),
-                properties.getDouble("speed_factor", 1)
+                properties.getString("name", "hike")
         );
         footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
         blockPrivate(properties.getBool("block_private", true));
@@ -50,8 +49,8 @@ public class HikeTagParser extends FootTagParser {
     }
 
     protected HikeTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
-                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
-        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, name, speedFactor);
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name) {
+        super(accessEnc, speedEnc, priorityEnc, footRouteEnc, name);
 
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());

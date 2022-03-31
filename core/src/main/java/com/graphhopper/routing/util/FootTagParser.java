@@ -59,16 +59,15 @@ public class FootTagParser extends VehicleTagParser {
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "average_speed")),
                 lookup.getDecimalEncodedValue(getKey(properties.getString("name", "foot"), "priority")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
-                "foot",
-                properties.getDouble("speed_factor", 1)
+                "foot"
         );
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
 
     protected FootTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, DecimalEncodedValue priorityEnc,
-                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name, double speedFactor) {
-        super(accessEnc, speedEnc, name, null, speedFactor, null, TransportationMode.FOOT, speedEnc.getNextStorableValue(FERRY_SPEED));
+                            EnumEncodedValue<RouteNetwork> footRouteEnc, String name) {
+        super(accessEnc, speedEnc, name, null, null, TransportationMode.FOOT, speedEnc.getNextStorableValue(FERRY_SPEED));
         this.footRouteEnc = footRouteEnc;
         priorityWayEncoder = priorityEnc;
 

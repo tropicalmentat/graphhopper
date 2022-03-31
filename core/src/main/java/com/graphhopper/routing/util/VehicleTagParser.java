@@ -53,8 +53,6 @@ public abstract class VehicleTagParser implements TagParser {
     protected final Set<String> oneways = new HashSet<>(5);
     // http://wiki.openstreetmap.org/wiki/Mapfeatures#Barrier
     protected final Set<String> barriers = new HashSet<>(5);
-    // todonow: better replace this with some kind of minimum speed or take this from avgSpeedEnc directly
-    protected final double speedFactor;
     protected final BooleanEncodedValue accessEnc;
     protected final DecimalEncodedValue avgSpeedEnc;
     private final DecimalEncodedValue turnCostEnc;
@@ -69,9 +67,8 @@ public abstract class VehicleTagParser implements TagParser {
 
     protected VehicleTagParser(BooleanEncodedValue accessEnc, DecimalEncodedValue speedEnc, String name,
                                BooleanEncodedValue roundaboutEnc,
-                               double speedFactor, DecimalEncodedValue turnCostEnc, TransportationMode transportationMode, double maxPossibleSpeed) {
+                               DecimalEncodedValue turnCostEnc, TransportationMode transportationMode, double maxPossibleSpeed) {
         this.name = name;
-        this.speedFactor = speedFactor;
         this.maxPossibleSpeed = maxPossibleSpeed;
 
         this.accessEnc = accessEnc;
@@ -228,7 +225,7 @@ public abstract class VehicleTagParser implements TagParser {
     }
 
     protected void setSpeed(boolean reverse, IntsRef edgeFlags, double speed) {
-        if (speed < speedFactor / 2) {
+        if (speed < avgSpeedEnc.getSmallestNonZeroValue()) {
             avgSpeedEnc.setDecimal(reverse, edgeFlags, 0);
             accessEnc.setBool(reverse, edgeFlags, false);
         } else {
