@@ -61,7 +61,6 @@ public abstract class VehicleTagParser implements TagParser {
     // lower values allow more compact representation of the routing graph
     protected final double maxPossibleSpeed;
     private boolean blockFords = true;
-    private boolean registered;
     private ConditionalTagInspector conditionalTagInspector;
     protected final FerrySpeedCalculator ferrySpeedCalc;
 
@@ -89,9 +88,6 @@ public abstract class VehicleTagParser implements TagParser {
     }
 
     public void init(DateRangeParser dateRangeParser) {
-        if (registered)
-            throw new IllegalStateException("You must not register a TagParser (" + this + ") twice or for two EncodingManagers!");
-        registered = true;
         setConditionalTagInspector(new ConditionalOSMTagInspector(Collections.singletonList(dateRangeParser),
                 restrictions, restrictedValues, intendedValues, false));
     }
@@ -184,7 +180,7 @@ public abstract class VehicleTagParser implements TagParser {
     /**
      * @return {@link Double#NaN} if no maxspeed found
      */
-    protected double getMaxSpeed(ReaderWay way) {
+    protected static double getMaxSpeed(ReaderWay way) {
         double maxSpeed = OSMValueExtractor.stringToKmh(way.getTag("maxspeed"));
         double fwdSpeed = OSMValueExtractor.stringToKmh(way.getTag("maxspeed:forward"));
         if (isValidSpeed(fwdSpeed) && (!isValidSpeed(maxSpeed) || fwdSpeed < maxSpeed))
@@ -200,7 +196,7 @@ public abstract class VehicleTagParser implements TagParser {
     /**
      * @return <i>true</i> if the given speed is not {@link Double#NaN}
      */
-    protected boolean isValidSpeed(double speed) {
+    protected static boolean isValidSpeed(double speed) {
         return !Double.isNaN(speed);
     }
 
@@ -212,14 +208,10 @@ public abstract class VehicleTagParser implements TagParser {
     }
 
     public final DecimalEncodedValue getAverageSpeedEnc() {
-        if (avgSpeedEnc == null)
-            throw new NullPointerException("TagParser " + getName() + " not yet initialized");
         return avgSpeedEnc;
     }
 
     public final BooleanEncodedValue getAccessEnc() {
-        if (accessEnc == null)
-            throw new NullPointerException("TagParser " + getName() + " not yet initialized");
         return accessEnc;
     }
 
@@ -228,7 +220,7 @@ public abstract class VehicleTagParser implements TagParser {
             avgSpeedEnc.setDecimal(reverse, edgeFlags, 0);
             accessEnc.setBool(reverse, edgeFlags, false);
         } else {
-            avgSpeedEnc.setDecimal(reverse, edgeFlags, speed > getMaxSpeed() ? getMaxSpeed() : speed);
+            avgSpeedEnc.setDecimal(reverse, edgeFlags, Math.min(speed, getMaxSpeed()));
         }
     }
 
