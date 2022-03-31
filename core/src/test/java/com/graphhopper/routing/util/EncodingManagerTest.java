@@ -33,8 +33,8 @@ public class EncodingManagerTest {
     public void testToDetailsString() {
         FlagEncoder encoder = new AbstractFlagEncoder("new_encoder", 1, 2.0, true, 0) {
             @Override
-            public TransportationMode getTransportationMode() {
-                return TransportationMode.BIKE;
+            public boolean isMotorVehicle() {
+                return false;
             }
 
             @Override

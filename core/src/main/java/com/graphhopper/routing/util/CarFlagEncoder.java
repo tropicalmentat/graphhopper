@@ -51,7 +51,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.CAR;
+    public boolean isMotorVehicle() {
+        return true;
     }
 }

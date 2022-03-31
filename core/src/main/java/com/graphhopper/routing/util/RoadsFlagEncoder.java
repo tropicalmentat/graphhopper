@@ -8,8 +8,8 @@ public class RoadsFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.VEHICLE;
+    public boolean isMotorVehicle() {
+        return false;
     }
 
 }

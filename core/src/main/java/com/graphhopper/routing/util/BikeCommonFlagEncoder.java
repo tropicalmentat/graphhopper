@@ -36,8 +36,8 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.BIKE;
+    public boolean isMotorVehicle() {
+        return false;
     }
 
     @Override

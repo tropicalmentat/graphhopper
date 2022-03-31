@@ -29,7 +29,7 @@ import com.graphhopper.routing.ev.EncodedValueLookup;
  */
 public interface FlagEncoder extends EncodedValueLookup {
 
-    TransportationMode getTransportationMode();
+    boolean isMotorVehicle();
 
     /**
      * @return the maximum speed in km/h

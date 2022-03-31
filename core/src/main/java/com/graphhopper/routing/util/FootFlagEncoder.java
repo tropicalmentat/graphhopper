@@ -53,8 +53,8 @@ public class FootFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.FOOT;
+    public boolean isMotorVehicle() {
+        return false;
     }
 
     @Override

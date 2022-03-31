@@ -55,11 +55,6 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.MOTORCYCLE;
-    }
-
-    @Override
     public boolean supports(Class<?> feature) {
         if (super.supports(feature))
             return true;
