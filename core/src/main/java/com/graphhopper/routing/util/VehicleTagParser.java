@@ -178,7 +178,6 @@ public abstract class VehicleTagParser implements TagParser {
     }
 
     public double getMaxSpeed() {
-        // todonow: double check this is set correctly or better take it via constructor if it is actually needed
         return maxPossibleSpeed;
     }
 
