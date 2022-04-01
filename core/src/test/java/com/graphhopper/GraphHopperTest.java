@@ -24,6 +24,7 @@ import com.graphhopper.json.Statement;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.dem.SRTMProvider;
 import com.graphhopper.reader.dem.SkadiProvider;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.RoadEnvironment;
 import com.graphhopper.routing.ev.Subnetwork;
@@ -1059,6 +1060,11 @@ public class GraphHopperTest {
                 }
             });
             builder.addFlagEncoder(new DefaultFlagEncoderFactory().createFlagEncoder(vehicle, new PMap()));
+            builder.addWayTagParser(lookup -> {
+                VehicleTagParser parser = new DefaultVehicleTagParserFactory().createParser(lookup, vehicle, new PMap());
+                parser.init(new DateRangeParser());
+                return parser;
+            });
         }
 
         hopper.setElevationProvider(new SRTMProvider(DIR));

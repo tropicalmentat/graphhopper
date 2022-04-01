@@ -398,8 +398,15 @@ public class OSMReaderTest {
     @Test
     public void testFords() {
         // todonow: make sure block fords is passed on to the *parser*
-        CarFlagEncoder car = new CarFlagEncoder(new PMap("block_fords=true"));
+        CarFlagEncoder car = new CarFlagEncoder();
         GraphHopper hopper = new GraphHopper();
+        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        builder.addFlagEncoder(car);
+        builder.addWayTagParser(lookup -> {
+            CarTagParser parser = new CarTagParser(lookup, new PMap("block_fords=true"));
+            parser.init(new DateRangeParser());
+            return parser;
+        });
         hopper.setOSMFile(getClass().getResource("test-barriers3.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(
@@ -923,6 +930,9 @@ public class OSMReaderTest {
         EnumEncodedValue<RoadAccess> roadAccessEnc = em.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class);
         TagParserBundle tagParserBundle = new TagParserBundle();
         tagParserBundle.addWayTagParser(new OSMRoadAccessParser(roadAccessEnc));
+        CarTagParser parser = new CarTagParser(em, new PMap());
+        parser.init(new DateRangeParser());
+        tagParserBundle.addWayTagParser(parser);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         OSMReader reader = new OSMReader(graph, em, tagParserBundle, new OSMReaderConfig());
         reader.setCountryRuleFactory(new CountryRuleFactory());

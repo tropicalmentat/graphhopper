@@ -119,7 +119,7 @@ public class LowLevelAPI {
             e.printStackTrace();
         }
 
-        // todonow:
+        // todonow: test something
     }
 
     private static class MyWeighting implements Weighting {
