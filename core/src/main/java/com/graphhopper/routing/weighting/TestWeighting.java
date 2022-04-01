@@ -19,7 +19,6 @@
 package com.graphhopper.routing.weighting;
 
 import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class TestWeighting implements Weighting {
@@ -35,6 +34,11 @@ public class TestWeighting implements Weighting {
     @Override
     public double getMinWeight(double distance) {
         return 1000 * distance / speed;
+    }
+
+    @Override
+    public boolean edgeHasNoAccess(EdgeIteratorState edgeState, boolean reverse) {
+        return reverse ? !edgeState.getReverse(accessEnc) : !edgeState.get(accessEnc);
     }
 
     @Override
@@ -63,11 +67,6 @@ public class TestWeighting implements Weighting {
     @Override
     public boolean hasTurnCosts() {
         return turnCostProvider != TurnCostProvider.NO_TURN_COST_PROVIDER;
-    }
-
-    @Override
-    public FlagEncoder getFlagEncoder() {
-        throw new UnsupportedOperationException("This method should be removed");
     }
 
     @Override
