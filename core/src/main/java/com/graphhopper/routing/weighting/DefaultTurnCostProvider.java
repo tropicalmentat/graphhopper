@@ -64,6 +64,10 @@ public class DefaultTurnCostProvider implements TurnCostProvider {
         this.turnCostStorage = turnCostStorage;
     }
 
+    public DecimalEncodedValue getTurnCostEnc() {
+        return turnCostEnc;
+    }
+
     @Override
     public double calcTurnWeight(int edgeFrom, int nodeVia, int edgeTo) {
         if (!EdgeIterator.Edge.isValid(edgeFrom) || !EdgeIterator.Edge.isValid(edgeTo)) {
