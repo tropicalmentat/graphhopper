@@ -18,20 +18,18 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.Priority;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 
 import java.util.List;
-
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
     protected final DecimalEncodedValue priorityEnc;
 
     protected BikeCommonFlagEncoder(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
         super(name, speedBits, speedFactor, speedTwoDirections, maxTurnCosts);
-        priorityEnc = new DecimalEncodedValueImpl(getKey(name, "priority"), 4, PriorityCode.getFactor(1), false);
+        priorityEnc = Priority.create(name, 4, PriorityCode.getFactor(1), false);
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(30);
     }
 

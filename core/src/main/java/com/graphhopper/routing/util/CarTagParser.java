@@ -49,13 +49,13 @@ public class CarTagParser extends VehicleTagParser {
 
     public CarTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
-                lookup.getBooleanEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "access")),
-                lookup.getDecimalEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "average_speed")),
+                lookup.getBooleanEncodedValue(AccessEV.key(properties.getString("name", "car"))),
+                lookup.getDecimalEncodedValue(AverageSpeed.key(properties.getString("name", "car"))),
                 lookup.hasEncodedValue(TurnCost.key(properties.getString("name", "car"))) ? lookup.getDecimalEncodedValue(TurnCost.key(properties.getString("name", "car"))) : null,
                 lookup.getBooleanEncodedValue(Roundabout.KEY),
                 properties,
                 TransportationMode.CAR,
-                lookup.getDecimalEncodedValue(EncodingManager.getKey(properties.getString("name", "car"), "average_speed")).getNextStorableValue(140)
+                lookup.getDecimalEncodedValue(AverageSpeed.key(properties.getString("name", "car"))).getNextStorableValue(140)
         );
     }
 

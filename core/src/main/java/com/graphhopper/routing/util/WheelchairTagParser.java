@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.AVOID;
 import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
 
@@ -45,12 +44,12 @@ public class WheelchairTagParser extends FootTagParser {
 
     public WheelchairTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
-                lookup.getBooleanEncodedValue(getKey("wheelchair", "access")),
-                lookup.getDecimalEncodedValue(getKey("wheelchair", "average_speed")),
-                lookup.getDecimalEncodedValue(getKey("wheelchair", "priority")),
+                lookup.getBooleanEncodedValue(AccessEV.key("wheelchair")),
+                lookup.getDecimalEncodedValue(AverageSpeed.key("wheelchair")),
+                lookup.getDecimalEncodedValue(Priority.key("wheelchair")),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class)
         );
-        footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
+        footRouteEnc = lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }

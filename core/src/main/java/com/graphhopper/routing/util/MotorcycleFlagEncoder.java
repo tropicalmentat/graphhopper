@@ -20,6 +20,7 @@ package com.graphhopper.routing.util;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.Priority;
 import com.graphhopper.routing.weighting.CurvatureWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.util.PMap;
@@ -39,7 +40,7 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder {
     public MotorcycleFlagEncoder(PMap properties) {
         super(properties.putObject("name", "motorcycle").putObject("speed_two_directions", true));
 
-        priorityWayEncoder = new DecimalEncodedValueImpl(getKey(getName(), "priority"), 4, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = Priority.create(getName(), 4, PriorityCode.getFactor(1), false);
         curvatureEncoder = new DecimalEncodedValueImpl(getKey(getName(), "curvature"), 4, 0.1, false);
         maxPossibleSpeed = avgSpeedEnc.getNextStorableValue(properties.getDouble("max_speed", 120));
     }

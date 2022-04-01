@@ -45,11 +45,11 @@ public class MotorcycleTagParser extends CarTagParser {
 
     public MotorcycleTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
-                lookup.getBooleanEncodedValue(getKey("motorcycle", "access")),
-                lookup.getDecimalEncodedValue(getKey("motorcycle", "average_speed")),
+                lookup.getBooleanEncodedValue(AccessEV.key("motorcycle")),
+                lookup.getDecimalEncodedValue(AverageSpeed.key("motorcycle")),
                 lookup.hasEncodedValue(TurnCost.key("motorcycle")) ? lookup.getDecimalEncodedValue(TurnCost.key("motorcycle")) : null,
                 lookup.getBooleanEncodedValue(Roundabout.KEY),
-                lookup.getDecimalEncodedValue(getKey("motorcycle", "priority")),
+                lookup.getDecimalEncodedValue(Priority.key("motorcycle")),
                 lookup.getDecimalEncodedValue(getKey("motorcycle", "curvature")),
                 new PMap(properties).putObject("name", "motorcycle"),
                 TransportationMode.MOTORCYCLE

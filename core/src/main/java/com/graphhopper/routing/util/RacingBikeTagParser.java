@@ -24,7 +24,6 @@ import com.graphhopper.util.PMap;
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 
 /**
@@ -37,9 +36,9 @@ public class RacingBikeTagParser extends BikeCommonTagParser {
 
     public RacingBikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
-                lookup.getBooleanEncodedValue(getKey("racingbike", "access")),
-                lookup.getDecimalEncodedValue(getKey("racingbike", "average_speed")),
-                lookup.getDecimalEncodedValue(getKey("racingbike", "priority")),
+                lookup.getBooleanEncodedValue(AccessEV.key("racingbike")),
+                lookup.getDecimalEncodedValue(AverageSpeed.key("racingbike")),
+                lookup.getDecimalEncodedValue(Priority.key("racingbike")),
                 lookup.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class),
                 lookup.getEnumEncodedValue(Smoothness.KEY, Smoothness.class),
                 lookup.getBooleanEncodedValue(Roundabout.KEY),

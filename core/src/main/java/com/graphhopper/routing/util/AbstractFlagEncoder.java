@@ -21,8 +21,6 @@ import com.graphhopper.routing.ev.*;
 
 import java.util.List;
 
-import static com.graphhopper.routing.util.EncodingManager.getKey;
-
 public abstract class AbstractFlagEncoder implements FlagEncoder {
     private final String name;
     protected final int speedBits;
@@ -40,8 +38,8 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
         this.speedBits = speedBits;
         this.speedFactor = speedFactor;
 
-        this.accessEnc = new SimpleBooleanEncodedValue(getKey(name, "access"), true);
-        this.avgSpeedEnc = new DecimalEncodedValueImpl(getKey(name, "average_speed"), speedBits, speedFactor, speedTwoDirections);
+        this.accessEnc = AccessEV.create(name);
+        this.avgSpeedEnc = AverageSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
         this.turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
     }
 

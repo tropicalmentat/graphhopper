@@ -25,7 +25,6 @@ import com.graphhopper.util.*;
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
-import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 
 /**
@@ -37,13 +36,13 @@ public class HikeTagParser extends FootTagParser {
 
     public HikeTagParser(EncodedValueLookup lookup, PMap properties) {
         this(
-                lookup.getBooleanEncodedValue(getKey(properties.getString("name", "hike"), "access")),
-                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "average_speed")),
-                lookup.getDecimalEncodedValue(getKey(properties.getString("name", "hike"), "priority")),
+                lookup.getBooleanEncodedValue(AccessEV.key(properties.getString("name", "hike"))),
+                lookup.getDecimalEncodedValue(AverageSpeed.key(properties.getString("name", "hike"))),
+                lookup.getDecimalEncodedValue(Priority.key(properties.getString("name", "hike"))),
                 lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class),
                 properties.getString("name", "hike")
         );
-        footRouteEnc = lookup.getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
+        footRouteEnc = lookup.getEnumEncodedValue(FootNetwork.KEY, RouteNetwork.class);
         blockPrivate(properties.getBool("block_private", true));
         blockFords(properties.getBool("block_fords", false));
     }
