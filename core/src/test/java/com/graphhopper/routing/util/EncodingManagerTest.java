@@ -30,26 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EncodingManagerTest {
 
     @Test
-    public void testToDetailsString() {
-        FlagEncoder encoder = new AbstractFlagEncoder("new_encoder", 1, 2.0, true, 0) {
-            @Override
-            public boolean isMotorVehicle() {
-                return false;
-            }
-
-            @Override
-            protected String getPropertiesString() {
-                return "my_properties";
-            }
-
-        };
-
-        EncodingManager subject = EncodingManager.create(encoder);
-
-        assertEquals("new_encoder|my_properties", subject.toFlagEncodersAsString());
-    }
-
-    @Test
     public void duplicateNamesNotAllowed() {
         assertThrows(IllegalArgumentException.class, () -> EncodingManager.create("car,car"));
     }

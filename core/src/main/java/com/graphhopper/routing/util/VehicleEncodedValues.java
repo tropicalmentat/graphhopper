@@ -40,7 +40,7 @@ public final class VehicleEncodedValues implements FlagEncoder {
     public static VehicleEncodedValues foot(PMap properties) {
         String name = properties.getString("name", "foot");
         int speedBits = properties.getInt("speed_bits", 4);
-        double speedFactor = properties.getInt("speed_factor", 1);
+        double speedFactor = properties.getDouble("speed_factor", 1);
         boolean speedTwoDirections = properties.getBool("speed_two_directions", false);
         int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         double maxSpeed = properties.getDouble("max_speed", FERRY_SPEED);
@@ -65,7 +65,7 @@ public final class VehicleEncodedValues implements FlagEncoder {
     public static VehicleEncodedValues bike(PMap properties) {
         String name = properties.getString("name", "bike");
         int speedBits = properties.getInt("speed_bits", 4);
-        double speedFactor = properties.getInt("speed_factor", 2);
+        double speedFactor = properties.getDouble("speed_factor", 2);
         boolean speedTwoDirections = properties.getBool("speed_two_directions", false);
         int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         double maxSpeed = properties.getDouble("max_speed", 30);
@@ -96,7 +96,7 @@ public final class VehicleEncodedValues implements FlagEncoder {
     public static VehicleEncodedValues car(PMap properties) {
         String name = properties.getString("name", "car");
         int speedBits = properties.getInt("speed_bits", 5);
-        double speedFactor = properties.getInt("speed_factor", 5);
+        double speedFactor = properties.getDouble("speed_factor", 5);
         boolean speedTwoDirections = properties.getBool("speed_two_directions", false);
         int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         double maxSpeed = properties.getDouble("max_speed", 140);
@@ -107,13 +107,13 @@ public final class VehicleEncodedValues implements FlagEncoder {
     }
 
     public static VehicleEncodedValues car4wd(PMap properties) {
-        return foot(new PMap(properties).putObject("name", properties.getString("name", "car4wd")));
+        return car(new PMap(properties).putObject("name", properties.getString("name", "car4wd")));
     }
 
     public static VehicleEncodedValues motorcycle(PMap properties) {
         String name = properties.getString("name", "motorcycle");
         int speedBits = properties.getInt("speed_bits", 5);
-        double speedFactor = properties.getInt("speed_factor", 5);
+        double speedFactor = properties.getDouble("speed_factor", 5);
         boolean speedTwoDirections = properties.getBool("speed_two_directions", true);
         int maxTurnCosts = properties.getInt("max_turn_costs", properties.getBool("turn_costs", false) ? 1 : 0);
         double maxSpeed = properties.getDouble("max_speed", 120);
@@ -135,7 +135,7 @@ public final class VehicleEncodedValues implements FlagEncoder {
         BooleanEncodedValue accessEnc = AccessEV.create(name);
         DecimalEncodedValue speedEnc = AverageSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
         DecimalEncodedValue turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
-        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, null turnCostEnc, speedEnc.getNextStorableValue(maxSpeed), true);
+        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, null, turnCostEnc, speedEnc.getNextStorableValue(maxSpeed), true);
     }
 
     public VehicleEncodedValues(String name, BooleanEncodedValue accessEnc, DecimalEncodedValue avgSpeedEnc,

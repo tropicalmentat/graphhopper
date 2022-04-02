@@ -104,7 +104,7 @@ public class EncodingManager implements EncodedValueLookup {
 
     public static class Builder {
         private EncodingManager em;
-        private final Map<String, AbstractFlagEncoder> flagEncoderMap = new LinkedHashMap<>();
+        private final Map<String, VehicleEncodedValues> flagEncoderMap = new LinkedHashMap<>();
         private final Map<String, EncodedValue> encodedValueMap = new LinkedHashMap<>();
 
         public Builder() {
@@ -115,7 +115,7 @@ public class EncodingManager implements EncodedValueLookup {
             check();
             if (flagEncoderMap.containsKey(encoder.toString()))
                 throw new IllegalArgumentException("FlagEncoder already exists: " + encoder);
-            flagEncoderMap.put(encoder.toString(), (AbstractFlagEncoder) encoder);
+            flagEncoderMap.put(encoder.toString(), (VehicleEncodedValues) encoder);
             return this;
         }
 
@@ -139,6 +139,7 @@ public class EncodingManager implements EncodedValueLookup {
                 em.addEncodedValue(ev, false);
             }
 
+            // todonow: this does not belong here at all
             if (!em.hasEncodedValue(Roundabout.KEY))
                 em.addEncodedValue(Roundabout.create(), false);
             if (!em.hasEncodedValue(RoadClass.KEY))
@@ -153,27 +154,28 @@ public class EncodingManager implements EncodedValueLookup {
                 em.addEncodedValue(new EnumEncodedValue<>(RoadAccess.KEY, RoadAccess.class), false);
             }
 
-            for (FlagEncoder encoder : flagEncoderMap.values()) {
-                if (encoder instanceof RoadsFlagEncoder) {
+            // todonow: this does not belong here at all
+            for (VehicleEncodedValues encoder : flagEncoderMap.values()) {
+                if (encoder.getName().equals("roads")) {
                     // TODO Later these EncodedValues can be added independently of RoadsFlagEncoder. Maybe add a foot_access and hgv_access? and remove the others "xy$access"
                     if (!em.hasEncodedValue("car_access"))
                         em.addEncodedValue(new SimpleBooleanEncodedValue("car_access"), false);
                     if (!em.hasEncodedValue("bike_access"))
                         em.addEncodedValue(new SimpleBooleanEncodedValue("bike_access"), false);
-                } else if (encoder instanceof BikeCommonFlagEncoder) {
+                } else if (encoder.getName().contains("bike") || encoder.getName().contains("mtb")) {
                     if (!em.hasEncodedValue(RouteNetwork.key("bike")))
                         em.addEncodedValue(new EnumEncodedValue<>(BikeNetwork.KEY, RouteNetwork.class), false);
                     if (!em.hasEncodedValue(GetOffBike.KEY))
                         em.addEncodedValue(GetOffBike.create(), false);
                     if (!em.hasEncodedValue(Smoothness.KEY))
                         em.addEncodedValue(new EnumEncodedValue<>(Smoothness.KEY, Smoothness.class), false);
-                } else if (encoder instanceof FootFlagEncoder) {
+                } else if (encoder.getName().contains("foot") || encoder.getName().contains("hike") || encoder.getName().contains("wheelchair")) {
                     if (!em.hasEncodedValue(RouteNetwork.key("foot")))
                         em.addEncodedValue(new EnumEncodedValue<>(FootNetwork.KEY, RouteNetwork.class), false);
                 }
             }
 
-            for (AbstractFlagEncoder encoder : flagEncoderMap.values()) {
+            for (VehicleEncodedValues encoder : flagEncoderMap.values()) {
                 em.addEncoder(encoder);
             }
 
@@ -207,7 +209,7 @@ public class EncodingManager implements EncodedValueLookup {
         return edgeConfig.getRequiredInts();
     }
 
-    private void addEncoder(AbstractFlagEncoder encoder) {
+    private void addEncoder(VehicleEncodedValues encoder) {
         encoder.setEncodedValueLookup(this);
         List<EncodedValue> list = new ArrayList<>();
         encoder.createEncodedValues(list);
@@ -293,7 +295,7 @@ public class EncodingManager implements EncodedValueLookup {
 
             str.append(encoder.toString())
                     .append("|")
-                    .append(((AbstractFlagEncoder) encoder).getPropertiesString());
+                    .append(((VehicleEncodedValues) encoder).getName());
         }
 
         return str.toString();

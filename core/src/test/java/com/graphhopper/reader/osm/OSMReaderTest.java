@@ -676,7 +676,7 @@ public class OSMReaderTest {
     public void testTurnFlagCombination() {
         FlagEncoder car = FlagEncoders.createCar(5, 5, 24);
         // todonow
-        FlagEncoder truck = FlagEncoders.createCar("truck", 5, 5, 24)
+        FlagEncoder truck = FlagEncoders.createCar("truck", 5, 5, 24);
 //        {
 //            @Override
 //            public TransportationMode getTransportationMode() {

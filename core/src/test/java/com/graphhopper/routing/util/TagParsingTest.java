@@ -74,7 +74,7 @@ class TagParsingTest {
         IntsRef edgeFlags = em.createEdgeFlags();
         edgeFlags = tagParserBundle.handleWayTags(edgeFlags, osmWay, relFlags);
         assertEquals(RouteNetwork.LOCAL, bikeNetworkEnc.getEnum(false, edgeFlags));
-        assertTrue(defaultBike.priorityEnc.getDecimal(false, edgeFlags) > lessRelationCodes.priorityEnc.getDecimal(false, edgeFlags));
+        assertTrue(defaultBike.getPriorityEnc().getDecimal(false, edgeFlags) > lessRelationCodes.getPriorityEnc().getDecimal(false, edgeFlags));
     }
 
     @Test
@@ -109,7 +109,7 @@ class TagParsingTest {
         edgeFlags = tagParserBundle.handleWayTags(edgeFlags, osmWay, relFlags);
         // bike: uninfluenced speed for grade but via network => NICE
         // mtb: uninfluenced speed only PREFER
-        assertTrue(bikeEncoder.priorityEnc.getDecimal(false, edgeFlags) > mtbEncoder.priorityEnc.getDecimal(false, edgeFlags));
+        assertTrue(bikeEncoder.getPriorityEnc().getDecimal(false, edgeFlags) > mtbEncoder.getPriorityEnc().getDecimal(false, edgeFlags));
     }
 
     @Test
