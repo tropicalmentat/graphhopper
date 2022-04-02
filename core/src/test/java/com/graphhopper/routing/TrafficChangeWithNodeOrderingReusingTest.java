@@ -57,7 +57,7 @@ public class TrafficChangeWithNodeOrderingReusingTest {
             tagParserBundle = new TagParserBundle()
                     .addWayTagParser(carParser);
             baseCHConfig = CHConfig.nodeBased("base", new FastestWeighting(encoder));
-            trafficCHConfig = CHConfig.nodeBased("traffic", new RandomDeviationWeighting(baseCHConfig.getWeighting(), maxDeviationPercentage));
+            trafficCHConfig = CHConfig.nodeBased("traffic", new RandomDeviationWeighting(baseCHConfig.getWeighting(), encoder, maxDeviationPercentage));
             graph = new BaseGraph.Builder(em).create();
         }
 
@@ -192,8 +192,8 @@ public class TrafficChangeWithNodeOrderingReusingTest {
         private final Weighting baseWeighting;
         private final double maxDeviationPercentage;
 
-        public RandomDeviationWeighting(Weighting baseWeighting, double maxDeviationPercentage) {
-            super(baseWeighting.getFlagEncoder());
+        public RandomDeviationWeighting(Weighting baseWeighting, FlagEncoder encoder, double maxDeviationPercentage) {
+            super(encoder);
             this.baseWeighting = baseWeighting;
             this.maxDeviationPercentage = maxDeviationPercentage;
         }
