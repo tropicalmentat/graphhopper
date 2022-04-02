@@ -18,14 +18,14 @@
 package com.graphhopper.routing;
 
 import com.carrotsearch.hppc.IntArrayList;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FiniteWeightFilter;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TestWeighting;
+import com.graphhopper.routing.weighting.SpeedWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.BaseGraph;
@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Karich
  */
 public class RoundTripRoutingTest {
-    private final BooleanEncodedValue accessEnc;
+    private final DecimalEncodedValue speedEnc;
     private final Weighting weighting;
     // TODO private final TraversalMode tMode = TraversalMode.EDGE_BASED;
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
@@ -59,9 +59,9 @@ public class RoundTripRoutingTest {
     private final GHPoint ghPoint2 = new GHPoint(1, 1);
 
     public RoundTripRoutingTest() {
-        accessEnc = new SimpleBooleanEncodedValue("access", true);
-        accessEnc.init(new EncodedValue.InitializerConfig());
-        weighting = new TestWeighting(accessEnc, TurnCostProvider.NO_TURN_COST_PROVIDER);
+        speedEnc = new DecimalEncodedValueImpl("speed", 6, 1, true);
+        speedEnc.init(new EncodedValue.InitializerConfig());
+        weighting = new SpeedWeighting(speedEnc, TurnCostProvider.NO_TURN_COST_PROVIDER);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class RoundTripRoutingTest {
 
     private BaseGraph createTestGraph() {
         BaseGraph graph = new BaseGraph.Builder(1).withTurnCosts(true).create();
-        AlternativeRouteTest.initTestGraph(graph, accessEnc);
+        AlternativeRouteTest.initTestGraph(graph, speedEnc);
         return graph;
     }
 
@@ -145,7 +145,7 @@ public class RoundTripRoutingTest {
         //    |-1 0 1
         BaseGraph graph = new BaseGraph.Builder(1).create();
         for (int i = 0; i < 8; ++i)
-            graph.edge(i, (i + 1) % 8).setDistance(1).set(accessEnc, true, true);
+            graph.edge(i, (i + 1) % 8).setDistance(1).set(speedEnc, 60, 60);
         updateDistancesFor(graph, 0, 1, -1);
         updateDistancesFor(graph, 1, 1, 0);
         updateDistancesFor(graph, 2, 1, 1);

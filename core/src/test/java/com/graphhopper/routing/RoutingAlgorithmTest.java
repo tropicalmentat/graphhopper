@@ -29,10 +29,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.ShortestWeighting;
-import com.graphhopper.routing.weighting.TurnCostProvider;
-import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
@@ -88,6 +85,7 @@ public class RoutingAlgorithmTest {
     private static class Fixture {
         private final EncodingManager encodingManager;
         private final FlagEncoder carEncoder;
+        private final BooleanEncodedValue accessEnc;
         private final FlagEncoder footEncoder;
         private final FlagEncoder bike2Encoder;
         private final PathCalculator pathCalculator;
@@ -101,10 +99,11 @@ public class RoutingAlgorithmTest {
             // vehicles used in this test
             encodingManager = EncodingManager.create("car,foot,bike2");
             carEncoder = encodingManager.getEncoder("car");
+            accessEnc = carEncoder.getAccessEnc();
             footEncoder = encodingManager.getEncoder("foot");
             bike2Encoder = encodingManager.getEncoder("bike2");
             // most tests use the default weighting, but this can be chosen for each test separately
-            defaultWeighting = new ShortestWeighting(carEncoder);
+            defaultWeighting = new DistanceWeighting(accessEnc);
             // most tests do not limit the number of visited nodes, but this can be chosen for each test separately
             defaultMaxVisitedNodes = Integer.MAX_VALUE;
         }
@@ -237,8 +236,8 @@ public class RoutingAlgorithmTest {
     public void testCalcShortestPath_sourceEqualsTarget(Fixture f) {
         // 0-1-2
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 1).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(1, 2).setDistance(2));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(2));
 
         Path p = f.calcPath(graph, 0, 0);
         assertPathFromEqualsTo(p, 0);
@@ -251,11 +250,11 @@ public class RoutingAlgorithmTest {
         //    |  |
         //    3--4
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 2).setDistance(9));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 1).setDistance(2));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 3).setDistance(11));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(3, 4).setDistance(6));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(4, 1).setDistance(9));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(9));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 1).setDistance(2));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(11));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(6));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 1).setDistance(9));
         Path p = f.calcPath(graph, 0, 4);
         assertEquals(20, p.getDistance(), 1e-4, p.toString());
         assertEquals(nodes(0, 2, 1, 4), p.calcNodes());
@@ -266,10 +265,10 @@ public class RoutingAlgorithmTest {
     public void testBidirectionalLinear(Fixture f) {
         //3--2--1--4--5
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 1).setDistance(2));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 3).setDistance(11));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(5, 4).setDistance(6));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(4, 1).setDistance(9));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 1).setDistance(2));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(11));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 4).setDistance(6));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 1).setDistance(9));
         Path p = f.calcPath(graph, 3, 5);
         assertEquals(28, p.getDistance(), 1e-4, p.toString());
         assertEquals(nodes(3, 2, 1, 4, 5), p.calcNodes());
@@ -434,18 +433,18 @@ public class RoutingAlgorithmTest {
         // 7-5-6
         //  \|
         //   8
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 1).setDistance(7));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(5, 6).setDistance(2));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(5, 7).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(5, 8).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(7, 8).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(7));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 6).setDistance(2));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 7).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 8).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(7, 8).setDistance(1));
         assertFalse(f.calcPath(graph, 0, 5).isFound());
 
         // disconnected as directed graph
         // 2-0->1
         graph = f.createGHStorage();
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 2).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1));
         f.resetCH();
         assertFalse(f.calcPath(graph, 1, 2).isFound());
         assertTrue(f.calcPath(graph, 2, 1).isFound());
@@ -542,16 +541,16 @@ public class RoutingAlgorithmTest {
         // \   /   /
         //  7-6-5-/
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 1).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(1, 2).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 3).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(3, 4).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(4, 5).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(5, 6).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(6, 7).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(7, 0).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(3, 8).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(8, 6).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 5).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 6).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(6, 7).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(7, 0).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 8).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(8, 6).setDistance(1));
 
         // run the same query twice, this can be interesting because in the second call algorithms that pre-process
         // the graph might depend on the state of the graph after the first call 
@@ -723,7 +722,7 @@ public class RoutingAlgorithmTest {
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(1));
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(1, 2).setDistance(1));
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(2, 3).setDistance(1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(3, 1).setDistance(4));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 1).setDistance(4));
 
         Path p = f.calcPath(graph, 0, 3);
         assertEquals(nodes(0, 1, 2, 3), p.calcNodes());
@@ -736,23 +735,23 @@ public class RoutingAlgorithmTest {
     @ParameterizedTest
     @ArgumentsSource(FixtureProvider.class)
     public void testWithCoordinates(Fixture f) {
-        Weighting weighting = new ShortestWeighting(f.carEncoder);
+        Weighting weighting = new DistanceWeighting(f.accessEnc);
         BaseGraph graph = f.createGHStorage(false);
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 1).setDistance(2)).
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(2)).
                 setWayGeometry(Helper.createPointList(1.5, 1));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 3).setDistance(2)).
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(2)).
                 setWayGeometry(Helper.createPointList(0, 1.5));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(3, 4).setDistance(2)).
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(2)).
                 setWayGeometry(Helper.createPointList(0, 2));
 
         // duplicate but the second edge is longer
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 2).setDistance(1.2));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(0, 2).setDistance(1.5)).
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1.2));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1.5)).
                 setWayGeometry(Helper.createPointList(0.5, 0));
 
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(1, 3).setDistance(1.3)).
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 3).setDistance(1.3)).
                 setWayGeometry(Helper.createPointList(0.5, 1.5));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(1, 4).setDistance(1));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 4).setDistance(1));
 
         updateDistancesFor(graph, 0, 1, 0.6);
         updateDistancesFor(graph, 1, 1, 1.5);
@@ -834,10 +833,10 @@ public class RoutingAlgorithmTest {
         // |    2
         // 4<-3/
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(7));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(1, 2).setDistance(7));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(2, 3).setDistance(7));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(7));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(7));
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(3, 4).setDistance(7));
-        GHUtility.setSpeed(60, true, true, f.carEncoder, graph.edge(4, 0).setDistance(7));
+        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 0).setDistance(7));
 
         updateDistancesFor(graph, 4, 0, 0);
         updateDistancesFor(graph, 0, 0.00010, 0);
@@ -1094,7 +1093,7 @@ public class RoutingAlgorithmTest {
     }
 
     private static String getCHGraphName(Weighting weighting) {
-        return weighting.getName() + "_" + weighting.hashCode();
+        return "ch_" + weighting.hashCode();
     }
 
     private static void assertPathFromEqualsTo(Path p, int node) {

@@ -19,10 +19,13 @@ package com.graphhopper.routing;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.routing.AlternativeRoute.AlternativeBidirSearch;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
-import com.graphhopper.routing.weighting.TestWeighting;
+import com.graphhopper.routing.weighting.SpeedWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.BaseGraph;
@@ -46,19 +49,19 @@ public class AlternativeRouteTest {
         final Weighting weighting;
         final TraversalMode traversalMode;
         final BaseGraph graph;
-        final BooleanEncodedValue accessEnc;
+        final DecimalEncodedValue speedEnc;
 
         public Fixture(TraversalMode tMode) {
             this.traversalMode = tMode;
-            accessEnc = new SimpleBooleanEncodedValue("access", true);
-            accessEnc.init(new EncodedValue.InitializerConfig());
+            speedEnc = new DecimalEncodedValueImpl("speed", 6, 1, true);
+            speedEnc.init(new EncodedValue.InitializerConfig());
             DecimalEncodedValue turnCostEnc = TurnCost.create("abc", 1);
             turnCostEnc.init(new EncodedValue.InitializerConfig());
             graph = new BaseGraph.Builder(1).withTurnCosts(true).create();
             TurnCostProvider turnCostProvider = tMode.isEdgeBased()
                     ? new DefaultTurnCostProvider(turnCostEnc, graph.getTurnCostStorage())
                     : TurnCostProvider.NO_TURN_COST_PROVIDER;
-            weighting = new TestWeighting(accessEnc, turnCostProvider);
+            weighting = new SpeedWeighting(speedEnc, turnCostProvider);
         }
 
         @Override
@@ -77,7 +80,7 @@ public class AlternativeRouteTest {
         }
     }
 
-    public static void initTestGraph(Graph graph, BooleanEncodedValue accessEnc) {
+    public static void initTestGraph(Graph graph, DecimalEncodedValue speedEnc) {
         /* 9
          _/\
          1  2-3-4-10
@@ -85,7 +88,7 @@ public class AlternativeRouteTest {
          5--6-7---8
         
          */
-        GHUtility.setAccess(true, true, accessEnc,
+        GHUtility.setDecimal(60, 60, speedEnc,
                 graph.edge(1, 9).setDistance(1),
                 graph.edge(9, 2).setDistance(1),
                 graph.edge(2, 3).setDistance(1),
@@ -114,7 +117,7 @@ public class AlternativeRouteTest {
     @ParameterizedTest
     @ArgumentsSource(FixtureProvider.class)
     public void testCalcAlternatives(Fixture f) {
-        initTestGraph(f.graph, f.accessEnc);
+        initTestGraph(f.graph, f.speedEnc);
         AlternativeRoute altDijkstra = new AlternativeRoute(f.graph, f.weighting, f.traversalMode);
         altDijkstra.setMaxShareFactor(0.5);
         altDijkstra.setMaxWeightFactor(2);
@@ -143,7 +146,7 @@ public class AlternativeRouteTest {
     @ParameterizedTest
     @ArgumentsSource(FixtureProvider.class)
     public void testCalcAlternatives2(Fixture f) {
-        initTestGraph(f.graph, f.accessEnc);
+        initTestGraph(f.graph, f.speedEnc);
         AlternativeRoute altDijkstra = new AlternativeRoute(f.graph, f.weighting, f.traversalMode);
         altDijkstra.setMaxPaths(3);
         altDijkstra.setMaxShareFactor(0.7);
@@ -180,7 +183,7 @@ public class AlternativeRouteTest {
     @ParameterizedTest
     @ArgumentsSource(FixtureProvider.class)
     public void testDisconnectedAreas(Fixture p) {
-        initTestGraph(p.graph, p.accessEnc);
+        initTestGraph(p.graph, p.speedEnc);
 
         // one single disconnected node
         updateDistancesFor(p.graph, 20, 0.00, -0.01);

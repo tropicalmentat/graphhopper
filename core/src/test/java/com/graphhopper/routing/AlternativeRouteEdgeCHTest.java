@@ -19,9 +19,12 @@ package com.graphhopper.routing;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
-import com.graphhopper.routing.weighting.TestWeighting;
+import com.graphhopper.routing.weighting.SpeedWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeIteratorState;
@@ -36,13 +39,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AlternativeRouteEdgeCHTest {
-    private final BooleanEncodedValue accessEnc;
+    private final DecimalEncodedValue speedEnc;
     private final DecimalEncodedValue turnCostEnc;
 
     public AlternativeRouteEdgeCHTest() {
         EncodedValue.InitializerConfig conf = new EncodedValue.InitializerConfig();
-        accessEnc = new SimpleBooleanEncodedValue("access", true);
-        accessEnc.init(conf);
+        speedEnc = new DecimalEncodedValueImpl("speed", 6, 1, true);
+        speedEnc.init(conf);
         turnCostEnc = TurnCost.create("abc", 1);
         turnCostEnc.init(new EncodedValue.InitializerConfig());
     }
@@ -65,23 +68,23 @@ public class AlternativeRouteEdgeCHTest {
         // has to be locally-shortest to be considered.
         // So we get all three alternatives.
 
-        graph.edge(5, 6).setDistance(10000).set(accessEnc, true, true);
-        EdgeIteratorState e6_3 = graph.edge(6, 3).setDistance(10000).set(accessEnc, true, true);
-        EdgeIteratorState e3_4 = graph.edge(3, 4).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(4, 10).setDistance(10000).set(accessEnc, true, true);
+        graph.edge(5, 6).setDistance(10000).set(speedEnc, 60, 60);
+        EdgeIteratorState e6_3 = graph.edge(6, 3).setDistance(10000).set(speedEnc, 60, 60);
+        EdgeIteratorState e3_4 = graph.edge(3, 4).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(4, 10).setDistance(10000).set(speedEnc, 60, 60);
 
-        graph.edge(6, 7).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(7, 8).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(8, 4).setDistance(10000).set(accessEnc, true, true);
+        graph.edge(6, 7).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(7, 8).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(8, 4).setDistance(10000).set(speedEnc, 60, 60);
 
-        graph.edge(5, 1).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(1, 9).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(9, 2).setDistance(10000).set(accessEnc, true, true);
-        graph.edge(2, 3).setDistance(10000).set(accessEnc, true, true);
+        graph.edge(5, 1).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(1, 9).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(9, 2).setDistance(10000).set(speedEnc, 60, 60);
+        graph.edge(2, 3).setDistance(10000).set(speedEnc, 60, 60);
 
-        EdgeIteratorState e4_11 = graph.edge(4, 11).setDistance(9000).set(accessEnc, true, true);
-        graph.edge(11, 12).setDistance(9000).set(accessEnc, true, true);
-        graph.edge(12, 10).setDistance(10000).set(accessEnc, true, true);
+        EdgeIteratorState e4_11 = graph.edge(4, 11).setDistance(9000).set(speedEnc, 60, 60);
+        graph.edge(11, 12).setDistance(9000).set(speedEnc, 60, 60);
+        graph.edge(12, 10).setDistance(10000).set(speedEnc, 60, 60);
 
         TurnCostStorage turnCostStorage = graph.getTurnCostStorage();
         turnCostStorage.set(turnCostEnc, e3_4.getEdge(), 4, e4_11.getEdge(), Double.POSITIVE_INFINITY);
@@ -93,7 +96,7 @@ public class AlternativeRouteEdgeCHTest {
 
     private RoutingCHGraph prepareCH(BaseGraph graph) {
         TurnCostProvider turnCostProvider = new DefaultTurnCostProvider(turnCostEnc, graph.getTurnCostStorage());
-        CHConfig chConfig = CHConfig.edgeBased("profile", new TestWeighting(accessEnc, turnCostProvider));
+        CHConfig chConfig = CHConfig.edgeBased("profile", new SpeedWeighting(speedEnc, turnCostProvider));
         PrepareContractionHierarchies contractionHierarchies = PrepareContractionHierarchies.fromGraph(graph, chConfig);
         PrepareContractionHierarchies.Result res = contractionHierarchies.doWork();
         return RoutingCHGraphImpl.fromGraph(graph, res.getCHStorage(), res.getCHConfig());
@@ -103,7 +106,7 @@ public class AlternativeRouteEdgeCHTest {
     public void testAssumptions() {
         BaseGraph g = createTestGraph();
         TurnCostProvider turnCostProvider = new DefaultTurnCostProvider(turnCostEnc, g.getTurnCostStorage());
-        CHConfig chConfig = CHConfig.edgeBased("profile", new TestWeighting(accessEnc, turnCostProvider));
+        CHConfig chConfig = CHConfig.edgeBased("profile", new SpeedWeighting(speedEnc, turnCostProvider));
         CHStorage chStorage = CHStorage.fromGraph(g, chConfig);
         RoutingCHGraph chGraph = RoutingCHGraphImpl.fromGraph(g, chStorage, chConfig);
         DijkstraBidirectionEdgeCHNoSOD router = new DijkstraBidirectionEdgeCHNoSOD(chGraph);

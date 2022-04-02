@@ -21,19 +21,22 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class TestWeighting implements Weighting {
+public class DistanceWeighting implements Weighting {
     private final BooleanEncodedValue accessEnc;
     private final TurnCostProvider turnCostProvider;
-    private final double speed = 60 / 3.6;
 
-    public TestWeighting(BooleanEncodedValue accessEnc, TurnCostProvider turnCostProvider) {
+    public DistanceWeighting(BooleanEncodedValue accessEnc) {
+        this(accessEnc, TurnCostProvider.NO_TURN_COST_PROVIDER);
+    }
+
+    public DistanceWeighting(BooleanEncodedValue accessEnc, TurnCostProvider turnCostProvider) {
         this.accessEnc = accessEnc;
         this.turnCostProvider = turnCostProvider;
     }
 
     @Override
     public double getMinWeight(double distance) {
-        return 1000 * distance / speed;
+        return distance;
     }
 
     @Override
@@ -43,15 +46,12 @@ public class TestWeighting implements Weighting {
 
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
-        boolean access = reverse ? edgeState.getReverse(accessEnc) : edgeState.get(accessEnc);
-        if (!access)
-            return Double.POSITIVE_INFINITY;
-        return calcEdgeMillis(edgeState, reverse);
+        return edgeState.getDistance();
     }
 
     @Override
     public long calcEdgeMillis(EdgeIteratorState edgeState, boolean reverse) {
-        return 1000 * Math.round(edgeState.getDistance() / speed);
+        return (long) (edgeState.getDistance() * 3600 / 60);
     }
 
     @Override
