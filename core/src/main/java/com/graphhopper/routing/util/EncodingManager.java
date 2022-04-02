@@ -204,7 +204,7 @@ public class EncodingManager implements EncodedValueLookup {
     }
 
     public int getIntsForFlags() {
-        return (int) Math.ceil((double) edgeConfig.getRequiredBits() / 32.0);
+        return edgeConfig.getRequiredInts();
     }
 
     private void addEncoder(AbstractFlagEncoder encoder) {
