@@ -50,7 +50,7 @@ public class TrafficChangeWithNodeOrderingReusingTest {
 
         public Fixture(int maxDeviationPercentage) {
             this.maxDeviationPercentage = maxDeviationPercentage;
-            CarFlagEncoder encoder = new CarFlagEncoder();
+            FlagEncoder encoder = FlagEncoders.createCar();
             em = EncodingManager.create(encoder);
             CarTagParser carParser = new CarTagParser(em, new PMap());
             carParser.init(new DateRangeParser());

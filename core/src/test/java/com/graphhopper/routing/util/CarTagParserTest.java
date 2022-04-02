@@ -38,11 +38,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Karich
  */
 public class CarTagParserTest {
-    final CarFlagEncoder encoder = createEncoder(new PMap("turn_costs=true|speed_two_directions=true"));
+    final FlagEncoder encoder = createEncoder(new PMap("turn_costs=true|speed_two_directions=true"));
     private final EncodingManager em = new EncodingManager.Builder()
             .add(encoder)
-            .add(new BikeFlagEncoder())
-            .add(new FootFlagEncoder())
+            .add(FlagEncoders.createBike())
+            .add(FlagEncoders.createFoot())
             .build();
     final CarTagParser parser = createParser(em, new PMap("block_fords=true"));
 
@@ -50,8 +50,8 @@ public class CarTagParserTest {
     private final DecimalEncodedValue avSpeedEnc = parser.getAverageSpeedEnc();
     private final BooleanEncodedValue accessEnc = parser.getAccessEnc();
 
-    CarFlagEncoder createEncoder(PMap properties) {
-        return new CarFlagEncoder(properties);
+    FlagEncoder createEncoder(PMap properties) {
+        return FlagEncoders.createCar(properties);
     }
 
     CarTagParser createParser(EncodedValueLookup lookup, PMap properties) {
@@ -525,7 +525,7 @@ public class CarTagParserTest {
 
     @Test
     public void testMaxValue() {
-        CarFlagEncoder instance = createEncoder(new PMap("speed_bits=10|speed_factor=0.5"));
+        FlagEncoder instance = createEncoder(new PMap("speed_bits=10|speed_factor=0.5"));
         EncodingManager em = EncodingManager.create(instance);
         CarTagParser parser = createParser(em, new PMap());
         DecimalEncodedValue avSpeedEnc = em.getDecimalEncodedValue(EncodingManager.getKey(instance, "average_speed"));
@@ -549,7 +549,7 @@ public class CarTagParserTest {
 
     @Test
     public void testRegisterOnlyOnceAllowed() {
-        CarFlagEncoder instance = new CarFlagEncoder(10, 0.5, 0);
+        FlagEncoder instance = FlagEncoders.createCar(10, 0.5, 0);
         EncodingManager tmpEM = EncodingManager.create(instance);
         try {
             tmpEM = EncodingManager.create(instance);
@@ -605,7 +605,7 @@ public class CarTagParserTest {
         assertEquals(5, parser.getAverageSpeedEnc().getDecimal(false, edgeFlags), .1);
 
         // for a smaller speed factor the minimum speed is also smaller
-        CarFlagEncoder lowFactorCar = createEncoder(new PMap("speed_bits=10|speed_factor=1"));
+        FlagEncoder lowFactorCar = createEncoder(new PMap("speed_bits=10|speed_factor=1"));
         EncodingManager lowFactorEm = EncodingManager.create(lowFactorCar);
         edgeFlags = lowFactorEm.createEdgeFlags();
         // todonow: so far we need to pass the speed factor here as well for ferry speed calculator's min speed

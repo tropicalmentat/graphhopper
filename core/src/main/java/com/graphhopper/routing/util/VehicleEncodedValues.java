@@ -56,7 +56,10 @@ public final class VehicleEncodedValues implements FlagEncoder {
     }
 
     public static VehicleEncodedValues wheelchair(PMap properties) {
-        return foot(new PMap(properties).putObject("name", properties.getString("name", "wheelchair")));
+        return foot(new PMap(properties)
+                .putObject("name", properties.getString("name", "wheelchair"))
+                .putObject("turn_costs", true)
+        );
     }
 
     public static VehicleEncodedValues bike(PMap properties) {
@@ -120,6 +123,19 @@ public final class VehicleEncodedValues implements FlagEncoder {
         DecimalEncodedValue curvatureEnc = new DecimalEncodedValueImpl(getKey(name, "curvature"), 4, 0.1, false);
         DecimalEncodedValue turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
         return new VehicleEncodedValues(name, accessEnc, speedEnc, priorityEnc, curvatureEnc, turnCostEnc, speedEnc.getNextStorableValue(maxSpeed), true);
+    }
+
+    public static VehicleEncodedValues roads() {
+        String name = "roads";
+        int speedBits = 7;
+        double speedFactor = 2;
+        boolean speedTwoDirections = true;
+        int maxTurnCosts = 3;
+        double maxSpeed = 254;
+        BooleanEncodedValue accessEnc = AccessEV.create(name);
+        DecimalEncodedValue speedEnc = AverageSpeed.create(name, speedBits, speedFactor, speedTwoDirections);
+        DecimalEncodedValue turnCostEnc = maxTurnCosts > 0 ? TurnCost.create(name, maxTurnCosts) : null;
+        return new VehicleEncodedValues(name, accessEnc, speedEnc, null, null turnCostEnc, speedEnc.getNextStorableValue(maxSpeed), true);
     }
 
     public VehicleEncodedValues(String name, BooleanEncodedValue accessEnc, DecimalEncodedValue avgSpeedEnc,

@@ -34,7 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TagParsingTest {
     @Test
@@ -43,8 +44,8 @@ class TagParsingTest {
         osmWay.setTag("highway", "track");
         ReaderRelation osmRel = new ReaderRelation(1);
 
-        BikeFlagEncoder defaultBike = new BikeFlagEncoder();
-        BikeFlagEncoder lessRelationCodes = new BikeFlagEncoder("less_relation_bits");
+        FlagEncoder defaultBike = FlagEncoders.createBike();
+        FlagEncoder lessRelationCodes = FlagEncoders.createBike("less_relation_bits");
 
         EncodingManager em = EncodingManager.create(defaultBike, lessRelationCodes);
         EnumEncodedValue<RouteNetwork> bikeNetworkEnc = em.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class);
@@ -84,8 +85,8 @@ class TagParsingTest {
 
         ReaderRelation osmRel = new ReaderRelation(1);
 
-        BikeFlagEncoder bikeEncoder = new BikeFlagEncoder();
-        MountainBikeFlagEncoder mtbEncoder = new MountainBikeFlagEncoder();
+        FlagEncoder bikeEncoder = FlagEncoders.createBike();
+        FlagEncoder mtbEncoder = FlagEncoders.createMountainBike();
         EncodingManager manager = EncodingManager.create(bikeEncoder, mtbEncoder);
 
         EnumEncodedValue<RouteNetwork> bikeNetworkEnc = manager.getEnumEncodedValue(BikeNetwork.KEY, RouteNetwork.class);
@@ -169,8 +170,6 @@ class TagParsingTest {
         for (FlagEncoder tmp : manager.fetchEdgeEncoders()) {
             BooleanEncodedValue accessEnc = tmp.getAccessEnc();
             assertTrue(accessEnc.getBool(false, edgeFlags));
-            if (!(tmp instanceof FootFlagEncoder))
-                assertFalse(accessEnc.getBool(true, edgeFlags), tmp.toString());
             assertTrue(roundaboutEnc.getBool(false, edgeFlags), tmp.toString());
         }
 
@@ -183,8 +182,6 @@ class TagParsingTest {
         for (FlagEncoder tmp : manager.fetchEdgeEncoders()) {
             BooleanEncodedValue accessEnc = tmp.getAccessEnc();
             assertTrue(accessEnc.getBool(false, edgeFlags));
-            if (!(tmp instanceof FootFlagEncoder))
-                assertFalse(accessEnc.getBool(true, edgeFlags), tmp.toString());
             assertTrue(roundaboutEnc.getBool(false, edgeFlags), tmp.toString());
         }
     }

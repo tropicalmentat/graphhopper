@@ -2485,8 +2485,8 @@ public class GraphHopperTest {
 
     @Test
     public void testLoadGraph_implicitEncodedValues_issue1862() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
-        EncodingManager encodingManager = new EncodingManager.Builder().add(carEncoder).add(new BikeFlagEncoder()).build();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
+        EncodingManager encodingManager = new EncodingManager.Builder().add(carEncoder).add(FlagEncoders.createBike()).build();
         GraphHopperStorage graph = new GraphBuilder(encodingManager).setDir(new RAMDirectory(GH_LOCATION, true)).create();
         NodeAccess na = graph.getNodeAccess();
         na.setNode(0, 12, 23);
@@ -2514,8 +2514,8 @@ public class GraphHopperTest {
         // load via explicitly configured FlagEncoders then we can define only one profile
         hopper = new GraphHopper();
         EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
-        builder.addFlagEncoder(new CarFlagEncoder());
-        builder.addFlagEncoder(new BikeFlagEncoder());
+        builder.addFlagEncoder(FlagEncoders.createCar());
+        builder.addFlagEncoder(FlagEncoders.createBike());
         hopper.setProfiles(Collections.singletonList(new Profile("p_car").setVehicle("car").setWeighting("fastest")));
         hopper.setGraphHopperLocation(GH_LOCATION);
         assertTrue(hopper.load());

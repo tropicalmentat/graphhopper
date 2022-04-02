@@ -6,9 +6,10 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.Subnetwork;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.CarTagParser;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -25,7 +26,7 @@ public class GraphHopperStorageLMTest {
     public void testLoad() {
         String defaultGraphLoc = "./target/ghstorage_lm";
         Helper.removeDir(new File(defaultGraphLoc));
-        CarFlagEncoder carFlagEncoder = new CarFlagEncoder();
+        FlagEncoder carFlagEncoder = FlagEncoders.createCar();
         EncodingManager encodingManager = new EncodingManager.Builder().add(carFlagEncoder).add(Subnetwork.create("my_profile")).build();
         GraphHopperStorage graph = GraphBuilder.start(encodingManager).setRAM(defaultGraphLoc, true).create();
 

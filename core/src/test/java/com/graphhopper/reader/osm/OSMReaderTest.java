@@ -61,7 +61,7 @@ public class OSMReaderTest {
     private final String file7 = "test-osm7.xml";
     private final String fileBarriers = "test-barriers.xml";
     private final String dir = "./target/tmp/test-db";
-    private CarFlagEncoder carEncoder;
+    private FlagEncoder carEncoder;
     private BooleanEncodedValue carAccessEnc;
     private FlagEncoder footEncoder;
     private EdgeExplorer carOutExplorer;
@@ -397,8 +397,7 @@ public class OSMReaderTest {
 
     @Test
     public void testFords() {
-        // todonow: make sure block fords is passed on to the *parser*
-        CarFlagEncoder car = new CarFlagEncoder();
+        FlagEncoder car = FlagEncoders.createCar();
         GraphHopper hopper = new GraphHopper();
         EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
         builder.addFlagEncoder(car);
@@ -675,14 +674,16 @@ public class OSMReaderTest {
      */
     @Test
     public void testTurnFlagCombination() {
-        CarFlagEncoder car = new CarFlagEncoder(5, 5, 24);
-        CarFlagEncoder truck = new CarFlagEncoder("truck", 5, 5, 24) {
+        FlagEncoder car = FlagEncoders.createCar(5, 5, 24);
+        // todonow
+        FlagEncoder truck = FlagEncoders.createCar("truck", 5, 5, 24)
+//        {
 //            @Override
 //            public TransportationMode getTransportationMode() {
 //                return TransportationMode.HGV;
 //            }
-        };
-        BikeFlagEncoder bike = new BikeFlagEncoder(4, 2, 24, false);
+//        };
+        FlagEncoder bike = FlagEncoders.createBike(4, 2, 24, false);
 
         GraphHopper hopper = new GraphHopper();
         hopper.setOSMFile(getClass().getResource("test-multi-profile-turn-restrictions.xml").getFile()).
@@ -955,7 +956,7 @@ public class OSMReaderTest {
         // see https://discuss.graphhopper.com/t/country-of-way-is-wrong-on-road-near-border-with-curvature/6908/2
         EnumEncodedValue<Country> countryEnc = new EnumEncodedValue<>(Country.KEY, Country.class);
         EncodingManager em = EncodingManager.start()
-                .add(new CarFlagEncoder())
+                .add(FlagEncoders.createCar())
                 .add(countryEnc)
                 .build();
         CarTagParser carParser = new CarTagParser(em, new PMap());
@@ -1000,16 +1001,16 @@ public class OSMReaderTest {
                     new Profile("bike").setVehicle("bike").setWeighting("fastest")
             );
 
-            BikeFlagEncoder bikeEncoder;
+            FlagEncoder bikeEncoder;
             if (turnCosts) {
-                carEncoder = new CarFlagEncoder(5, 5, 1);
-                bikeEncoder = new BikeFlagEncoder(4, 2, 1, false);
+                carEncoder = FlagEncoders.createCar(5, 5, 1);
+                bikeEncoder = FlagEncoders.createBike(4, 2, 1, false);
             } else {
-                carEncoder = new CarFlagEncoder();
-                bikeEncoder = new BikeFlagEncoder();
+                carEncoder = FlagEncoders.createCar();
+                bikeEncoder = FlagEncoders.createBike();
             }
 
-            footEncoder = new FootFlagEncoder();
+            footEncoder = FlagEncoders.createFoot();
             EncodingAndParserBuilder builder = getTagParserManagerBuilder();
             builder.addFlagEncoder(footEncoder);
             builder.addFlagEncoder(carEncoder);

@@ -3,139 +3,176 @@ package com.graphhopper.routing.util;
 import com.graphhopper.util.PMap;
 
 public class FlagEncoders {
+    // todonow: better get rid of all these methods except for the versions taking properties. these are just copied
+    // from the old flag encoder constructors currently
     public static FlagEncoder createFoot() {
-        return new FootFlagEncoder();
+        return createFoot(new PMap());
     }
 
     public static FlagEncoder createFoot(PMap properties) {
-        return new FootFlagEncoder(properties);
+        return VehicleEncodedValues.foot(properties);
     }
 
     protected static FlagEncoder createFoot(int speedBits, double speedFactor, boolean speedTwoDirections) {
-        return new FootFlagEncoder(speedBits, speedFactor, speedTwoDirections);
+        return createFoot("foot", speedBits, speedFactor, speedTwoDirections);
     }
 
     protected static FlagEncoder createFoot(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        return new FootFlagEncoder(name, speedBits, speedFactor, speedTwoDirections);
+        return createFoot(new PMap()
+                .putObject("name", name)
+                .putObject("speed_bits", speedBits)
+                .putObject("speed_factor", speedFactor)
+                .putObject("speed_two_directions", speedTwoDirections));
     }
 
     public static FlagEncoder createHike() {
-        return new HikeFlagEncoder();
+        return createHike(new PMap());
     }
 
     public static FlagEncoder createHike(PMap properties) {
-        return new HikeFlagEncoder(properties);
+        return VehicleEncodedValues.hike(properties);
     }
 
     protected static FlagEncoder createHike(int speedBits, double speedFactor, boolean speedTwoDirections) {
-        return new HikeFlagEncoder(speedBits, speedFactor, speedTwoDirections);
+        return createHike("hike", speedBits, speedFactor, speedTwoDirections);
     }
 
     protected static FlagEncoder createHike(String name, int speedBits, double speedFactor, boolean speedTwoDirections) {
-        return new HikeFlagEncoder(name, speedBits, speedFactor, speedTwoDirections);
+        return VehicleEncodedValues.hike(
+                new PMap()
+                        .putObject("name", name)
+                        .putObject("speed_bits", speedBits)
+                        .putObject("speed_factor", speedFactor)
+                        .putObject("speed_two_directions", speedTwoDirections
+                        ));
     }
 
     public static FlagEncoder createWheelchair() {
-        return new WheelchairFlagEncoder();
+        return createWheelchair(new PMap());
     }
 
     public static FlagEncoder createWheelchair(PMap properties) {
-        return new WheelchairFlagEncoder(properties);
+        return VehicleEncodedValues.wheelchair(properties);
     }
 
     protected static FlagEncoder createWheelchair(int speedBits, double speedFactor) {
-        return new WheelchairFlagEncoder(speedBits, speedFactor);
+        return createWheelchair(
+                new PMap()
+                        .putObject("speed_bits", speedBits)
+                        .putObject("speed_factor", speedFactor)
+
+        );
     }
 
     public static FlagEncoder createCar() {
-        return new CarFlagEncoder();
+        return createCar(new PMap());
     }
 
     public static FlagEncoder createCar(int speedBits, double speedFactor, int maxTurnCosts) {
-        return new CarFlagEncoder(speedBits, speedFactor, maxTurnCosts);
+        return createCar("car", speedBits, speedFactor, maxTurnCosts);
     }
 
     public static FlagEncoder createCar(String name, int speedBits, double speedFactor, int maxTurnCosts) {
-        return new CarFlagEncoder(name, speedBits, speedFactor, maxTurnCosts);
+        return createCar(name, speedBits, speedFactor, maxTurnCosts, false);
     }
 
     public static FlagEncoder createCar(int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        return new CarFlagEncoder(speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
+        return createCar("car", speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
     }
 
     public static FlagEncoder createCar(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        return new CarFlagEncoder(name, speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
+        return createCar(new PMap()
+                .putObject("name", name)
+                .putObject("speed_bits", speedBits)
+                .putObject("speed_factor", speedFactor)
+                .putObject("max_turn_costs", maxTurnCosts)
+                .putObject("speed_two_directions", speedTwoDirections)
+        );
     }
 
     public static FlagEncoder createCar(PMap properties) {
-        return new CarFlagEncoder(properties);
+        return VehicleEncodedValues.car(properties);
     }
 
     public static FlagEncoder createMotorcycle() {
-        return new MotorcycleFlagEncoder();
+        return createMotorcycle(new PMap());
     }
 
     public static FlagEncoder createMotorcycle(PMap properties) {
-        return new MotorcycleFlagEncoder(properties);
+        return VehicleEncodedValues.motorcycle(properties);
     }
 
     public static FlagEncoder createCar4wd(PMap properties) {
-        return new Car4WDFlagEncoder(properties);
+        return VehicleEncodedValues.car4wd(properties);
     }
 
     public static FlagEncoder createRacingBike() {
-        return new RacingBikeFlagEncoder();
+        return createRacingBike(new PMap());
     }
 
     public static FlagEncoder createRacingBike(PMap properties) {
-        return new RacingBikeFlagEncoder(properties);
+        return VehicleEncodedValues.racingbike(properties);
     }
 
     protected static FlagEncoder createRacingBike(int speedBits, double speedFactor, int maxTurnCosts) {
-        return new RacingBikeFlagEncoder(speedBits, speedFactor, maxTurnCosts);
+        return createRacingBike(new PMap()
+                .putObject("speed_bits", speedBits)
+                .putObject("speed_factor", speedFactor)
+                .putObject("max_turn_costs", maxTurnCosts));
     }
 
     public static FlagEncoder createBike() {
-        return new BikeFlagEncoder();
+        return createBike(new PMap());
     }
 
     public static FlagEncoder createBike(String name) {
-        return new BikeFlagEncoder(name);
+        return createBike(new PMap().putObject("name", name));
     }
 
     public static FlagEncoder createBike(PMap properties) {
-        return new BikeFlagEncoder(properties);
+        return VehicleEncodedValues.bike(properties);
     }
 
     public static FlagEncoder createBike(int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        return new BikeFlagEncoder(speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
+        return createBike("bike", speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
     }
 
     public static FlagEncoder createBike(String name, int speedBits, double speedFactor, int maxTurnCosts, boolean speedTwoDirections) {
-        return new BikeFlagEncoder(name, speedBits, speedFactor, maxTurnCosts, speedTwoDirections);
+        return VehicleEncodedValues.bike(new PMap()
+                .putObject("name", name)
+                .putObject("speed_bits", speedBits)
+                .putObject("speed_factor", speedFactor)
+                .putObject("max_turn_costs", maxTurnCosts)
+                .putObject("speed_two_directions", speedTwoDirections)
+        );
     }
 
     public static FlagEncoder createBike2() {
-        return new Bike2WeightFlagEncoder();
+        return createBike2(new PMap());
     }
 
     public static FlagEncoder createBike2(PMap properties) {
-        return new Bike2WeightFlagEncoder(properties);
+        return VehicleEncodedValues.bike2(properties);
     }
 
     public static FlagEncoder createMountainBike() {
-        return new MountainBikeFlagEncoder();
+        return createMountainBike(new PMap());
     }
 
     public static FlagEncoder createMountainBike(PMap properties) {
-        return new MountainBikeFlagEncoder(properties);
+        return VehicleEncodedValues.mountainbike(properties);
     }
 
     protected static FlagEncoder createMountainBike(int speedBits, double speedFactor, int maxTurnCosts) {
-        return new MountainBikeFlagEncoder(speedBits, speedFactor, maxTurnCosts);
+        return createMountainBike(
+                new PMap()
+                        .putObject("speed_bits", speedBits)
+                        .putObject("speed_factor", speedFactor)
+                        .putObject("max_turn_costs", maxTurnCosts)
+        );
     }
 
     public static FlagEncoder createRoadsFlagEncoder() {
-        return new RoadsFlagEncoder();
+        return VehicleEncodedValues.roads();
     }
 }

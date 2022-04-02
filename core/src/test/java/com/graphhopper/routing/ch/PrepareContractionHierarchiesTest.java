@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Karich
  */
 public class PrepareContractionHierarchiesTest {
-    private final CarFlagEncoder carEncoder = new CarFlagEncoder(new PMap().putObject("speed_two_directions", true));
+    private final FlagEncoder carEncoder = FlagEncoders.createCar(new PMap().putObject("speed_two_directions", true));
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final CHConfig chConfig = CHConfig.nodeBased("c", weighting);
@@ -464,8 +464,8 @@ public class PrepareContractionHierarchiesTest {
 
     @Test
     public void testMultiplePreparationsIdenticalView() {
-        CarFlagEncoder tmpCarEncoder = new CarFlagEncoder();
-        BikeFlagEncoder tmpBikeEncoder = new BikeFlagEncoder();
+        FlagEncoder tmpCarEncoder = FlagEncoders.createCar();
+        FlagEncoder tmpBikeEncoder = FlagEncoders.createBike();
         EncodingManager tmpEncodingManager = EncodingManager.create(tmpCarEncoder, tmpBikeEncoder);
 
         // FastestWeighting would lead to different shortcuts due to different default speeds for bike and car
@@ -486,8 +486,8 @@ public class PrepareContractionHierarchiesTest {
 
     @Test
     public void testMultiplePreparationsDifferentView() {
-        CarFlagEncoder tmpCarEncoder = new CarFlagEncoder();
-        BikeFlagEncoder tmpBikeEncoder = new BikeFlagEncoder();
+        FlagEncoder tmpCarEncoder = FlagEncoders.createCar();
+        FlagEncoder tmpBikeEncoder = FlagEncoders.createBike();
         EncodingManager tmpEncodingManager = EncodingManager.create(tmpCarEncoder, tmpBikeEncoder);
 
         CHConfig carConfig = CHConfig.nodeBased("c1", new FastestWeighting(tmpCarEncoder));
@@ -512,8 +512,8 @@ public class PrepareContractionHierarchiesTest {
 
     @Test
     public void testReusingNodeOrdering() {
-        CarFlagEncoder car1FlagEncoder = new CarFlagEncoder("car1", 5, 5, 1, true);
-        CarFlagEncoder car2FlagEncoder = new CarFlagEncoder("car2", 5, 5, 1, true);
+        FlagEncoder car1FlagEncoder = FlagEncoders.createCar("car1", 5, 5, 1, true);
+        FlagEncoder car2FlagEncoder = FlagEncoders.createCar("car2", 5, 5, 1, true);
         EncodingManager em = EncodingManager.create(car1FlagEncoder, car2FlagEncoder);
         CHConfig car1Config = CHConfig.nodeBased("c1", new FastestWeighting(car1FlagEncoder));
         CHConfig car2Config = CHConfig.nodeBased("c2", new FastestWeighting(car2FlagEncoder));
