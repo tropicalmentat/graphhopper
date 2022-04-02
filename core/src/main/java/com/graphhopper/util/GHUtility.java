@@ -691,11 +691,6 @@ public class GHUtility {
         }
     }
 
-    public static EdgeIteratorState setAccess(boolean fwd, boolean bwd, BooleanEncodedValue accessEnc, EdgeIteratorState edge) {
-        setAccess(fwd, bwd, accessEnc, Collections.singletonList(edge));
-        return edge;
-    }
-
     public static void setAccess(boolean fwd, boolean bwd, BooleanEncodedValue accessEnc, EdgeIteratorState... edges) {
         setAccess(fwd, bwd, accessEnc, Arrays.asList(edges));
     }

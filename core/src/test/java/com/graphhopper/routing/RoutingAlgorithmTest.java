@@ -236,8 +236,8 @@ public class RoutingAlgorithmTest {
     public void testCalcShortestPath_sourceEqualsTarget(Fixture f) {
         // 0-1-2
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(2));
+        graph.edge(0, 1).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(1, 2).setDistance(2).set(f.accessEnc, true, true);
 
         Path p = f.calcPath(graph, 0, 0);
         assertPathFromEqualsTo(p, 0);
@@ -250,11 +250,11 @@ public class RoutingAlgorithmTest {
         //    |  |
         //    3--4
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(9));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 1).setDistance(2));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(11));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(6));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 1).setDistance(9));
+        graph.edge(0, 2).setDistance(9).set(f.accessEnc, true, true);
+        graph.edge(2, 1).setDistance(2).set(f.accessEnc, true, true);
+        graph.edge(2, 3).setDistance(11).set(f.accessEnc, true, true);
+        graph.edge(3, 4).setDistance(6).set(f.accessEnc, true, true);
+        graph.edge(4, 1).setDistance(9).set(f.accessEnc, true, true);
         Path p = f.calcPath(graph, 0, 4);
         assertEquals(20, p.getDistance(), 1e-4, p.toString());
         assertEquals(nodes(0, 2, 1, 4), p.calcNodes());
@@ -265,10 +265,10 @@ public class RoutingAlgorithmTest {
     public void testBidirectionalLinear(Fixture f) {
         //3--2--1--4--5
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 1).setDistance(2));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(11));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 4).setDistance(6));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 1).setDistance(9));
+        graph.edge(2, 1).setDistance(2).set(f.accessEnc, true, true);
+        graph.edge(2, 3).setDistance(11).set(f.accessEnc, true, true);
+        graph.edge(5, 4).setDistance(6).set(f.accessEnc, true, true);
+        graph.edge(4, 1).setDistance(9).set(f.accessEnc, true, true);
         Path p = f.calcPath(graph, 3, 5);
         assertEquals(28, p.getDistance(), 1e-4, p.toString());
         assertEquals(nodes(3, 2, 1, 4, 5), p.calcNodes());
@@ -433,18 +433,18 @@ public class RoutingAlgorithmTest {
         // 7-5-6
         //  \|
         //   8
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(7));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 6).setDistance(2));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 7).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 8).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(7, 8).setDistance(1));
+        graph.edge(0, 1).setDistance(7).set(f.accessEnc, true, true);
+        graph.edge(5, 6).setDistance(2).set(f.accessEnc, true, true);
+        graph.edge(5, 7).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(5, 8).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(7, 8).setDistance(1).set(f.accessEnc, true, true);
         assertFalse(f.calcPath(graph, 0, 5).isFound());
 
         // disconnected as directed graph
         // 2-0->1
         graph = f.createGHStorage();
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1));
+        graph.edge(0, 2).setDistance(1).set(f.accessEnc, true, true);
         f.resetCH();
         assertFalse(f.calcPath(graph, 1, 2).isFound());
         assertTrue(f.calcPath(graph, 2, 1).isFound());
@@ -541,16 +541,16 @@ public class RoutingAlgorithmTest {
         // \   /   /
         //  7-6-5-/
         BaseGraph graph = f.createGHStorage();
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 5).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(5, 6).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(6, 7).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(7, 0).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 8).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(8, 6).setDistance(1));
+        graph.edge(0, 1).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(1, 2).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(2, 3).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(3, 4).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(4, 5).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(5, 6).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(6, 7).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(7, 0).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(3, 8).setDistance(1).set(f.accessEnc, true, true);
+        graph.edge(8, 6).setDistance(1).set(f.accessEnc, true, true);
 
         // run the same query twice, this can be interesting because in the second call algorithms that pre-process
         // the graph might depend on the state of the graph after the first call 
@@ -722,7 +722,7 @@ public class RoutingAlgorithmTest {
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(1));
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(1, 2).setDistance(1));
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(2, 3).setDistance(1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 1).setDistance(4));
+        graph.edge(3, 1).setDistance(4).set(f.accessEnc, true, true);
 
         Path p = f.calcPath(graph, 0, 3);
         assertEquals(nodes(0, 1, 2, 3), p.calcNodes());
@@ -737,21 +737,21 @@ public class RoutingAlgorithmTest {
     public void testWithCoordinates(Fixture f) {
         Weighting weighting = new DistanceWeighting(f.accessEnc);
         BaseGraph graph = f.createGHStorage(false);
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 1).setDistance(2)).
+        graph.edge(0, 1).setDistance(2).set(f.accessEnc, true, true).
                 setWayGeometry(Helper.createPointList(1.5, 1));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(2)).
+        graph.edge(2, 3).setDistance(2).set(f.accessEnc, true, true).
                 setWayGeometry(Helper.createPointList(0, 1.5));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(3, 4).setDistance(2)).
+        graph.edge(3, 4).setDistance(2).set(f.accessEnc, true, true).
                 setWayGeometry(Helper.createPointList(0, 2));
 
         // duplicate but the second edge is longer
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1.2));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(0, 2).setDistance(1.5)).
+        graph.edge(0, 2).setDistance(1.2).set(f.accessEnc, true, true);
+        graph.edge(0, 2).setDistance(1.5).set(f.accessEnc, true, true).
                 setWayGeometry(Helper.createPointList(0.5, 0));
 
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 3).setDistance(1.3)).
+        graph.edge(1, 3).setDistance(1.3).set(f.accessEnc, true, true).
                 setWayGeometry(Helper.createPointList(0.5, 1.5));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 4).setDistance(1));
+        graph.edge(1, 4).setDistance(1).set(f.accessEnc, true, true);
 
         updateDistancesFor(graph, 0, 1, 0.6);
         updateDistancesFor(graph, 1, 1, 1.5);
@@ -833,10 +833,10 @@ public class RoutingAlgorithmTest {
         // |    2
         // 4<-3/
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(0, 1).setDistance(7));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(1, 2).setDistance(7));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(2, 3).setDistance(7));
+        graph.edge(1, 2).setDistance(7).set(f.accessEnc, true, true);
+        graph.edge(2, 3).setDistance(7).set(f.accessEnc, true, true);
         GHUtility.setSpeed(60, true, false, f.carEncoder, graph.edge(3, 4).setDistance(7));
-        GHUtility.setAccess(true, true, f.accessEnc, graph.edge(4, 0).setDistance(7));
+        graph.edge(4, 0).setDistance(7).set(f.accessEnc, true, true);
 
         updateDistancesFor(graph, 4, 0, 0);
         updateDistancesFor(graph, 0, 0.00010, 0);
