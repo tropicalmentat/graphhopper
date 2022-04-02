@@ -194,9 +194,9 @@ public class GHUtility {
                     from, to, edge.getDistance(), edge.getEdge());
         } else {
             System.out.printf(Locale.ROOT,
-                    "GHUtility.setAccess(%b, %b, accessEnc, graph.edge(%d, %d).setDistance(%f)); // edgeId=%s\n",
-                    edge.get(accessEnc), edge.getReverse(accessEnc),
-                    from, to, edge.getDistance(), edge.getEdge());
+                    "graph.edge(%d, %d).setDistance(%f).set(accessEnc, %b, %b); // edgeId=%s\n",
+                    from, to, edge.getDistance(),
+                    edge.get(accessEnc), edge.getReverse(accessEnc), edge.getEdge());
         }
     }
 
@@ -689,15 +689,6 @@ public class GHUtility {
             edge.set(speedEnc, fwd);
             edge.setReverse(speedEnc, bwd);
         }
-    }
-
-    public static void setAccess(boolean fwd, boolean bwd, BooleanEncodedValue accessEnc, EdgeIteratorState... edges) {
-        setAccess(fwd, bwd, accessEnc, Arrays.asList(edges));
-    }
-
-    public static void setAccess(boolean fwd, boolean bwd, BooleanEncodedValue accessEnc, Collection<EdgeIteratorState> edges) {
-        for (EdgeIteratorState edge : edges)
-            edge.set(accessEnc, fwd, bwd);
     }
 
     public static void updateDistancesFor(Graph g, int node, double lat, double lon) {

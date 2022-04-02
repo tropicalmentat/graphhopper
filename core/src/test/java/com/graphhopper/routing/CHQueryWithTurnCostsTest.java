@@ -248,16 +248,17 @@ public class CHQueryWithTurnCostsTest {
         //       1   2
         //        \ /
         // 5 - 6 - 4 - 7 - 8 - 0
-        GHUtility.setAccess(true, false, f.accessEnc,
-                f.graph.edge(5, 6).setDistance(1),
-                f.graph.edge(6, 4).setDistance(1),
-                f.graph.edge(4, 1).setDistance(1),
-                f.graph.edge(1, 3).setDistance(1),
-                f.graph.edge(3, 2).setDistance(1),
-                f.graph.edge(2, 4).setDistance(1),
-                f.graph.edge(4, 7).setDistance(1),
-                f.graph.edge(7, 8).setDistance(1),
-                f.graph.edge(8, 0).setDistance(1));
+        Arrays.asList(
+                        f.graph.edge(5, 6).setDistance(1),
+                        f.graph.edge(6, 4).setDistance(1),
+                        f.graph.edge(4, 1).setDistance(1),
+                        f.graph.edge(1, 3).setDistance(1),
+                        f.graph.edge(3, 2).setDistance(1),
+                        f.graph.edge(2, 4).setDistance(1),
+                        f.graph.edge(4, 7).setDistance(1),
+                        f.graph.edge(7, 8).setDistance(1),
+                        f.graph.edge(8, 0).setDistance(1))
+                .forEach(edge -> edge.set(f.accessEnc, true, false));
         f.setRestriction(6, 4, 7);
         f.setRestriction(6, 4, 2);
         f.setRestriction(1, 4, 7);
@@ -386,13 +387,14 @@ public class CHQueryWithTurnCostsTest {
         //      |    |
         //      v    v
         //      3 -> 4 -> 2
-        GHUtility.setAccess(true, false, f.accessEnc,
-                f.graph.edge(0, 1).setDistance(9),
-                f.graph.edge(1, 5).setDistance(2),
-                f.graph.edge(1, 3).setDistance(2),
-                f.graph.edge(3, 4).setDistance(4),
-                f.graph.edge(5, 4).setDistance(6),
-                f.graph.edge(4, 2).setDistance(3));
+        Arrays.asList(
+                        f.graph.edge(0, 1).setDistance(9),
+                        f.graph.edge(1, 5).setDistance(2),
+                        f.graph.edge(1, 3).setDistance(2),
+                        f.graph.edge(3, 4).setDistance(4),
+                        f.graph.edge(5, 4).setDistance(6),
+                        f.graph.edge(4, 2).setDistance(3))
+                .forEach(edge -> edge.set(f.accessEnc, true, false));
         f.setTurnCost(1, 3, 4, 3);
         f.freeze();
 
@@ -539,13 +541,14 @@ public class CHQueryWithTurnCostsTest {
         // 0 --- 3 --- 1
         //  \         /
         //   --- 4 ---
-        GHUtility.setAccess(true, false, f.accessEnc,
-                f.graph.edge(0, 2).setDistance(1),
-                f.graph.edge(0, 3).setDistance(3),
-                f.graph.edge(0, 4).setDistance(2),
-                f.graph.edge(2, 1).setDistance(1),
-                f.graph.edge(3, 1).setDistance(2),
-                f.graph.edge(4, 1).setDistance(6));
+        Arrays.asList(
+                        f.graph.edge(0, 2).setDistance(1),
+                        f.graph.edge(0, 3).setDistance(3),
+                        f.graph.edge(0, 4).setDistance(2),
+                        f.graph.edge(2, 1).setDistance(1),
+                        f.graph.edge(3, 1).setDistance(2),
+                        f.graph.edge(4, 1).setDistance(6))
+                .forEach(edge -> edge.set(f.accessEnc, true, false));
         f.setTurnCost(0, 2, 1, 9);
         f.setTurnCost(0, 3, 1, 2);
         f.setTurnCost(0, 4, 1, 1);
@@ -664,15 +667,17 @@ public class CHQueryWithTurnCostsTest {
         //  A-5->2
         //    |
         //    B-7
-        GHUtility.setAccess(true, false, f.accessEnc,
-                f.graph.edge(4, nodeA).setDistance(1),
-                f.graph.edge(nodeA, 5).setDistance(2),
-                f.graph.edge(5, 2).setDistance(2),
-                f.graph.edge(2, 3).setDistance(1),
-                f.graph.edge(3, 1).setDistance(2),
-                f.graph.edge(1, 5).setDistance(1),
-                f.graph.edge(5, nodeB).setDistance(1),
-                f.graph.edge(nodeB, 7).setDistance(2));
+        Arrays.asList(
+                        f.graph.edge(4, nodeA).setDistance(1),
+                        f.graph.edge(nodeA, 5).setDistance(2),
+                        f.graph.edge(5, 2).setDistance(2),
+                        f.graph.edge(2, 3).setDistance(1),
+                        f.graph.edge(3, 1).setDistance(2),
+                        f.graph.edge(1, 5).setDistance(1),
+                        f.graph.edge(5, nodeB).setDistance(1),
+                        f.graph.edge(nodeB, 7).setDistance(2))
+                .forEach(edge -> edge.set(f.accessEnc, true, false));
+
         f.setRestriction(nodeA, 5, nodeB);
         f.freeze();
         f.setIdentityLevels();
