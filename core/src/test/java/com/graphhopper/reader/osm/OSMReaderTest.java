@@ -686,6 +686,8 @@ public class OSMReaderTest {
         FlagEncoder bike = FlagEncoders.createBike(4, 2, 24, false);
 
         GraphHopper hopper = new GraphHopper();
+        // todonow: this test fails because we do not register the encoders yet
+//        hopper.getTagParserManagerBuilder().add(bike).add(truck).add(car);
         hopper.setOSMFile(getClass().getResource("test-multi-profile-turn-restrictions.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(

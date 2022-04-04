@@ -1052,6 +1052,8 @@ public class GraphHopperTest {
         if (!withTunnelInterpolation) {
             EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
             builder.addEncodedValue(new EnumEncodedValue<>(RoadEnvironment.KEY, RoadEnvironment.class));
+            // todonow: this test currently fails because adding the modified environment parser does not replace the one
+            // that is added by default
             builder.addWayTagParser(lookup -> new OSMRoadEnvironmentParser(lookup.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class)) {
                 @Override
                 public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay readerWay, IntsRef relationFlags) {
