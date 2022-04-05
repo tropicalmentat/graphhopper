@@ -2317,7 +2317,6 @@ public class GraphHopperTest {
         }
     }
 
-    @Disabled("todonow: this causes an infinite loop for some reason")
     @Test
     public void testBarriers() {
         GraphHopper hopper = new GraphHopper().
@@ -2504,8 +2503,10 @@ public class GraphHopperTest {
 
         // load without configured FlagEncoders
         GraphHopper hopper = new GraphHopper();
-        hopper.setProfiles(Arrays.asList(new Profile("p_car").setVehicle("car").setWeighting("fastest"),
-                new Profile("p_bike").setVehicle("bike").setWeighting("fastest")));
+        hopper.setProfiles(Arrays.asList(
+                new Profile("p_car").setVehicle("car").setWeighting("fastest"),
+                new Profile("p_bike").setVehicle("bike").setWeighting("fastest"))
+        );
         hopper.setGraphHopperLocation(GH_LOCATION);
         assertTrue(hopper.load());
         graph = hopper.getGraphHopperStorage();
