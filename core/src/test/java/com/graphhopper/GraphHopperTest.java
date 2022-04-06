@@ -1050,7 +1050,7 @@ public class GraphHopperTest {
                 setStoreOnFlush(true);
 
         if (!withTunnelInterpolation) {
-            EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+            TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
             builder.addEncodedValue(new EnumEncodedValue<>(RoadEnvironment.KEY, RoadEnvironment.class));
             // todonow: this test currently fails because adding the modified environment parser does not replace the one
             // that is added by default
@@ -2516,7 +2516,7 @@ public class GraphHopperTest {
 
         // load via explicitly configured FlagEncoders then we can define only one profile
         hopper = new GraphHopper();
-        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
         builder.addFlagEncoder(FlagEncoders.createCar());
         builder.addFlagEncoder(FlagEncoders.createBike());
         hopper.setProfiles(Collections.singletonList(new Profile("p_car").setVehicle("car").setWeighting("fastest")));

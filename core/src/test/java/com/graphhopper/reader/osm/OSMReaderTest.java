@@ -399,7 +399,7 @@ public class OSMReaderTest {
     public void testFords() {
         FlagEncoder car = FlagEncoders.createCar();
         GraphHopper hopper = new GraphHopper();
-        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
         builder.addFlagEncoder(car);
         builder.addWayTagParser(lookup -> {
             CarTagParser parser = new CarTagParser(lookup, new PMap("block_fords=true"));
@@ -599,7 +599,7 @@ public class OSMReaderTest {
     public void testRoadAttributes() {
         String fileRoadAttributes = "test-road-attributes.xml";
         GraphHopper hopper = new GraphHopperFacade(fileRoadAttributes);
-        EncodingAndParserBuilder builder = hopper.getTagParserManagerBuilder();
+        TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
         builder.addEncodedValue(MaxWidth.create());
         builder.addEncodedValue(MaxHeight.create());
         builder.addEncodedValue(MaxWeight.create());
@@ -1013,7 +1013,7 @@ public class OSMReaderTest {
             }
 
             footEncoder = FlagEncoders.createFoot();
-            EncodingAndParserBuilder builder = getTagParserManagerBuilder();
+            TagParserBundleBuilder builder = getTagParserManagerBuilder();
             builder.addFlagEncoder(footEncoder);
             builder.addFlagEncoder(carEncoder);
             builder.addFlagEncoder(bikeEncoder);

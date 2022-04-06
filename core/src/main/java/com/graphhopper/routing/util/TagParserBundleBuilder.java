@@ -28,29 +28,13 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class EncodingAndParserBuilder {
-    private final List<FlagEncoder> flagEncoders;
-    private final List<EncodedValue> encodedValues;
+public class TagParserBundleBuilder {
     private final List<Function<EncodedValueLookup, TagParser>> wayTagParserCreators;
     private final List<BiFunction<EncodedValueLookup, EncodedValue.InitializerConfig, RelationTagParser>> relationTagParserCreators;
 
-    public EncodingAndParserBuilder() {
-        flagEncoders = new ArrayList<>();
-        encodedValues = new ArrayList<>();
+    public TagParserBundleBuilder() {
         wayTagParserCreators = new ArrayList<>();
         relationTagParserCreators = new ArrayList<>();
-    }
-
-    public boolean hasFlagEncoder(String name) {
-        return flagEncoders.stream().anyMatch(f -> f.toString().equals(name));
-    }
-
-    public void addFlagEncoder(FlagEncoder flagEncoder) {
-        flagEncoders.add(flagEncoder);
-    }
-
-    public void addEncodedValue(EncodedValue encodedValue) {
-        encodedValues.add(encodedValue);
     }
 
     public void addWayTagParser(Function<EncodedValueLookup, TagParser> tagParserCreator) {
@@ -59,13 +43,6 @@ public class EncodingAndParserBuilder {
 
     public void addRelationTagParser(BiFunction<EncodedValueLookup, EncodedValue.InitializerConfig, RelationTagParser> tagParserCreator) {
         relationTagParserCreators.add(tagParserCreator);
-    }
-
-    public EncodingManager buildEncodingManager() {
-        EncodingManager.Builder builder = new EncodingManager.Builder();
-        flagEncoders.forEach(builder::add);
-        encodedValues.forEach(builder::add);
-        return builder.build();
     }
 
     public TagParserBundle buildTagParserBundle(EncodedValueLookup lookup) {

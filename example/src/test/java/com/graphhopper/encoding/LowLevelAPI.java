@@ -182,11 +182,6 @@ public class LowLevelAPI {
         }
 
         @Override
-        public FlagEncoder getFlagEncoder() {
-            throw new UnsupportedOperationException("This method should not even exist");
-        }
-
-        @Override
         public String getName() {
             throw new UnsupportedOperationException("This method should not even exist");
         }

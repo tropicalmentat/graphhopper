@@ -18,13 +18,12 @@
 package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.util.PMap;
 
 import static com.graphhopper.util.Helper.toLowerCase;
 
 public class DefaultTagParserFactory implements TagParserFactory {
     @Override
-    public TagParser create(EncodedValueLookup lookup, String name, PMap configuration) {
+    public TagParser create(EncodedValueLookup lookup, String name) {
         name = name.trim();
         if (!name.equals(toLowerCase(name)))
             throw new IllegalArgumentException("Use lower case for TagParsers: " + name);
