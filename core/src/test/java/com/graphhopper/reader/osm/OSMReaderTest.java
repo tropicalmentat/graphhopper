@@ -30,7 +30,9 @@ import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.util.countryrules.CountryRuleFactory;
-import com.graphhopper.routing.util.parsers.*;
+import com.graphhopper.routing.util.parsers.CountryParser;
+import com.graphhopper.routing.util.parsers.OSMBikeNetworkTagParser;
+import com.graphhopper.routing.util.parsers.OSMRoadAccessParser;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
@@ -397,15 +399,8 @@ public class OSMReaderTest {
 
     @Test
     public void testFords() {
-        FlagEncoder car = FlagEncoders.createCar();
         GraphHopper hopper = new GraphHopper();
-        TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
-        builder.addFlagEncoder(car);
-        builder.addWayTagParser(lookup -> {
-            CarTagParser parser = new CarTagParser(lookup, new PMap("block_fords=true"));
-            parser.init(new DateRangeParser());
-            return parser;
-        });
+        hopper.setFlagEncodersString("car|block_fords=true");
         hopper.setOSMFile(getClass().getResource("test-barriers3.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(
@@ -599,13 +594,7 @@ public class OSMReaderTest {
     public void testRoadAttributes() {
         String fileRoadAttributes = "test-road-attributes.xml";
         GraphHopper hopper = new GraphHopperFacade(fileRoadAttributes);
-        TagParserBundleBuilder builder = hopper.getTagParserManagerBuilder();
-        builder.addEncodedValue(MaxWidth.create());
-        builder.addEncodedValue(MaxHeight.create());
-        builder.addEncodedValue(MaxWeight.create());
-        builder.addWayTagParser(lookup -> new OSMMaxWidthParser(lookup.getDecimalEncodedValue(MaxWidth.KEY)));
-        builder.addWayTagParser(lookup -> new OSMMaxHeightParser(lookup.getDecimalEncodedValue(MaxHeight.KEY)));
-        builder.addWayTagParser(lookup -> new OSMMaxWeightParser(lookup.getDecimalEncodedValue(MaxWeight.KEY)));
+        hopper.setEncodedValuesString("max_width,max_height,max_weight");
         hopper.importOrLoad();
 
         DecimalEncodedValue widthEnc = hopper.getEncodingManager().getDecimalEncodedValue(MaxWidth.KEY);
@@ -674,26 +663,25 @@ public class OSMReaderTest {
      */
     @Test
     public void testTurnFlagCombination() {
-        FlagEncoder car = FlagEncoders.createCar(5, 5, 24);
-        // todonow
-        FlagEncoder truck = FlagEncoders.createCar("truck", 5, 5, 24);
-//        {
-//            @Override
-//            public TransportationMode getTransportationMode() {
-//                return TransportationMode.HGV;
-//            }
-//        };
-        FlagEncoder bike = FlagEncoders.createBike(4, 2, 24, false);
-
         GraphHopper hopper = new GraphHopper();
-        // todonow: this test fails because we do not register the encoders yet
-//        hopper.getTagParserManagerBuilder().add(bike).add(truck).add(car);
+        hopper.setFlagEncoderFactory((name, config) -> {
+            if (name.equals("truck")) {
+                return new CarFlagEncoder(new PMap(config).putObject("name", "truck")) {
+                    @Override
+                    public TransportationMode getTransportationMode() {
+                        return TransportationMode.HGV;
+                    }
+                };
+            } else {
+                return new DefaultFlagEncoderFactory().createFlagEncoder(name, config);
+            }
+        });
         hopper.setOSMFile(getClass().getResource("test-multi-profile-turn-restrictions.xml").getFile()).
                 setGraphHopperLocation(dir).
                 setProfiles(
-                        new Profile("bike").setVehicle("bike").setWeighting("fastest"),
-                        new Profile("car").setVehicle("car").setWeighting("fastest"),
-                        new Profile("truck").setVehicle("truck").setWeighting("fastest")
+                        new Profile("bike").setVehicle("bike").setWeighting("fastest").setTurnCosts(true),
+                        new Profile("car").setVehicle("car").setWeighting("fastest").setTurnCosts(true),
+                        new Profile("truck").setVehicle("truck").setWeighting("fastest").setTurnCosts(true)
                 ).
                 importOrLoad();
         EncodingManager manager = hopper.getEncodingManager();
@@ -999,39 +987,9 @@ public class OSMReaderTest {
             setGraphHopperLocation(dir);
             setProfiles(
                     new Profile("foot").setVehicle("foot").setWeighting("fastest"),
-                    new Profile("car").setVehicle("car").setWeighting("fastest"),
-                    new Profile("bike").setVehicle("bike").setWeighting("fastest")
+                    new Profile("car").setVehicle("car").setWeighting("fastest").setTurnCosts(turnCosts),
+                    new Profile("bike").setVehicle("bike").setWeighting("fastest").setTurnCosts(turnCosts)
             );
-
-            FlagEncoder bikeEncoder;
-            if (turnCosts) {
-                carEncoder = FlagEncoders.createCar(5, 5, 1);
-                bikeEncoder = FlagEncoders.createBike(4, 2, 1, false);
-            } else {
-                carEncoder = FlagEncoders.createCar();
-                bikeEncoder = FlagEncoders.createBike();
-            }
-
-            footEncoder = FlagEncoders.createFoot();
-            TagParserBundleBuilder builder = getTagParserManagerBuilder();
-            builder.addFlagEncoder(footEncoder);
-            builder.addFlagEncoder(carEncoder);
-            builder.addFlagEncoder(bikeEncoder);
-            builder.addWayTagParser(lookup -> {
-                FootTagParser footTagParser = new FootTagParser(lookup, new PMap());
-                footTagParser.init(new DateRangeParser());
-                return footTagParser;
-            });
-            builder.addWayTagParser(lookup -> {
-                CarTagParser carTagParser = new CarTagParser(lookup, new PMap());
-                carTagParser.init(new DateRangeParser());
-                return carTagParser;
-            });
-            builder.addWayTagParser(lookup -> {
-                BikeTagParser bikeTagParser = new BikeTagParser(lookup, new PMap());
-                bikeTagParser.init(new DateRangeParser());
-                return bikeTagParser;
-            });
             getReaderConfig().setPreferredLanguage(prefLang);
         }
 
@@ -1040,6 +998,8 @@ public class OSMReaderTest {
             GraphHopperStorage tmpGraph = new GraphBuilder(getEncodingManager()).set3D(hasElevation()).withTurnCosts(getEncodingManager().needsTurnCostsSupport()).build();
             setGraphHopperStorage(tmpGraph);
             super.importOSM();
+            carEncoder = getEncodingManager().getEncoder("car");
+            footEncoder = getEncodingManager().getEncoder("foot");
             carAccessEnc = carEncoder.getAccessEnc();
             carOutExplorer = getGraphHopperStorage().createEdgeExplorer(AccessFilter.outEdges(carAccessEnc));
             carAllExplorer = getGraphHopperStorage().createEdgeExplorer(AccessFilter.allEdges(carAccessEnc));
