@@ -16,7 +16,7 @@ Then create the jar from sources via:
 # first download some road data
 wget http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf
 # now get the source code and create the jar in web/target
-git clone git://github.com/graphhopper/graphhopper.git
+git clone https://github.com/graphhopper/graphhopper.git
 cd graphhopper
 git checkout master # if you prefer a less moving branch you can use e.g. 4.x
 mvn clean install -DskipTests
